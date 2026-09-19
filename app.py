@@ -23,6 +23,7 @@ state_lock = threading.Lock()
 # ============================================================
 
 system_state = {
+
     # -------------------------
     # General
     # -------------------------
@@ -77,7 +78,7 @@ system_state = {
     "machine_rpm": 1498,
 
     # -------------------------
-    # USB REAL-WORLD MONITORING
+    # USB monitoring
     # -------------------------
     "usb_connected": False,
     "usb_drive": "",
@@ -97,6 +98,20 @@ system_state = {
 
 
 # ============================================================
+# USB REAL-WORLD STATE
+# This is used by the new USB front page.
+# ============================================================
+
+usb_state = {
+    "connected": False,
+    "status": "WAITING",
+    "device": None,
+    "scan": None,
+    "last_update": None
+}
+
+
+# ============================================================
 # DEMO MODE
 # ============================================================
 
@@ -108,6 +123,7 @@ demo_mode = "normal"
 # ============================================================
 
 def update_timestamp():
+
     system_state["last_update"] = datetime.now().strftime(
         "%Y-%m-%d %H:%M:%S"
     )
@@ -159,7 +175,10 @@ def generate_live_data():
             )
 
             system_state["status"] = "PROTECTED"
-            system_state["incident"] = "No active security incident"
+
+            system_state["incident"] = (
+                "No active security incident"
+            )
 
         # ----------------------------------------------------
         # CYBER TEST MODE
@@ -226,30 +245,32 @@ def generate_live_data():
 
 # ============================================================
 # HOME PAGE
+# New USB-first front page
 # ============================================================
 
 @app.route("/")
 def home():
-    return render_template("dashboard.html")
+
+    return render_template("index.html")
 
 
 # ============================================================
-# DASHBOARD
+# EXISTING SECURITY DASHBOARD
 # ============================================================
 
 @app.route("/dashboard")
 def dashboard():
+
     return render_template("dashboard.html")
 
 
 # ============================================================
-# API - CURRENT STATUS
+# API - CURRENT DASHBOARD STATUS
 # ============================================================
 
 @app.route("/api/status")
 def api_status():
 
-    # Update simulated values
     generate_live_data()
 
     with state_lock:
@@ -259,14 +280,176 @@ def api_status():
 
 
 # ============================================================
+# API - USB STATUS
+# Used by index.html
+# ============================================================
+
+@app.route("/api/usb-status")
+def usb_status():
+
+    with state_lock:
+        data = dict(usb_state)
+
+    return jsonify(data)
+
+
+# ============================================================
 # API - USB EVENT
-# REAL HARDWARE CONNECTION
+#
+# Supports both:
+#
+# 1. Old USB agent format:
+#    {
+#       "event": "connected",
+#       "drive": "D:"
+#    }
+#
+# 2. New USB scan format:
+#    {
+#       "connected": true,
+#       "status": "SCAN_COMPLETE",
+#       "device": {...},
+#       "scan": {...}
+#    }
 # ============================================================
 
 @app.route("/api/usb-event", methods=["POST"])
 def usb_event():
 
     data = request.get_json(silent=True) or {}
+
+    # --------------------------------------------------------
+    # New USB agent format
+    # --------------------------------------------------------
+
+    if "connected" in data:
+
+        connected = bool(
+            data.get("connected", False)
+        )
+
+        status = data.get(
+            "status",
+            "UNKNOWN"
+        )
+
+        device = data.get(
+            "device"
+        )
+
+        scan = data.get(
+            "scan"
+        )
+
+        timestamp = data.get(
+            "timestamp",
+            datetime.now().isoformat()
+        )
+
+        with state_lock:
+
+            usb_state["connected"] = connected
+            usb_state["status"] = status
+            usb_state["device"] = device
+            usb_state["scan"] = scan
+            usb_state["last_update"] = timestamp
+
+            # Update existing dashboard USB information
+            system_state["usb_connected"] = connected
+
+            if device:
+
+                system_state["usb_drive"] = (
+                    device.get("drive", "")
+                )
+
+            system_state["usb_time"] = timestamp
+
+            if connected:
+
+                system_state["usb_event"] = (
+                    "USB DEVICE DETECTED"
+                )
+
+                system_state["usb_activity"] = (
+                    "USB DEVICE CONNECTED"
+                )
+
+                if device:
+
+                    drive = device.get(
+                        "drive",
+                        "USB"
+                    )
+
+                    system_state["incident"] = (
+                        f"USB device detected on {drive}"
+                    )
+
+                # If scan found suspicious items,
+                # reflect that in dashboard status.
+                if scan:
+
+                    suspicious_count = scan.get(
+                        "suspicious_count",
+                        0
+                    )
+
+                    if suspicious_count > 0:
+
+                        system_state["usb_event"] = (
+                            "USB SUSPICIOUS CONTENT"
+                        )
+
+                        system_state["incident"] = (
+                            "Suspicious USB content detected"
+                        )
+
+                        system_state["risk"] = max(
+                            system_state["risk"],
+                            45
+                        )
+
+                    else:
+
+                        system_state["risk"] = max(
+                            system_state["risk"],
+                            25
+                        )
+
+            else:
+
+                system_state["usb_drive"] = ""
+
+                system_state["usb_event"] = (
+                    "USB DEVICE REMOVED"
+                )
+
+                system_state["usb_activity"] = (
+                    "USB DEVICE REMOVED"
+                )
+
+                system_state["incident"] = (
+                    "USB device removed from endpoint"
+                )
+
+            system_state["events"] += 1
+
+            update_timestamp()
+
+            response_data = dict(system_state)
+
+        return jsonify({
+            "success": True,
+            "message": "USB scan event received",
+            "data": response_data,
+            "usb": usb_state
+        })
+
+
+    # --------------------------------------------------------
+    # Old USB agent format
+    # --------------------------------------------------------
 
     event = data.get(
         "event",
@@ -291,6 +474,19 @@ def usb_event():
 
         if event == "connected":
 
+            usb_state["connected"] = True
+
+            usb_state["status"] = "CONNECTED"
+
+            usb_state["device"] = {
+                "drive": drive,
+                "label": "USB DEVICE"
+            }
+
+            usb_state["scan"] = None
+
+            usb_state["last_update"] = timestamp
+
             system_state["usb_connected"] = True
 
             system_state["usb_drive"] = drive
@@ -307,7 +503,6 @@ def usb_event():
                 f"USB device detected on {drive}"
             )
 
-            # Increase risk slightly for visibility
             system_state["risk"] = max(
                 system_state["risk"],
                 32
@@ -318,11 +513,22 @@ def usb_event():
                 28
             )
 
+
         # ----------------------------------------------------
         # USB REMOVED
         # ----------------------------------------------------
 
         elif event == "removed":
+
+            usb_state["connected"] = False
+
+            usb_state["status"] = "REMOVED"
+
+            usb_state["device"] = None
+
+            usb_state["scan"] = None
+
+            usb_state["last_update"] = timestamp
 
             system_state["usb_connected"] = False
 
@@ -340,6 +546,7 @@ def usb_event():
                 "USB device removed from endpoint"
             )
 
+
         # ----------------------------------------------------
         # UNKNOWN EVENT
         # ----------------------------------------------------
@@ -354,6 +561,10 @@ def usb_event():
                 "UNKNOWN USB EVENT"
             )
 
+            usb_state["status"] = (
+                "UNKNOWN EVENT"
+            )
+
         system_state["usb_time"] = timestamp
 
         system_state["events"] += 1
@@ -365,7 +576,8 @@ def usb_event():
     return jsonify({
         "success": True,
         "message": "USB event received by IronMind AI",
-        "data": response_data
+        "data": response_data,
+        "usb": usb_state
     })
 
 
@@ -383,6 +595,7 @@ def cyber_test():
     generate_live_data()
 
     with state_lock:
+
         system_state["blocked"] += random.randint(
             1,
             3
@@ -465,8 +678,13 @@ def reset_system():
         system_state["machine_vibration"] = 1.2
         system_state["machine_rpm"] = 1498
 
-        system_state["usb_activity"] = "NO USB EVENT"
-        system_state["usb_event"] = "NO USB EVENT"
+        system_state["usb_activity"] = (
+            "NO USB EVENT"
+        )
+
+        system_state["usb_event"] = (
+            "NO USB EVENT"
+        )
 
         system_state["events"] = 18
 
@@ -498,7 +716,7 @@ def health():
 
 # ============================================================
 # RUN LOCAL SERVER
-# Render uses Gunicorn instead of this section.
+# Render uses Gunicorn instead.
 # ============================================================
 
 if __name__ == "__main__":
