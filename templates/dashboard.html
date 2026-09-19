@@ -1,411 +1,553 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>IronMind AI | Cyber Defense</title>
+    <title>IronMind AI | Security Dashboard</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='dashboard.css') }}">
 
+    <style>
+        /* =====================================================
+           USB SECURITY PANEL
+           ===================================================== */
+
+        .usb-panel {
+            margin-top: 24px;
+            background: #0b1119;
+            border: 1px solid #1d2b3a;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .usb-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .usb-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .usb-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111d29;
+            font-size: 20px;
+        }
+
+        .usb-title h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .usb-title p {
+            margin: 4px 0 0;
+            color: #718296;
+            font-size: 11px;
+        }
+
+        .usb-status {
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: #18212b;
+            color: #8191a0;
+        }
+
+        .usb-status.connected {
+            background: rgba(30, 220, 140, 0.10);
+            color: #35e69a;
+            border: 1px solid rgba(30, 220, 140, 0.20);
+        }
+
+        .usb-status.warning {
+            background: rgba(255, 180, 50, 0.10);
+            color: #ffc04d;
+            border: 1px solid rgba(255, 180, 50, 0.20);
+        }
+
+        .usb-status.danger {
+            background: rgba(255, 65, 85, 0.10);
+            color: #ff6878;
+            border: 1px solid rgba(255, 65, 85, 0.20);
+        }
+
+        .usb-waiting {
+            text-align: center;
+            padding: 28px;
+            color: #657688;
+            font-size: 13px;
+        }
+
+        .usb-device-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .usb-stat {
+            background: #080e15;
+            border: 1px solid #182634;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .usb-stat-label {
+            color: #687b8e;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .usb-stat-value {
+            color: #e8f1f8;
+            font-size: 14px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .usb-risk {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #080e15;
+            border: 1px solid #182634;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .usb-risk-label {
+            color: #7d8e9f;
+            font-size: 11px;
+        }
+
+        .usb-risk-value {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .usb-risk-low {
+            color: #35e69a;
+        }
+
+        .usb-risk-medium {
+            color: #ffc04d;
+        }
+
+        .usb-risk-high {
+            color: #ff6878;
+        }
+
+        .usb-files {
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .usb-files table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .usb-files th {
+            text-align: left;
+            padding: 10px;
+            color: #617487;
+            border-bottom: 1px solid #182634;
+        }
+
+        .usb-files td {
+            padding: 11px 10px;
+            color: #b9c6d1;
+            border-bottom: 1px solid #111d28;
+        }
+
+        .usb-clean {
+            color: #35e69a;
+        }
+
+        .usb-suspicious {
+            color: #ff6878;
+            font-weight: bold;
+        }
+
+        @media (max-width: 900px) {
+            .usb-device-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .usb-device-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .usb-panel-header {
+                align-items: flex-start;
+                gap: 12px;
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="app">
-
-<!-- =====================================================
+<!-- =========================================================
      SIDEBAR
-====================================================== -->
+     ========================================================= -->
 
-<aside class="sidebar">
+<div class="sidebar">
 
-    <div class="brand">
-
-        <div class="brand-icon">
-            IM
-        </div>
-
-        <div>
-            <h1>IRONMIND AI</h1>
-            <span>AI SECURITY PLATFORM</span>
-        </div>
-
+    <div class="logo">
+        <div class="logo-main">IRONMIND <span>AI</span></div>
+        <div class="logo-sub">CYBER DEFENSE PLATFORM</div>
     </div>
 
-
-    <div class="online">
-
-        <span class="online-dot"></span>
-
-        SYSTEM ONLINE
-
+    <div class="nav-item active" data-page="dashboard">
+        <span>◈</span>
+        Dashboard
     </div>
 
+    <div class="nav-item" data-page="threats">
+        <span>⚠</span>
+        Threats
+    </div>
 
-    <nav class="sidebar-nav">
+    <div class="nav-item" data-page="endpoints">
+        <span>▣</span>
+        Endpoints
+    </div>
 
-        <button class="nav-item active"
-                data-page="dashboard">
+    <div class="nav-item" data-page="cloud">
+        <span>☁</span>
+        Cloud
+    </div>
 
-            <span>◉</span>
-            Dashboard
+    <div class="nav-item" data-page="network">
+        <span>⌁</span>
+        Network
+    </div>
 
-        </button>
+    <div class="nav-item" data-page="iot">
+        <span>◉</span>
+        IoT / Sensors
+    </div>
 
+    <div class="nav-item" data-page="ai">
+        <span>✦</span>
+        AI Intelligence
+    </div>
 
-        <button class="nav-item"
-                data-page="threats">
-
-            <span>⚠</span>
-            Threats
-
-        </button>
-
-
-        <button class="nav-item"
-                data-page="endpoints">
-
-            <span>▣</span>
-            Endpoints
-
-        </button>
-
-
-        <button class="nav-item"
-                data-page="cloud">
-
-            <span>☁</span>
-            Cloud
-
-        </button>
-
-
-        <button class="nav-item"
-                data-page="network">
-
-            <span>⌁</span>
-            Network
-
-        </button>
-
-
-        <button class="nav-item"
-                data-page="iot">
-
-            <span>◈</span>
-            IoT / OT
-
-        </button>
-
-
-        <button class="nav-item"
-                data-page="ai">
-
-            <span>✦</span>
-            AI Intelligence
-
-        </button>
-
-
-        <button class="nav-item"
-                data-page="reports">
-
-            <span>▤</span>
-            Reports
-
-        </button>
-
-    </nav>
-
+    <div class="nav-item" data-page="reports">
+        <span>▤</span>
+        Reports
+    </div>
 
     <div class="sidebar-bottom">
+        <div class="system-status">
+            <span class="status-dot"></span>
+            SYSTEM OPERATIONAL
+        </div>
+    </div>
 
-        <span>AI ENGINE</span>
+</div>
 
-        <strong>ACTIVE</strong>
+
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+
+<div class="main">
+
+    <!-- TOP BAR -->
+
+    <div class="topbar">
+
+        <div>
+            <h1>Security Dashboard</h1>
+            <p>IRONMIND AI CYBER DEFENSE & INTELLIGENCE</p>
+        </div>
+
+        <div class="topbar-right">
+            <span id="connectionStatus">● LIVE</span>
+            <span id="currentTime"></span>
+        </div>
 
     </div>
 
-</aside>
 
+    <!-- =====================================================
+         DASHBOARD PAGE
+         ===================================================== -->
 
-<!-- =====================================================
-     MAIN
-====================================================== -->
+    <div class="page active" id="page-dashboard">
 
-<main class="main">
+        <!-- METRICS -->
 
+        <div class="metrics">
 
-<!-- =====================================================
-     DASHBOARD
-====================================================== -->
-
-<section id="dashboard"
-         class="page active-page">
-
-    <header class="topbar">
-
-        <div>
-
-            <div class="page-label">
-                SECURITY OPERATIONS CENTER
+            <div class="metric-card">
+                <div class="metric-label">RISK SCORE</div>
+                <div class="metric-value" id="risk">24</div>
+                <div class="metric-sub" id="riskLabel">LOW RISK</div>
             </div>
 
-            <h2>
-                Cyber Defense Dashboard
-            </h2>
-
-            <p>
-                AI-powered cyber, endpoint and IoT intelligence
-            </p>
-
-        </div>
-
-
-        <div class="top-status">
-
-            <span class="status-dot"></span>
-
-            LIVE MONITORING
-
-        </div>
-
-    </header>
-
-
-    <!-- METRICS -->
-
-    <section class="metrics">
-
-        <div class="metric-card">
-
-            <span>SYSTEM RISK</span>
-
-            <strong id="risk">
-                18
-            </strong>
-
-            <small id="riskLabel">
-                LOW RISK
-            </small>
-
-        </div>
-
-
-        <div class="metric-card">
-
-            <span>AI RISK SCORE</span>
-
-            <strong id="aiRisk">
-                22
-            </strong>
-
-            <small>
-                AI ANALYSIS
-            </small>
-
-        </div>
-
-
-        <div class="metric-card">
-
-            <span>ACTIVE THREATS</span>
-
-            <strong id="threats">
-                0
-            </strong>
-
-            <small>
-                MONITORED
-            </small>
-
-        </div>
-
-
-        <div class="metric-card">
-
-            <span>BLOCKED</span>
-
-            <strong id="blocked">
-                24
-            </strong>
-
-            <small>
-                PROTECTED
-            </small>
-
-        </div>
-
-    </section>
-
-
-    <!-- MAIN GRID -->
-
-    <section class="dashboard-grid">
-
-
-        <!-- THREAT OVERVIEW -->
-
-        <div class="panel threat-overview">
-
-            <div class="panel-title">
-
-                <div>
-
-                    <span class="eyebrow">
-                        REAL-TIME SECURITY
-                    </span>
-
-                    <h3>
-                        Threat Overview
-                    </h3>
-
-                </div>
-
-                <span class="live-badge">
-                    ● LIVE
-                </span>
-
+            <div class="metric-card">
+                <div class="metric-label">AI RISK INDEX</div>
+                <div class="metric-value" id="aiRisk">18</div>
+                <div class="metric-sub">AI ANALYSIS</div>
             </div>
 
-
-            <div class="chart">
-
-                <svg viewBox="0 0 600 180"
-                     preserveAspectRatio="none">
-
-                    <polyline
-                        id="chartLine"
-                        points="0,130 80,110 160,120 240,80 320,100 400,65 480,90 600,50"
-                        fill="none"
-                        stroke="#138cff"
-                        stroke-width="3">
-                    </polyline>
-
-                </svg>
-
-                <div class="chart-grid"></div>
-
-                <div class="chart-labels">
-
-                    <span>00:00</span>
-                    <span>04:00</span>
-                    <span>08:00</span>
-                    <span>12:00</span>
-                    <span>16:00</span>
-                    <span>20:00</span>
-
-                </div>
-
+            <div class="metric-card">
+                <div class="metric-label">THREATS DETECTED</div>
+                <div class="metric-value" id="threats">0</div>
+                <div class="metric-sub">ACTIVE EVENTS</div>
             </div>
 
-
-            <div class="threat-counts">
-
-                <div>
-                    <span class="red">
-                        CRITICAL
-                    </span>
-
-                    <strong id="critical">
-                        2
-                    </strong>
-                </div>
-
-                <div>
-                    <span class="orange">
-                        HIGH
-                    </span>
-
-                    <strong id="high">
-                        8
-                    </strong>
-                </div>
-
-                <div>
-                    <span class="yellow">
-                        MEDIUM
-                    </span>
-
-                    <strong id="medium">
-                        21
-                    </strong>
-                </div>
-
-                <div>
-                    <span class="green">
-                        LOW
-                    </span>
-
-                    <strong id="low">
-                        57
-                    </strong>
-                </div>
-
+            <div class="metric-card">
+                <div class="metric-label">THREATS BLOCKED</div>
+                <div class="metric-value" id="blocked">24</div>
+                <div class="metric-sub">PROTECTED</div>
             </div>
 
         </div>
 
 
-        <!-- GLOBAL THREAT MAP -->
+        <!-- =================================================
+             USB SECURITY
+             ================================================= -->
 
-        <div class="panel world-panel">
+        <div class="usb-panel">
 
-            <div class="panel-title">
+            <div class="usb-panel-header">
 
-                <div>
+                <div class="usb-title">
 
-                    <span class="eyebrow">
-                        REAL-TIME ATTACK VISUALIZATION
-                    </span>
-
-                    <h3>
-                        Global Threat Map
-                    </h3>
-
-                </div>
-
-                <span class="map-status">
-                    ALL THREATS
-                </span>
-
-            </div>
-
-
-            <div class="world-map">
-
-                <div class="map-grid"></div>
-
-                <div class="continent">
-                    🌎
-                </div>
-
-                <div class="attack a1"></div>
-                <div class="attack a2"></div>
-                <div class="attack a3"></div>
-                <div class="attack a4"></div>
-                <div class="attack a5"></div>
-
-
-                <div class="shield">
-
-                    <div class="shield-icon">
-                        🔒
+                    <div class="usb-icon">
+                        🔌
                     </div>
 
-                    <strong>
-                        SYSTEM PROTECTED
-                    </strong>
+                    <div>
+                        <h2>USB Threat Intelligence</h2>
+                        <p>
+                            Real-time removable-device monitoring
+                        </p>
+                    </div>
 
-                    <span>
-                        AI THREAT DETECTION ACTIVE
-                    </span>
+                </div>
+
+                <div
+                    id="usbStatusBadge"
+                    class="usb-status">
+                    WAITING
+                </div>
+
+            </div>
+
+
+            <!-- WAITING STATE -->
+
+            <div id="usbWaiting" class="usb-waiting">
+
+                <div style="font-size:28px; margin-bottom:10px;">
+                    🔌
+                </div>
+
+                No USB device detected.
+
+                <br>
+
+                <span style="font-size:11px;">
+                    Connect a USB device to begin inspection.
+                </span>
+
+            </div>
+
+
+            <!-- CONNECTED DEVICE -->
+
+            <div id="usbConnected" style="display:none;">
+
+                <div class="usb-device-grid">
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Device
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbDeviceName">
+                            —
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Drive
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbDrive">
+                            —
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Filesystem
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbFilesystem">
+                            —
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Scan Status
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbScanStatus">
+                            —
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Files Scanned
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbFilesScanned">
+                            0
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Suspicious Files
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbSuspicious">
+                            0
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Total Size
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbTotalSize">
+                            —
+                        </div>
+                    </div>
+
+
+                    <div class="usb-stat">
+                        <div class="usb-stat-label">
+                            Free Space
+                        </div>
+
+                        <div
+                            class="usb-stat-value"
+                            id="usbFreeSpace">
+                            —
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- RISK -->
+
+                <div class="usb-risk">
+
+                    <div>
+                        <div class="usb-risk-label">
+                            USB SECURITY RISK
+                        </div>
+
+                        <div
+                            style="margin-top:5px;"
+                            id="usbRiskMessage">
+                            Analysis complete
+                        </div>
+                    </div>
+
+                    <div
+                        id="usbRiskValue"
+                        class="usb-risk-value usb-risk-low">
+                        LOW
+                    </div>
+
+                </div>
+
+
+                <!-- SUSPICIOUS FILES -->
+
+                <div
+                    id="usbFilesSection"
+                    class="usb-files"
+                    style="display:none;">
+
+                    <div
+                        style="
+                        font-size:12px;
+                        font-weight:bold;
+                        margin-bottom:10px;
+                        color:#dce6ee;
+                        ">
+                        SUSPICIOUS FILES
+                    </div>
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>FILE</th>
+                                <th>REASON</th>
+                                <th>RISK</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="usbSuspiciousTable">
+                        </tbody>
+
+                    </table>
 
                 </div>
 
@@ -414,76 +556,72 @@
         </div>
 
 
-        <!-- AI ENGINE -->
+        <!-- =================================================
+             EXISTING DASHBOARD SECTIONS
+             ================================================= -->
+
+        <div class="dashboard-grid">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h2>Threat Overview</h2>
+                    <span>LIVE</span>
+                </div>
+
+                <canvas id="threatChart"></canvas>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h2>Global Threat Map</h2>
+                    <span>REAL TIME</span>
+                </div>
+
+                <div class="map-placeholder">
+                    <div class="map-grid">
+                        <span>●</span>
+                        <span>●</span>
+                        <span>●</span>
+                        <span>●</span>
+                        <span>●</span>
+                    </div>
+
+                    <div class="map-label">
+                        GLOBAL THREAT ACTIVITY
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- AI PROCESSING -->
 
         <div class="panel ai-panel">
 
-            <div class="panel-title">
-
-                <div>
-
-                    <span class="eyebrow">
-                        AI-POWERED ANALYSIS
-                    </span>
-
-                    <h3>
-                        Threat Detection Engine
-                    </h3>
-
-                </div>
-
+            <div class="panel-header">
+                <h2>AI Threat Intelligence</h2>
+                <span>ACTIVE</span>
             </div>
 
+            <div class="ai-processing">
 
-            <div class="brain">
-                ◉
-            </div>
-
-
-            <div class="ai-list">
-
-                <div>
-                    <span>◉</span>
-                    Behavior Analysis
+                <div class="ai-circle">
+                    AI
                 </div>
 
                 <div>
-                    <span>◉</span>
-                    Anomaly Detection
-                </div>
+                    <h3>IRONMIND ANALYSIS ENGINE</h3>
 
-                <div>
-                    <span>◉</span>
-                    ML Classification
-                </div>
-
-                <div>
-                    <span>◉</span>
-                    Threat Scoring
-                </div>
-
-            </div>
-
-
-            <div class="progress-area">
-
-                <div>
-
-                    <span>
-                        AI PROCESSING
-                    </span>
-
-                    <b id="aiProcessing">
-                        87%
-                    </b>
-
-                </div>
-
-
-                <div class="progress">
-
-                    <div id="aiProgress"></div>
-
+                    <p>
+                        Continuously analyzing cyber,
+                        USB, machine and network telemetry.
+                    </p>
                 </div>
 
             </div>
@@ -493,112 +631,17 @@
 
         <!-- ACTIVE THREATS -->
 
-        <div class="panel active-threats">
+        <div class="panel">
 
-            <div class="panel-title">
-
-                <div>
-
-                    <span class="eyebrow">
-                        LIVE SECURITY EVENTS
-                    </span>
-
-                    <h3>
-                        Active Threats
-                    </h3>
-
-                </div>
-
-                <span class="live-badge">
-                    LIVE
-                </span>
-
+            <div class="panel-header">
+                <h2>Active Threats</h2>
+                <span id="activeThreatCount">0 ACTIVE</span>
             </div>
 
+            <div id="activeThreats">
 
-            <div class="threat-list">
-
-                <div class="threat-row critical">
-
-                    <span>CRITICAL</span>
-
-                    <div>
-                        <strong>
-                            Ransomware Detection
-                        </strong>
-
-                        <small>
-                            Endpoint / LAPTOP-01
-                        </small>
-                    </div>
-
-                    <time>
-                        LIVE
-                    </time>
-
-                </div>
-
-
-                <div class="threat-row high">
-
-                    <span>HIGH</span>
-
-                    <div>
-                        <strong>
-                            Unauthorized Access
-                        </strong>
-
-                        <small>
-                            Network / Gateway
-                        </small>
-                    </div>
-
-                    <time>
-                        LIVE
-                    </time>
-
-                </div>
-
-
-                <div class="threat-row high">
-
-                    <span>HIGH</span>
-
-                    <div>
-                        <strong>
-                            USB Data Transfer
-                        </strong>
-
-                        <small>
-                            Confidential file monitoring
-                        </small>
-                    </div>
-
-                    <time>
-                        LIVE
-                    </time>
-
-                </div>
-
-
-                <div class="threat-row medium">
-
-                    <span>MED</span>
-
-                    <div>
-                        <strong>
-                            Suspicious Login
-                        </strong>
-
-                        <small>
-                            Unknown device
-                        </small>
-                    </div>
-
-                    <time>
-                        LIVE
-                    </time>
-
+                <div class="empty-threat">
+                    No active threats detected.
                 </div>
 
             </div>
@@ -608,1137 +651,490 @@
 
         <!-- ATTACK VECTORS -->
 
-        <div class="panel attack-panel">
+        <div class="panel">
 
-            <div class="panel-title">
-
-                <div>
-
-                    <span class="eyebrow">
-                        THREAT ANALYSIS
-                    </span>
-
-                    <h3>
-                        Top Attack Vectors
-                    </h3>
-
-                </div>
-
+            <div class="panel-header">
+                <h2>Attack Vectors</h2>
+                <span>MONITORING</span>
             </div>
 
+            <div class="attack-vectors">
 
-            <div class="attack-bars">
-
-                <div class="bar-row">
-
-                    <span>Malware</span>
-
-                    <div>
-                        <i id="malwareBar"
-                           style="width:86%">
-                        </i>
+                <div class="vector">
+                    <span>USB</span>
+                    <div class="bar">
+                        <div id="usbVector" style="width:10%;"></div>
                     </div>
-
-                    <b id="malwareValue">
-                        36.7%
-                    </b>
-
                 </div>
 
-
-                <div class="bar-row">
-
-                    <span>Phishing</span>
-
-                    <div>
-                        <i id="phishingBar"
-                           style="width:68%">
-                        </i>
+                <div class="vector">
+                    <span>Network</span>
+                    <div class="bar">
+                        <div id="networkVector" style="width:15%;"></div>
                     </div>
-
-                    <b id="phishingValue">
-                        24.1%
-                    </b>
-
                 </div>
 
-
-                <div class="bar-row">
-
-                    <span>Exploits</span>
-
-                    <div>
-                        <i id="exploitBar"
-                           style="width:48%">
-                        </i>
+                <div class="vector">
+                    <span>Endpoint</span>
+                    <div class="bar">
+                        <div id="endpointVector" style="width:20%;"></div>
                     </div>
-
-                    <b id="exploitValue">
-                        17.3%
-                    </b>
-
                 </div>
 
-
-                <div class="bar-row">
-
-                    <span>Unauthorized</span>
-
-                    <div>
-                        <i id="unauthorizedBar"
-                           style="width:38%">
-                        </i>
+                <div class="vector">
+                    <span>IoT</span>
+                    <div class="bar">
+                        <div id="iotVector" style="width:8%;"></div>
                     </div>
-
-                    <b id="unauthorizedValue">
-                        12.6%
-                    </b>
-
                 </div>
 
             </div>
 
         </div>
 
-    </section>
 
+        <!-- SYSTEM MODULES -->
 
-    <!-- BOTTOM CARDS -->
+        <div class="module-grid">
 
-    <section class="bottom-grid">
-
-        <div class="system-card">
-
-            <span>ENDPOINTS</span>
-
-            <strong id="endpoints">
-                7,892
-            </strong>
-
-            <small>SECURE</small>
-
-            <div class="mini-chart"></div>
-
-        </div>
-
-
-        <div class="system-card">
-
-            <span>CLOUD SYSTEMS</span>
-
-            <strong id="cloud">
-                1,256
-            </strong>
-
-            <small>SECURE</small>
-
-            <div class="mini-chart"></div>
-
-        </div>
-
-
-        <div class="system-card">
-
-            <span>NETWORK</span>
-
-            <strong id="networkDevices">
-                4,325
-            </strong>
-
-            <small>PROTECTED</small>
-
-            <div class="mini-chart"></div>
-
-        </div>
-
-
-        <div class="system-card">
-
-            <span>COMPLIANCE</span>
-
-            <div class="compliance">
-
-                <div>
-                    <b>ISO</b>
-                    <small>27001</small>
-                </div>
-
-                <div>
-                    <b>SOC</b>
-                    <small>2</small>
-                </div>
-
-                <div>
-                    <b>GDPR</b>
-                    <small>OK</small>
-                </div>
-
+            <div class="module-card">
+                <span>🖥</span>
+                <h3>Endpoints</h3>
+                <p>Endpoint security monitoring</p>
             </div>
 
-        </div>
-
-    </section>
-
-
-    <!-- CONTROLS -->
-
-    <section class="controls">
-
-        <button onclick="runCyberTest()">
-            ⚡ RUN CYBER TEST
-        </button>
-
-        <button onclick="runMachineTest()">
-            ⚙ RUN MACHINE TEST
-        </button>
-
-        <button onclick="resetSystem()">
-            ↻ RESET SYSTEM
-        </button>
-
-    </section>
-
-
-    <!-- INCIDENT -->
-
-    <div class="incident-box">
-
-        <div>
-
-            <span>INCIDENT STATUS</span>
-
-            <strong id="incident">
-                NO ACTIVE INCIDENT
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span>AI ENGINE</span>
-
-            <strong id="aiStatus">
-                ACTIVE
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span>ENDPOINT</span>
-
-            <strong id="endpointStatus">
-                SECURE
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span>NETWORK</span>
-
-            <strong id="networkStatus">
-                MONITORING
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span>IoT / OT</span>
-
-            <strong id="iotStatus">
-                READY
-            </strong>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     THREATS PAGE
-====================================================== -->
-
-<section id="threats"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                SECURITY INTELLIGENCE
-            </span>
-
-            <h2>
-                Threat Intelligence
-            </h2>
-
-            <p>
-                Real-time cyber threat detection and analysis
-            </p>
-
-        </div>
-
-        <span class="top-status">
-            <span class="status-dot"></span>
-            LIVE
-        </span>
-
-    </div>
-
-
-    <div class="module-cards">
-
-        <div class="module-card">
-            <span>ACTIVE THREATS</span>
-            <strong id="moduleThreats">0</strong>
-            <small>MONITORED</small>
-        </div>
-
-        <div class="module-card">
-            <span>CRITICAL</span>
-            <strong id="moduleCritical">2</strong>
-            <small>HIGH PRIORITY</small>
-        </div>
-
-        <div class="module-card">
-            <span>BLOCKED</span>
-            <strong id="moduleBlocked">24</strong>
-            <small>PREVENTED</small>
-        </div>
-
-        <div class="module-card">
-            <span>SYSTEM RISK</span>
-            <strong id="moduleRisk">18</strong>
-            <small>AI SCORE</small>
-        </div>
-
-    </div>
-
-
-    <div class="module-panel">
-
-        <div class="module-title">
-            <span class="eyebrow">
-                LIVE THREAT ANALYSIS
-            </span>
-
-            <h3>
-                Security Events
-            </h3>
-        </div>
-
-
-        <div class="large-threat-list">
-
-            <div class="large-threat">
-                <span class="critical-tag">
-                    CRITICAL
-                </span>
-
-                <div>
-                    <strong>
-                        Ransomware Detection
-                    </strong>
-
-                    <p>
-                        AI behavior analysis identified
-                        abnormal endpoint activity.
-                    </p>
-                </div>
-
-                <b>
-                    BLOCKED
-                </b>
+            <div class="module-card">
+                <span>☁</span>
+                <h3>Cloud</h3>
+                <p>Cloud security intelligence</p>
             </div>
 
-
-            <div class="large-threat">
-                <span class="high-tag">
-                    HIGH
-                </span>
-
-                <div>
-                    <strong>
-                        Suspicious USB Transfer
-                    </strong>
-
-                    <p>
-                        Confidential-data transfer
-                        monitoring is active.
-                    </p>
-                </div>
-
-                <b>
-                    MONITORED
-                </b>
+            <div class="module-card">
+                <span>⌁</span>
+                <h3>Network</h3>
+                <p>Network anomaly monitoring</p>
             </div>
 
-
-            <div class="large-threat">
-                <span class="medium-tag">
-                    MEDIUM
-                </span>
-
-                <div>
-                    <strong>
-                        Unusual Login
-                    </strong>
-
-                    <p>
-                        Login behavior is being analyzed
-                        by the AI engine.
-                    </p>
-                </div>
-
-                <b>
-                    ANALYZING
-                </b>
-            </div>
-
-        </div>
-
-
-        <div class="module-actions">
-
-            <button onclick="runCyberTest()">
-                ⚡ SIMULATE CYBER THREAT
-            </button>
-
-            <button onclick="resetSystem()">
-                ↻ CLEAR INCIDENT
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     ENDPOINTS
-====================================================== -->
-
-<section id="endpoints"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                ENDPOINT SECURITY
-            </span>
-
-            <h2>
-              Endpoint Protection
-            </h2>
-
-            <p>
-                Laptop and device security monitoring
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="module-cards">
-
-        <div class="module-card">
-
-            <span>PROTECTED ENDPOINTS</span>
-
-            <strong id="endpointModuleValue">
-                7892
-            </strong>
-
-            <small>SECURE</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>THREATS</span>
-
-            <strong id="endpointThreats">
-                0
-            </strong>
-
-            <small>DETECTED</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>CPU</span>
-
-            <strong id="cpuValue">
-                34%
-            </strong>
-
-            <small>LIVE</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>MEMORY</span>
-
-            <strong id="memoryValue">
-                52%
-            </strong>
-
-            <small>LIVE</small>
-
-        </div>
-
-    </div>
-
-
-    <div class="module-panel">
-
-        <div class="endpoint-monitor">
-
-            <div class="monitor-icon">
-                💻
-            </div>
-
-            <h3>
-                LAPTOP ENDPOINT MONITOR
-            </h3>
-
-            <p>
-                IronMind continuously monitors endpoint
-                activity, system load and suspicious
-                behavior.
-            </p>
-
-            <div class="monitor-grid">
-
-                <div>
-                    <span>DEVICE</span>
-                    <b>LAPTOP-01</b>
-                </div>
-
-                <div>
-                    <span>PROTECTION</span>
-                    <b class="green-text">ACTIVE</b>
-                </div>
-
-                <div>
-                    <span>USB MONITOR</span>
-                    <b id="usbStatus">NORMAL</b>
-                </div>
-
+            <div class="module-card">
+                <span>⚙</span>
+                <h3>IoT / Sensors</h3>
+                <p>Machine and sensor telemetry</p>
             </div>
 
         </div>
 
     </div>
 
-</section>
 
+    <!-- =====================================================
+         OTHER PAGES
+         ===================================================== -->
 
-<!-- =====================================================
-     CLOUD
-====================================================== -->
-
-<section id="cloud"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                CLOUD SECURITY
-            </span>
-
-            <h2>
-                Cloud Security
-            </h2>
-
-            <p>
-                Cloud infrastructure monitoring
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="module-cards">
-
-        <div class="module-card">
-
-            <span>CLOUD SYSTEMS</span>
-
-            <strong id="cloudModuleValue">
-                1256
-            </strong>
-
-            <small>SECURE</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>CLOUD RISK</span>
-
-            <strong id="cloudRisk">
-                18
-            </strong>
-
-            <small>AI ANALYSIS</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>STATUS</span>
-
-            <strong>
-                SECURE
-            </strong>
-
-            <small>MONITORING</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>AI ENGINE</span>
-
-            <strong>
-                ACTIVE
-            </strong>
-
-            <small>ANALYZING</small>
-
-        </div>
-
-    </div>
-
-
-    <div class="module-panel">
-
-        <div class="cloud-visual">
-
-            <div class="cloud-icon">
-                ☁
+    <div class="page" id="page-threats">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Threat Intelligence</h2>
             </div>
-
-            <h3>
-                CLOUD INFRASTRUCTURE PROTECTED
-            </h3>
-
-            <p>
-                IronMind AI analyzes cloud activity,
-                access behavior and abnormal events.
-            </p>
-
+            <p>Threat monitoring and incident analysis.</p>
         </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     NETWORK
-====================================================== -->
-
-<section id="network"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                NETWORK OPERATIONS
-            </span>
-
-            <h2>
-                Network Monitoring
-            </h2>
-
-            <p>
-                Real-time network activity and threat detection
-            </p>
-
-        </div>
-
     </div>
 
 
-    <div class="module-cards">
-
-        <div class="module-card">
-
-            <span>NETWORK DEVICES</span>
-
-            <strong id="networkModuleValue">
-                4325
-            </strong>
-
-            <small>PROTECTED</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>THREATS</span>
-
-            <strong id="networkThreats">
-                0
-            </strong>
-
-            <small>DETECTED</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>TRAFFIC</span>
-
-            <strong id="networkTraffic">
-                48%
-            </strong>
-
-            <small>LIVE LOAD</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>AI ANALYSIS</span>
-
-            <strong id="networkAI">
-                87%
-            </strong>
-
-            <small>PROCESSING</small>
-
-        </div>
-
-    </div>
-
-
-    <div class="module-panel">
-
-        <div class="network-visual">
-
-            <div class="network-node">
-                CORE
+    <div class="page" id="page-endpoints">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Endpoint Security</h2>
             </div>
-
-            <div class="network-line"></div>
-
-            <div class="network-node">
-                GATEWAY
-            </div>
-
-            <div class="network-line"></div>
-
-            <div class="network-node">
-                ENDPOINT
-            </div>
-
+            <p>Endpoint monitoring and protection.</p>
         </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     IOT / OT
-====================================================== -->
-
-<section id="iot"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                INDUSTRIAL INTELLIGENCE
-            </span>
-
-            <h2>
-                IoT / OT Security
-            </h2>
-
-            <p>
-                Machine monitoring and predictive protection
-            </p>
-
-        </div>
-
     </div>
 
 
-    <div class="module-cards">
-
-        <div class="module-card">
-
-            <span>MACHINE TEMPERATURE</span>
-
-            <strong id="machineTemperature">
-                62°C
-            </strong>
-
-            <small>LIVE SENSOR</small>
-
+    <div class="page" id="page-cloud">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Cloud Security</h2>
+            </div>
+            <p>Cloud infrastructure monitoring.</p>
         </div>
-
-
-        <div class="module-card">
-
-            <span>VIBRATION</span>
-
-            <strong id="machineVibration">
-                3.2
-            </strong>
-
-            <small>LIVE SENSOR</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>MACHINE RPM</span>
-
-            <strong id="machineRPM">
-                1450
-            </strong>
-
-            <small>LIVE SENSOR</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>IoT STATUS</span>
-
-            <strong id="iotModuleStatus">
-                READY
-            </strong>
-
-            <small>MONITORING</small>
-
-        </div>
-
     </div>
 
 
-    <div class="module-panel">
-
-        <div class="machine-visual">
-
-            <div class="machine-icon">
-                ⚙
+    <div class="page" id="page-network">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Network Security</h2>
             </div>
-
-            <h3>
-                AI MACHINE HEALTH MONITOR
-            </h3>
-
-            <p>
-                IronMind analyzes temperature, vibration
-                and RPM to detect abnormal machine behavior
-                before failure.
-            </p>
-
-            <button onclick="runMachineTest()">
-                ⚙ RUN MACHINE TEST
-            </button>
-
+            <p>Network activity and anomaly monitoring.</p>
         </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     AI INTELLIGENCE
-====================================================== -->
-
-<section id="ai"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                ARTIFICIAL INTELLIGENCE
-            </span>
-
-            <h2>
-                AI Intelligence
-            </h2>
-
-            <p>
-                Machine learning threat analysis engine
-            </p>
-
-        </div>
-
     </div>
 
 
-    <div class="module-cards">
-
-        <div class="module-card">
-
-            <span>AI RISK SCORE</span>
-
-            <strong id="aiModuleRisk">
-                22
-            </strong>
-
-            <small>LIVE</small>
-
+    <div class="page" id="page-iot">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>IoT / Sensor Security</h2>
+            </div>
+            <p>Machine and sensor telemetry monitoring.</p>
         </div>
-
-
-        <div class="module-card">
-
-            <span>AI PROCESSING</span>
-
-            <strong id="aiModuleValue">
-                87%
-            </strong>
-
-            <small>ACTIVE</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>MODEL</span>
-
-            <strong>
-                ML
-            </strong>
-
-            <small>CLASSIFICATION</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>ENGINE</span>
-
-            <strong>
-                ACTIVE
-            </strong>
-
-            <small>ANALYZING</small>
-
-        </div>
-
     </div>
 
 
-    <div class="module-panel">
-
-        <div class="ai-large">
-
-            <div class="large-brain">
-                ✦
+    <div class="page" id="page-ai">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>AI Intelligence</h2>
             </div>
-
-            <h3>
-                IRONMIND AI THREAT ENGINE
-            </h3>
-
-            <p>
-                Behavior Analysis → Anomaly Detection →
-                ML Classification → Threat Scoring →
-                Automated Response
-            </p>
-
-            <div class="ai-flow">
-
-                <span>BEHAVIOR</span>
-                →
-                <span>ANOMALY</span>
-                →
-                <span>ML</span>
-                →
-                <span>RISK</span>
-                →
-                <span>RESPONSE</span>
-
-            </div>
-
+            <p>IronMind AI analysis engine.</p>
         </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     REPORTS
-====================================================== -->
-
-<section id="reports"
-         class="page">
-
-    <div class="module-header">
-
-        <div>
-
-            <span class="page-label">
-                SECURITY REPORTING
-            </span>
-
-            <h2>
-                Security Reports
-            </h2>
-
-            <p>
-                System activity and protection statistics
-            </p>
-
-        </div>
-
     </div>
 
 
-    <div class="module-cards">
-
-        <div class="module-card">
-
-            <span>TOTAL EVENTS</span>
-
-            <strong id="reportEvents">
-                1934
-            </strong>
-
-            <small>PROCESSED</small>
-
+    <div class="page" id="page-reports">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Security Reports</h2>
+            </div>
+            <p>Security events and historical reports.</p>
         </div>
-
-
-        <div class="module-card">
-
-            <span>BLOCKED</span>
-
-            <strong id="reportBlocked">
-                24
-            </strong>
-
-            <small>PREVENTED</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>CURRENT RISK</span>
-
-            <strong id="reportRisk">
-                18
-            </strong>
-
-            <small>LIVE</small>
-
-        </div>
-
-
-        <div class="module-card">
-
-            <span>REPORT STATUS</span>
-
-            <strong>
-                READY
-            </strong>
-
-            <small>GENERATED</small>
-
-        </div>
-
     </div>
 
-
-    <div class="module-panel">
-
-        <div class="report-table">
-
-            <div class="report-row header">
-                <span>EVENT</span>
-                <span>TYPE</span>
-                <span>STATUS</span>
-            </div>
-
-            <div class="report-row">
-                <span>Endpoint Scan</span>
-                <span>SECURITY</span>
-                <b>PROTECTED</b>
-            </div>
-
-            <div class="report-row">
-                <span>AI Threat Analysis</span>
-                <span>AI</span>
-                <b>COMPLETE</b>
-            </div>
-
-            <div class="report-row">
-                <span>Network Monitoring</span>
-                <span>NETWORK</span>
-                <b>ACTIVE</b>
-            </div>
-
-            <div class="report-row">
-                <span>Machine Sensor Analysis</span>
-                <span>IoT / OT</span>
-                <b>RUNNING</b>
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-</main>
 
 </div>
 
 
+<!-- =========================================================
+     YOUR EXISTING JAVASCRIPT
+     ========================================================= -->
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-</body>
 
+<!-- =========================================================
+     USB DISPLAY ONLY
+     
+     This does NOT modify script.js.
+     It only reads /api/usb-status and updates the USB panel.
+     ========================================================= -->
+
+<script>
+
+(function () {
+
+    function formatBytes(bytes) {
+
+        if (!bytes || bytes <= 0) {
+            return "—";
+        }
+
+        const units = [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+        ];
+
+        let index = 0;
+        let value = Number(bytes);
+
+        while (value >= 1024 && index < units.length - 1) {
+            value /= 1024;
+            index++;
+        }
+
+        return value.toFixed(1) + " " + units[index];
+    }
+
+
+    function updateUSB(data) {
+
+        const waiting = document.getElementById("usbWaiting");
+        const connected = document.getElementById("usbConnected");
+        const badge = document.getElementById("usbStatusBadge");
+
+        if (!data || !data.connected) {
+
+            waiting.style.display = "block";
+            connected.style.display = "none";
+
+            badge.className = "usb-status";
+            badge.textContent = "WAITING";
+
+            return;
+        }
+
+
+        waiting.style.display = "none";
+        connected.style.display = "block";
+
+
+        /*
+         * DEVICE INFORMATION
+         */
+
+        const device = data.device || {};
+        const scan = data.scan || {};
+
+
+        document.getElementById("usbDeviceName").textContent =
+            device.label || "USB DEVICE";
+
+
+        document.getElementById("usbDrive").textContent =
+            device.drive
+                ? device.drive + ":"
+                : "—";
+
+
+        document.getElementById("usbFilesystem").textContent =
+            device.filesystem || "—";
+
+
+        document.getElementById("usbScanStatus").textContent =
+            data.status || "SCANNING";
+
+
+        document.getElementById("usbFilesScanned").textContent =
+            scan.files_scanned !== undefined
+                ? scan.files_scanned
+                : "0";
+
+
+        document.getElementById("usbSuspicious").textContent =
+            scan.suspicious_count !== undefined
+                ? scan.suspicious_count
+                : "0";
+
+
+        document.getElementById("usbTotalSize").textContent =
+            formatBytes(device.total_bytes);
+
+
+        document.getElementById("usbFreeSpace").textContent =
+            formatBytes(device.free_bytes);
+
+
+        /*
+         * RISK
+         */
+
+        const risk = String(
+            scan.risk || "UNKNOWN"
+        ).toUpperCase();
+
+
+        const riskElement =
+            document.getElementById("usbRiskValue");
+
+
+        const riskMessage =
+            document.getElementById("usbRiskMessage");
+
+
+        riskElement.className =
+            "usb-risk-value";
+
+
+        if (risk === "LOW") {
+
+            riskElement.classList.add("usb-risk-low");
+
+            riskElement.textContent = "LOW";
+
+            riskMessage.textContent =
+                "No suspicious indicators detected.";
+
+            badge.className =
+                "usb-status connected";
+
+            badge.textContent =
+                "USB CONNECTED";
+
+        }
+
+        else if (
+            risk === "MEDIUM" ||
+            risk === "MODERATE"
+        ) {
+
+            riskElement.classList.add("usb-risk-medium");
+
+            riskElement.textContent = "MEDIUM";
+
+            riskMessage.textContent =
+                "Suspicious indicators require investigation.";
+
+            badge.className =
+                "usb-status warning";
+
+            badge.textContent =
+                "THREAT DETECTED";
+
+        }
+
+        else if (
+            risk === "HIGH" ||
+            risk === "CRITICAL"
+        ) {
+
+            riskElement.classList.add("usb-risk-high");
+
+            riskElement.textContent = risk;
+
+            riskMessage.textContent =
+                "Potentially harmful content detected.";
+
+            badge.className =
+                "usb-status danger";
+
+            badge.textContent =
+                "HIGH RISK";
+
+        }
+
+        else {
+
+            riskElement.textContent = risk;
+
+            riskMessage.textContent =
+                "Security analysis in progress.";
+
+            badge.className =
+                "usb-status";
+
+            badge.textContent =
+                data.status || "SCANNING";
+        }
+
+
+        /*
+         * SUSPICIOUS FILE TABLE
+         */
+
+        const filesSection =
+            document.getElementById("usbFilesSection");
+
+        const table =
+            document.getElementById("usbSuspiciousTable");
+
+
+        table.innerHTML = "";
+
+
+        const suspiciousFiles =
+            scan.suspicious_files || [];
+
+
+        if (suspiciousFiles.length > 0) {
+
+            filesSection.style.display =
+                "block";
+
+
+            suspiciousFiles.forEach(function (file) {
+
+                const row =
+                    document.createElement("tr");
+
+
+                const name =
+                    typeof file === "string"
+                        ? file
+                        : (
+                            file.path ||
+                            file.name ||
+                            "Suspicious file"
+                        );
+
+
+                const reason =
+                    typeof file === "string"
+                        ? "Suspicious indicator"
+                        : (
+                            file.reason ||
+                            file.reasons ||
+                            "Suspicious indicator"
+                        );
+
+
+                const fileRisk =
+                    typeof file === "object" &&
+                    file.risk
+                        ? file.risk
+                        : "HIGH";
+
+
+                row.innerHTML = `
+                    <td class="usb-suspicious">
+                        ${name}
+                    </td>
+
+                    <td>
+                        ${reason}
+                    </td>
+
+                    <td class="usb-suspicious">
+                        ${fileRisk}
+                    </td>
+                `;
+
+
+                table.appendChild(row);
+
+            });
+
+        }
+
+        else {
+
+            filesSection.style.display =
+                "none";
+        }
+
+    }
+
+
+    function checkUSB() {
+
+        fetch("/api/usb-status")
+
+            .then(function (response) {
+                return response.json();
+            })
+
+            .then(function (data) {
+                updateUSB(data);
+            })
+
+            .catch(function () {
+                /*
+                 * Keep existing dashboard working
+                 * if USB API is temporarily unavailable.
+                 */
+            });
+
+    }
+
+
+    /*
+     * Check immediately.
+     */
+
+    checkUSB();
+
+
+    /*
+     * Continue monitoring.
+     * USB state is refreshed every 2 seconds.
+     */
+
+    setInterval(checkUSB, 2000);
+
+
+})();
+
+</script>
+
+</body>
 </html>
