@@ -1,6 +1,16 @@
 from flask import Flask, render_template, jsonify
-import random
 from datetime import datetime
+import random
+
+# Import IronMind modules
+from cyber.monitor import CyberMonitor
+from machine.monitor import MachineMonitor
+from response.engine import ResponseEngine
+
+
+# ---------------------------------------------------------
+# Flask Application
+# ---------------------------------------------------------
 
 app = Flask(
     __name__,
@@ -8,9 +18,19 @@ app = Flask(
     template_folder="templates"
 )
 
-# =========================================================
-# IRONMIND AI - LIVE SYSTEM STATE
-# =========================================================
+
+# ---------------------------------------------------------
+# Initialize IronMind Modules
+# ---------------------------------------------------------
+
+cyber_monitor = CyberMonitor()
+machine_monitor = MachineMonitor()
+response_engine = ResponseEngine()
+
+
+# ---------------------------------------------------------
+# Demo System State
+# ---------------------------------------------------------
 
 system_state = {
     "risk": 18,
@@ -53,39 +73,54 @@ system_state = {
 }
 
 
-# =========================================================
-# DEMO MODE
-# =========================================================
+# ---------------------------------------------------------
+# Demo Mode
+# ---------------------------------------------------------
 
 demo_mode = "normal"
 
 
-# =========================================================
-# GENERATE LIVE TELEMETRY
-# =========================================================
+# ---------------------------------------------------------
+# Helper Functions
+# ---------------------------------------------------------
+
+def safe_int(value, default=0):
+    """Safely convert a value to an integer."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def clamp(value, minimum, maximum):
+    """Keep a value inside a specified range."""
+    return max(minimum, min(maximum, value))
+
+
+# ---------------------------------------------------------
+# Generate Simulated Live Data
+# ---------------------------------------------------------
 
 def generate_live_data():
+    """
+    Generate simulated cybersecurity and machine-monitoring
+    data for the IronMind AI demonstration.
+
+    NOTE:
+    This is a prototype simulation. It does not perform
+    real-world cybersecurity blocking or machine control.
+    """
 
     global demo_mode
 
-    # -----------------------------------------------------
-    # NORMAL MODE
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Normal Mode
+    # ---------------------------------------------
 
     if demo_mode == "normal":
 
-        risk = random.randint(10, 30)
-
-        ai_risk = max(
-            5,
-            min(
-                35,
-                risk + random.randint(-5, 7)
-            )
-        )
-
-        system_state["risk"] = risk
-        system_state["ai_risk"] = ai_risk
+        system_state["risk"] = random.randint(10, 30)
+        system_state["ai_risk"] = random.randint(5, 35)
 
         system_state["status"] = "SYSTEM PROTECTED"
         system_state["incident"] = "NO ACTIVE INCIDENT"
@@ -98,35 +133,21 @@ def generate_live_data():
 
         system_state["usb_activity"] = random.choice([
             "NORMAL",
-            "MONITORED",
             "NORMAL",
-            "NORMAL"
+            "MONITORED"
         ])
 
-    # -----------------------------------------------------
-    # CYBER MODE
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Cyber Attack Simulation
+    # ---------------------------------------------
 
     elif demo_mode == "cyber":
 
-        risk = random.randint(72, 96)
-
-        ai_risk = max(
-            70,
-            min(
-                99,
-                risk + random.randint(-4, 6)
-            )
-        )
-
-        system_state["risk"] = risk
-        system_state["ai_risk"] = ai_risk
+        system_state["risk"] = random.randint(72, 96)
+        system_state["ai_risk"] = random.randint(70, 99)
 
         system_state["status"] = "THREAT DETECTED"
-
-        system_state["incident"] = (
-            "SUSPICIOUS USB DATA TRANSFER"
-        )
+        system_state["incident"] = "SUSPICIOUS USB DATA TRANSFER"
 
         system_state["threats"] = random.randint(1, 3)
 
@@ -134,34 +155,19 @@ def generate_live_data():
         system_state["network"] = "MONITORING"
         system_state["iot_ot"] = "READY"
 
-        system_state["usb_activity"] = (
-            "SUSPICIOUS TRANSFER BLOCKED"
-        )
+        system_state["usb_activity"] = "SUSPICIOUS TRANSFER BLOCKED"
 
-    # -----------------------------------------------------
-    # MACHINE MODE
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Machine Anomaly Simulation
+    # ---------------------------------------------
 
     elif demo_mode == "machine":
 
-        risk = random.randint(55, 78)
-
-        ai_risk = max(
-            50,
-            min(
-                88,
-                risk + random.randint(-5, 5)
-            )
-        )
-
-        system_state["risk"] = risk
-        system_state["ai_risk"] = ai_risk
+        system_state["risk"] = random.randint(55, 78)
+        system_state["ai_risk"] = random.randint(50, 88)
 
         system_state["status"] = "MACHINE WARNING"
-
-        system_state["incident"] = (
-            "ABNORMAL MACHINE SENSOR VALUES"
-        )
+        system_state["incident"] = "ABNORMAL MACHINE SENSOR VALUES"
 
         system_state["threats"] = 1
 
@@ -171,151 +177,124 @@ def generate_live_data():
 
         system_state["usb_activity"] = "NORMAL"
 
-    # -----------------------------------------------------
-    # COMMON LIVE VALUES
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Common Telemetry
+    # ---------------------------------------------
 
-    system_state["cpu"] = random.randint(20, 85)
+    system_state["cpu"] = random.randint(20, 75)
+    system_state["memory"] = random.randint(35, 80)
+    system_state["network_traffic"] = random.randint(25, 90)
 
-    system_state["memory"] = random.randint(35, 82)
+    system_state["ai_processing"] = random.randint(70, 99)
 
-    system_state["network_traffic"] = random.randint(
-        20,
-        95
-    )
-
-    system_state["ai_processing"] = random.randint(
-        65,
-        98
-    )
-
-    system_state["machine_temperature"] = random.randint(
-        45,
-        88
-    )
+    # Machine telemetry
+    system_state["machine_temperature"] = random.randint(45, 85)
 
     system_state["machine_vibration"] = round(
-        random.uniform(1.2, 8.5),
+        random.uniform(1.2, 7.5),
         1
     )
 
-    system_state["machine_rpm"] = random.randint(
-        900,
-        1800
+    system_state["machine_rpm"] = random.randint(1200, 1800)
+
+    # Event counters
+    system_state["events"] += random.randint(1, 8)
+
+    if demo_mode == "cyber":
+        system_state["blocked"] += random.randint(1, 4)
+
+    # Severity counters
+    system_state["critical"] = random.randint(1, 5)
+    system_state["high"] = random.randint(5, 15)
+    system_state["medium"] = random.randint(15, 35)
+    system_state["low"] = random.randint(40, 80)
+
+    # Infrastructure
+    system_state["endpoints"] = random.randint(7800, 8100)
+    system_state["cloud"] = random.randint(1200, 1300)
+    system_state["network_devices"] = random.randint(4200, 4400)
+
+    # Timestamp
+    system_state["last_update"] = datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
     )
 
-    # Events continuously change
-    system_state["events"] += random.randint(
-        1,
-        7
-    )
-
-    # Blocked events occasionally increase
-    if random.random() < 0.35:
-
-        system_state["blocked"] += random.randint(
-            1,
-            3
-        )
-
-    # Threat statistics change
-    system_state["critical"] = random.randint(
-        1,
-        5
-    )
-
-    system_state["high"] = random.randint(
-        5,
-        15
-    )
-
-    system_state["medium"] = random.randint(
-        15,
-        35
-    )
-
-    system_state["low"] = random.randint(
-        40,
-        80
-    )
-
-    # System counts slightly vary
-    system_state["endpoints"] = random.randint(
-        7800,
-        7950
-    )
-
-    system_state["cloud"] = random.randint(
-        1200,
-        1300
-    )
-
-    system_state["network_devices"] = random.randint(
-        4250,
-        4400
-    )
-
-    system_state["last_update"] = (
-        datetime.now().strftime("%H:%M:%S")
-    )
+    return system_state
 
 
-# =========================================================
-# DASHBOARD
-# =========================================================
+# ---------------------------------------------------------
+# Dashboard
+# ---------------------------------------------------------
 
 @app.route("/")
 def dashboard():
-
-    return render_template(
-        "dashboard.html"
-    )
+    """Render the IronMind AI dashboard."""
+    return render_template("dashboard.html")
 
 
-# =========================================================
-# LIVE STATUS
-# =========================================================
+# ---------------------------------------------------------
+# Live Status API
+# ---------------------------------------------------------
 
 @app.route("/api/status")
-def status():
+def api_status():
+    """
+    Return current simulated IronMind system status.
+    """
 
-    generate_live_data()
+    try:
+        data = generate_live_data()
 
-    return jsonify(system_state)
+        return jsonify({
+            "success": True,
+            "data": data
+        })
+
+    except Exception as error:
+
+        return jsonify({
+            "success": False,
+            "error": str(error),
+            "data": system_state
+        }), 500
 
 
-# =========================================================
-# CYBER TEST
-# =========================================================
+# ---------------------------------------------------------
+# Cybersecurity Test
+# ---------------------------------------------------------
 
-@app.route("/api/cyber-test")
+@app.route("/api/cyber-test", methods=["GET", "POST"])
 def cyber_test():
+    """
+    Trigger the cybersecurity attack simulation.
+    """
 
     global demo_mode
 
     demo_mode = "cyber"
 
-    system_state["blocked"] += 1
     system_state["events"] += 1
+    system_state["blocked"] += 1
 
     generate_live_data()
 
     return jsonify({
         "success": True,
-        "message": (
-            "Suspicious USB data transfer "
-            "detected and automatically blocked."
-        ),
-        "state": system_state
+        "message": "Cybersecurity threat simulation activated.",
+        "mode": "cyber",
+        "data": system_state
     })
 
 
-# =========================================================
-# MACHINE TEST
-# =========================================================
+# ---------------------------------------------------------
+# Machine Test
+# ---------------------------------------------------------
 
-@app.route("/api/machine-test")
+@app.route("/api/machine-test", methods=["GET", "POST"])
 def machine_test():
+    """
+    Trigger the machine anomaly simulation.
+    """
 
     global demo_mode
 
@@ -327,61 +306,112 @@ def machine_test():
 
     return jsonify({
         "success": True,
-        "message": (
-            "Machine sensor anomaly detected "
-            "by AI monitoring."
-        ),
-        "state": system_state
+        "message": "Machine anomaly simulation activated.",
+        "mode": "machine",
+        "data": system_state
     })
 
 
-# =========================================================
-# RESET
-# =========================================================
+# ---------------------------------------------------------
+# Reset System
+# ---------------------------------------------------------
 
-@app.route("/api/reset")
-def reset():
+@app.route("/api/reset", methods=["GET", "POST"])
+def reset_system():
+    """
+    Return IronMind to normal protected demo mode.
+    """
 
     global demo_mode
 
     demo_mode = "normal"
 
-    system_state["risk"] = 18
-    system_state["ai_risk"] = 22
+    system_state.update({
+        "risk": 18,
+        "ai_risk": 22,
 
-    system_state["status"] = (
-        "SYSTEM PROTECTED"
-    )
+        "status": "SYSTEM PROTECTED",
+        "incident": "NO ACTIVE INCIDENT",
 
-    system_state["incident"] = (
-        "NO ACTIVE INCIDENT"
-    )
+        "ai_engine": "ACTIVE",
+        "endpoint": "SECURE",
+        "network": "MONITORING",
+        "iot_ot": "READY",
 
-    system_state["threats"] = 0
+        "threats": 0,
 
-    system_state["endpoint"] = "SECURE"
-    system_state["network"] = "MONITORING"
-    system_state["iot_ot"] = "READY"
+        "usb_activity": "NORMAL",
 
-    system_state["usb_activity"] = "NORMAL"
+        "cpu": 34,
+        "memory": 52,
+        "network_traffic": 48,
+
+        "machine_temperature": 62,
+        "machine_vibration": 3.2,
+        "machine_rpm": 1450,
+
+        "ai_processing": 87
+    })
 
     generate_live_data()
 
     return jsonify({
         "success": True,
-        "message": "System reset successfully.",
-        "state": system_state
+        "message": "IronMind system returned to protected mode.",
+        "mode": "normal",
+        "data": system_state
     })
 
 
-# =========================================================
-# RUN
-# =========================================================
+# ---------------------------------------------------------
+# Health Check
+# ---------------------------------------------------------
+
+@app.route("/api/health")
+def health_check():
+    """
+    Simple health endpoint useful when deploying the app.
+    """
+
+    return jsonify({
+        "status": "online",
+        "application": "IronMind AI",
+        "version": "1.0",
+        "mode": demo_mode,
+        "timestamp": datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+    })
+
+
+# ---------------------------------------------------------
+# Error Handlers
+# ---------------------------------------------------------
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": "Endpoint not found"
+    }), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({
+        "success": False,
+        "error": "Internal server error"
+    }), 500
+
+
+# ---------------------------------------------------------
+# Application Entry Point
+# ---------------------------------------------------------
 
 if __name__ == "__main__":
 
     app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5000
+        host="0.0.0.0",
+        port=5000,
+        debug=True
     )
