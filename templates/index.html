@@ -1,1108 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="IronMind AI - AI-powered Cyber Defense, Machine Monitoring and IoT Intelligence Platform."
-    >
-
-    <title>IronMind AI | Intelligent Security</title>
+    <title>IronMind AI | USB Defense</title>
 
     <style>
-
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background:
-                radial-gradient(
-                    circle at 20% 20%,
-                    rgba(0, 150, 255, 0.12),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 80% 30%,
-                    rgba(0, 255, 200, 0.08),
-                    transparent 30%
-                ),
-                #020812;
-
-            color: #eaf7ff;
-            min-height: 100vh;
-            overflow-x: hidden;
+            margin: 0;
+            background: #071018;
+            color: #e8f1f7;
+            font-family: Arial, sans-serif;
         }
 
-        /* -------------------------------------------------- */
-        /* NAVBAR */
-        /* -------------------------------------------------- */
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-
-            height: 72px;
-
+        header {
+            padding: 25px 7%;
+            border-bottom: 1px solid #1c3442;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-
-            padding: 0 7%;
-
-            background: rgba(2, 8, 18, 0.82);
-            backdrop-filter: blur(16px);
-
-            border-bottom: 1px solid rgba(90, 190, 255, 0.15);
-
-            z-index: 1000;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .brand-icon {
-            width: 42px;
-            height: 42px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background: linear-gradient(
-                135deg,
-                #00b7ff,
-                #006cff
-            );
-
-            color: white;
-
-            box-shadow:
-                0 0 25px rgba(0, 170, 255, 0.35);
-        }
-
-        .brand-text span {
-            display: block;
-        }
-
-        .brand-name {
-            font-size: 17px;
-        }
-
-        .brand-subtitle {
-            color: #6c8da4;
-            font-size: 9px;
-            margin-top: 3px;
-            letter-spacing: 1.5px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
             align-items: center;
         }
 
-        .nav-links a {
-            color: #8faec2;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.25s;
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
 
-        .nav-links a:hover {
-            color: #45c7ff;
+        .logo span {
+            color: #20d6ff;
         }
 
-        .nav-dashboard {
-            padding: 11px 18px;
-            border: 1px solid rgba(60, 190, 255, 0.35);
-            border-radius: 8px;
-
-            color: #65d1ff !important;
-
-            background: rgba(0, 130, 255, 0.08);
+        .system {
+            color: #7ee8a5;
+            font-size: 13px;
         }
 
-        /* -------------------------------------------------- */
-        /* HERO */
-        /* -------------------------------------------------- */
+        main {
+            width: 86%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 0;
+        }
 
         .hero {
-            min-height: 100vh;
-
-            display: flex;
-            align-items: center;
-
-            padding:
-                120px 8%
-                70px;
-
-            position: relative;
-        }
-
-        .hero-content {
-            width: 58%;
-            max-width: 800px;
-            z-index: 2;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-            padding: 8px 13px;
-
-            border: 1px solid rgba(40, 190, 255, 0.25);
-            border-radius: 30px;
-
-            color: #5bd2ff;
-            background: rgba(0, 150, 255, 0.07);
-
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            font-weight: bold;
-
-            margin-bottom: 25px;
-        }
-
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-
-            background: #00e6a8;
-
-            box-shadow:
-                0 0 10px #00e6a8;
+            text-align: center;
+            margin-bottom: 55px;
         }
 
         .hero h1 {
-            font-size: clamp(48px, 7vw, 86px);
-            line-height: 0.98;
-
-            letter-spacing: -3px;
-
-            margin-bottom: 28px;
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .hero h1 .gradient {
-            background:
-                linear-gradient(
-                    90deg,
-                    #ffffff,
-                    #48caff,
-                    #00e0b0
-                );
-
-            -webkit-background-clip: text;
-            background-clip: text;
-
-            color: transparent;
+        .hero h1 span {
+            color: #20d6ff;
         }
 
-        .hero-description {
-            max-width: 650px;
-
-            color: #8ea8ba;
-
-            font-size: 18px;
-            line-height: 1.7;
-
-            margin-bottom: 35px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            text-decoration: none;
-
-            padding: 14px 23px;
-
-            border-radius: 8px;
-
-            font-size: 14px;
-            font-weight: bold;
-
-            transition: 0.25s;
-
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(
-                135deg,
-                #009dff,
-                #0067ff
-            );
-
-            color: white;
-
-            box-shadow:
-                0 10px 35px rgba(0, 120, 255, 0.25);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 15px 45px rgba(0, 150, 255, 0.4);
-        }
-
-        .btn-secondary {
-            color: #9dc0d5;
-
-            border: 1px solid rgba(120, 190, 220, 0.2);
-
-            background: rgba(255, 255, 255, 0.025);
-        }
-
-        .btn-secondary:hover {
-            color: white;
-            border-color: rgba(80, 200, 255, 0.45);
-        }
-
-        /* -------------------------------------------------- */
-        /* HUD */
-        /* -------------------------------------------------- */
-
-        .hero-visual {
-            position: absolute;
-
-            right: 7%;
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            width: 390px;
-            height: 390px;
-        }
-
-        .hud-circle {
-            position: absolute;
-
-            inset: 30px;
-
-            border:
-                1px solid rgba(50, 190, 255, 0.25);
-
-            border-radius: 50%;
-
-            box-shadow:
-                0 0 80px rgba(0, 150, 255, 0.12);
-        }
-
-        .hud-circle::before,
-        .hud-circle::after {
-            content: "";
-
-            position: absolute;
-
-            border-radius: 50%;
-
-            border: 1px dashed rgba(0, 210, 255, 0.18);
-        }
-
-        .hud-circle::before {
-            inset: 35px;
-        }
-
-        .hud-circle::after {
-            inset: 75px;
-        }
-
-        .hud-core {
-            position: absolute;
-
-            top: 50%;
-            left: 50%;
-
-            transform: translate(-50%, -50%);
-
-            width: 125px;
-            height: 125px;
-
-            border-radius: 50%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            text-align: center;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(0, 190, 255, 0.25),
-                    rgba(0, 90, 160, 0.05)
-                );
-
-            border:
-                1px solid rgba(70, 210, 255, 0.4);
-
-            box-shadow:
-                0 0 60px rgba(0, 160, 255, 0.25);
-        }
-
-        .core-inner {
-            color: #64d7ff;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .hud-line {
-            position: absolute;
-
-            background: rgba(70, 205, 255, 0.18);
-        }
-
-        .hud-line.horizontal {
-            left: 0;
-            right: 0;
-            top: 50%;
-            height: 1px;
-        }
-
-        .hud-line.vertical {
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 1px;
-        }
-
-        .scan {
-            position: absolute;
-
-            width: 50%;
-            height: 2px;
-
-            left: 50%;
-            top: 50%;
-
-            transform-origin: left;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(0, 220, 255, 0.8),
-                    transparent
-                );
-
-            animation: scan 4s linear infinite;
-        }
-
-        @keyframes scan {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* -------------------------------------------------- */
-        /* FEATURES */
-        /* -------------------------------------------------- */
-
-        .section {
-            padding: 100px 8%;
-        }
-
-        .section-heading {
-            max-width: 700px;
-            margin-bottom: 45px;
-        }
-
-        .section-heading small {
-            color: #43caff;
-            font-weight: bold;
-            letter-spacing: 2px;
-            font-size: 11px;
-        }
-
-        .section-heading h2 {
-            font-size: 40px;
-            margin: 12px 0 15px;
-        }
-
-        .section-heading p {
-            color: #8099aa;
-            line-height: 1.7;
-        }
-
-        .features {
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
-            gap: 18px;
-        }
-
-        .feature {
-            padding: 28px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(10, 30, 48, 0.75),
-                    rgba(4, 13, 24, 0.8)
-                );
-
-            border:
-                1px solid rgba(80, 180, 230, 0.13);
-
-            border-radius: 14px;
-
-            transition: 0.3s;
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-
-            border-color:
-                rgba(60, 200, 255, 0.35);
-
-            box-shadow:
-                0 20px 50px rgba(0, 0, 0, 0.3);
-        }
-
-        .feature-icon {
-            width: 45px;
-            height: 45px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background:
-                rgba(0, 160, 255, 0.1);
-
-            border:
-                1px solid rgba(60, 200, 255, 0.18);
-
-            color: #53ceff;
-
-            margin-bottom: 20px;
-        }
-
-        .feature h3 {
+        .hero p {
+            color: #91a5b2;
             font-size: 17px;
-            margin-bottom: 10px;
         }
 
-        .feature p {
-            color: #7891a3;
-            font-size: 13px;
-            line-height: 1.65;
-        }
-
-        /* -------------------------------------------------- */
-        /* PIPELINE */
-        /* -------------------------------------------------- */
-
-        .pipeline {
+        .mechanism {
             display: grid;
-
-            grid-template-columns:
-                repeat(5, 1fr);
-
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 40px;
         }
 
-        .pipeline-item {
-            padding: 25px 18px;
-
-            text-align: center;
-
-            border:
-                1px solid rgba(70, 190, 240, 0.14);
-
-            background:
-                rgba(255, 255, 255, 0.02);
-
+        .step {
+            background: #0d1b25;
+            border: 1px solid #1d3948;
             border-radius: 12px;
+            padding: 25px;
         }
 
-        .pipeline-number {
-            color: #4ecaff;
-            font-size: 12px;
-            margin-bottom: 12px;
+        .number {
+            color: #20d6ff;
+            font-size: 13px;
+            font-weight: bold;
         }
 
-        .pipeline-item h3 {
-            font-size: 15px;
+        .step h3 {
+            margin-bottom: 8px;
         }
 
-        /* -------------------------------------------------- */
-        /* CTA */
-        /* -------------------------------------------------- */
-
-        .cta {
-            margin: 40px 8% 100px;
-
-            padding: 55px;
-
-            border-radius: 18px;
-
-            border:
-                1px solid rgba(70, 190, 240, 0.18);
-
-            background:
-                radial-gradient(
-                    circle at right,
-                    rgba(0, 150, 255, 0.14),
-                    transparent 45%
-                ),
-                rgba(7, 19, 32, 0.8);
-
-            text-align: center;
+        .step p {
+            color: #8195a2;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        .cta h2 {
-            font-size: 34px;
-            margin-bottom: 12px;
+        .usb-card {
+            background: #0b1720;
+            border: 1px solid #244252;
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 30px;
         }
 
-        .cta p {
-            color: #829bab;
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 25px;
         }
 
-        /* -------------------------------------------------- */
-        /* FOOTER */
-        /* -------------------------------------------------- */
+        .dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #667781;
+        }
 
-        footer {
-            padding: 30px 8%;
+        .dot.connected {
+            background: #35e887;
+            box-shadow: 0 0 15px #35e887;
+        }
 
-            border-top:
-                1px solid rgba(80, 180, 220, 0.1);
+        .status-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
 
-            color: #5f7888;
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
 
+        .metric {
+            background: #101f29;
+            padding: 18px;
+            border-radius: 10px;
+        }
+
+        .metric label {
+            color: #718795;
             font-size: 12px;
-
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
+            display: block;
+            margin-bottom: 8px;
         }
 
-        /* -------------------------------------------------- */
-        /* RESPONSIVE */
-        /* -------------------------------------------------- */
-
-        @media (max-width: 1000px) {
-
-            .hero-content {
-                width: 100%;
-            }
-
-            .hero-visual {
-                opacity: 0.25;
-                right: -70px;
-            }
-
-            .features {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
-            .pipeline {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
+        .metric strong {
+            font-size: 20px;
         }
 
-        @media (max-width: 700px) {
+        .results {
+            display: none;
+            background: #0b1720;
+            border: 1px solid #244252;
+            border-radius: 16px;
+            padding: 35px;
+        }
 
-            .navbar {
-                padding: 0 20px;
-            }
+        .results h2 {
+            margin-top: 0;
+        }
 
-            .nav-links a:not(.nav-dashboard) {
-                display: none;
-            }
+        .risk {
+            font-size: 25px;
+            font-weight: bold;
+            margin: 15px 0 25px;
+        }
 
-            .hero {
-                padding:
-                    120px 25px
-                    70px;
+        .risk.low {
+            color: #35e887;
+        }
+
+        .risk.medium {
+            color: #ffd166;
+        }
+
+        .risk.high,
+        .risk.critical {
+            color: #ff667a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 13px;
+            border-bottom: 1px solid #1c303c;
+            font-size: 13px;
+        }
+
+        th {
+            color: #20d6ff;
+        }
+
+        .waiting {
+            color: #91a5b2;
+            padding: 20px 0;
+        }
+
+        .dashboard-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 13px 22px;
+            background: #20d6ff;
+            color: #061018;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .note {
+            text-align: center;
+            color: #627782;
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        @media(max-width: 800px) {
+            .mechanism,
+            .device-grid {
+                grid-template-columns: 1fr 1fr;
             }
 
             .hero h1 {
-                font-size: 50px;
-            }
-
-            .hero-description {
-                font-size: 16px;
-            }
-
-            .hero-visual {
-                width: 300px;
-                height: 300px;
-                right: -100px;
-            }
-
-            .section {
-                padding:
-                    70px 25px;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-
-            .pipeline {
-                grid-template-columns: 1fr;
-            }
-
-            .cta {
-                margin:
-                    20px 25px 70px;
-
-                padding: 35px 20px;
-            }
-
-            footer {
-                flex-direction: column;
+                font-size: 35px;
             }
         }
-
     </style>
 </head>
 
-
 <body>
 
-    <!-- ================================================== -->
-    <!-- NAVIGATION -->
-    <!-- ================================================== -->
+<header>
+    <div class="logo">IRON<span>MIND</span> AI</div>
+    <div class="system">● USB DEFENSE SYSTEM</div>
+</header>
 
-    <nav class="navbar">
+<main>
 
-        <div class="brand">
+    <section class="hero">
+        <h1>USB Threat <span>Intelligence</span></h1>
+        <p>
+            Detect, inspect and analyze removable devices before they become a security risk.
+        </p>
+    </section>
 
-            <div class="brand-icon">
-                IM
+    <section class="mechanism">
+
+        <div class="step">
+            <div class="number">01</div>
+            <h3>Detect</h3>
+            <p>IronMind monitors the Windows system for newly connected removable drives.</p>
+        </div>
+
+        <div class="step">
+            <div class="number">02</div>
+            <h3>Inspect</h3>
+            <p>The USB agent collects device information and examines files without executing them.</p>
+        </div>
+
+        <div class="step">
+            <div class="number">03</div>
+            <h3>Analyze</h3>
+            <p>Files are checked for suspicious extensions, autorun indicators and risky naming patterns.</p>
+        </div>
+
+        <div class="step">
+            <div class="number">04</div>
+            <h3>Protect</h3>
+            <p>The scan result is sent to IronMind AI for visualization and security response.</p>
+        </div>
+
+    </section>
+
+    <section class="usb-card">
+
+        <div class="status">
+            <div id="statusDot" class="dot"></div>
+            <div id="statusText" class="status-text">
+                WAITING FOR USB DEVICE
             </div>
+        </div>
 
-            <div class="brand-text">
+        <div id="waiting" class="waiting">
+            Connect a pendrive to the Windows computer running the IronMind USB Agent.
+        </div>
 
-                <span class="brand-name">
-                    IRONMIND AI
-                </span>
+        <div id="deviceInfo" style="display:none;">
 
-                <span class="brand-subtitle">
-                    INTELLIGENT SECURITY PLATFORM
-                </span>
+            <div class="device-grid">
+
+                <div class="metric">
+                    <label>DEVICE</label>
+                    <strong id="deviceName">-</strong>
+                </div>
+
+                <div class="metric">
+                    <label>DRIVE</label>
+                    <strong id="drive">-</strong>
+                </div>
+
+                <div class="metric">
+                    <label>FILES SCANNED</label>
+                    <strong id="filesScanned">-</strong>
+                </div>
+
+                <div class="metric">
+                    <label>SUSPICIOUS</label>
+                    <strong id="suspicious">-</strong>
+                </div>
 
             </div>
 
         </div>
 
+    </section>
 
-        <div class="nav-links">
+    <section id="results" class="results">
 
-            <a href="#features">
-                Platform
-            </a>
+        <h2>USB Security Analysis</h2>
 
-            <a href="#architecture">
-                Architecture
-            </a>
+        <div id="risk" class="risk low">
+            LOW RISK
+        </div>
 
-            <a
-                href="/dashboard"
-                class="nav-dashboard"
-            >
-                Open SOC →
-            </a>
+        <div class="device-grid">
+
+            <div class="metric">
+                <label>SCAN STATUS</label>
+                <strong id="scanStatus">-</strong>
+            </div>
+
+            <div class="metric">
+                <label>FILES SCANNED</label>
+                <strong id="resultFiles">-</strong>
+            </div>
+
+            <div class="metric">
+                <label>SUSPICIOUS FILES</label>
+                <strong id="resultSuspicious">-</strong>
+            </div>
+
+            <div class="metric">
+                <label>FILE SYSTEM</label>
+                <strong id="filesystem">-</strong>
+            </div>
 
         </div>
 
-    </nav>
+        <h3>Suspicious Indicators</h3>
 
+        <table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Reason</th>
+                    <th>SHA-256</th>
+                </tr>
+            </thead>
 
-    <!-- ================================================== -->
-    <!-- HERO -->
-    <!-- ================================================== -->
+            <tbody id="suspiciousTable">
+            </tbody>
+        </table>
 
-    <main>
+        <a class="dashboard-btn" href="/dashboard">
+            Open Security Dashboard
+        </a>
 
-        <section class="hero">
+    </section>
 
-            <div class="hero-content">
+    <div class="note">
+        IronMind USB Agent must be running on the Windows computer for USB detection.
+    </div>
 
-                <div class="eyebrow">
+</main>
 
-                    <span class="status-dot"></span>
+<script>
 
-                    AI SECURITY OPERATIONS PLATFORM
+async function loadUSBStatus() {
 
-                </div>
+    try {
 
+        const response = await fetch("/api/usb-status?t=" + Date.now());
 
-                <h1>
+        const data = await response.json();
 
-                    Defend.
-                    <span class="gradient">
-                        Predict.
-                    </span>
-                    Protect.
+        updatePage(data);
 
-                </h1>
+    } catch (error) {
 
+        console.log("USB status unavailable");
 
-                <p class="hero-description">
+    }
 
-                    IronMind AI is an intelligent security and
-                    industrial monitoring platform designed to
-                    combine cyber threat intelligence, endpoint
-                    monitoring, network visibility and machine
-                    anomaly detection in one unified command center.
+}
 
-                </p>
 
+function updatePage(data) {
 
-                <div class="hero-buttons">
+    const dot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
 
-                    <a
-                        href="/dashboard"
-                        class="btn btn-primary"
-                    >
-                        Launch Security Center →
-                    </a>
+    if (!data.connected) {
 
-                    <a
-                        href="#features"
-                        class="btn btn-secondary"
-                    >
-                        Explore Platform
-                    </a>
+        dot.classList.remove("connected");
 
-                </div>
+        statusText.textContent = "WAITING FOR USB DEVICE";
 
-            </div>
+        document.getElementById("waiting").style.display = "block";
+        document.getElementById("deviceInfo").style.display = "none";
+        document.getElementById("results").style.display = "none";
 
+        return;
+    }
 
-            <!-- HUD VISUAL -->
+    dot.classList.add("connected");
 
-            <div class="hero-visual">
+    statusText.textContent = "USB DEVICE CONNECTED";
 
-                <div class="hud-circle">
+    document.getElementById("waiting").style.display = "none";
+    document.getElementById("deviceInfo").style.display = "block";
 
-                    <div class="hud-line horizontal"></div>
+    const device = data.device || {};
+    const scan = data.scan || {};
 
-                    <div class="hud-line vertical"></div>
+    document.getElementById("deviceName").textContent =
+        device.label || "Unknown";
 
-                    <div class="scan"></div>
+    document.getElementById("drive").textContent =
+        device.drive || "-";
 
-                </div>
+    document.getElementById("filesScanned").textContent =
+        scan.files_scanned ?? "-";
 
+    document.getElementById("suspicious").textContent =
+        scan.suspicious_count ?? "-";
 
-                <div class="hud-core">
+    if (data.scan) {
 
-                    <div class="core-inner">
+        document.getElementById("results").style.display = "block";
 
-                        AI<br>
-                        DEFENSE<br>
-                        ACTIVE
+        document.getElementById("scanStatus").textContent =
+            data.status || "COMPLETE";
 
-                    </div>
+        document.getElementById("resultFiles").textContent =
+            scan.files_scanned ?? "-";
 
-                </div>
+        document.getElementById("resultSuspicious").textContent =
+            scan.suspicious_count ?? "-";
 
-            </div>
+        document.getElementById("filesystem").textContent =
+            device.filesystem || "-";
 
-        </section>
+        const risk = (scan.risk || "LOW").toUpperCase();
 
+        const riskElement = document.getElementById("risk");
 
-        <!-- ================================================== -->
-        <!-- FEATURES -->
-        <!-- ================================================== -->
+        riskElement.textContent = risk + " RISK";
 
-        <section
-            class="section"
-            id="features"
-        >
+        riskElement.className = "risk " + risk.toLowerCase();
 
-            <div class="section-heading">
+        const table = document.getElementById("suspiciousTable");
 
-                <small>
-                    PLATFORM CAPABILITIES
-                </small>
+        table.innerHTML = "";
 
-                <h2>
-                    One intelligence layer.
-                    Multiple defense domains.
-                </h2>
+        const files = scan.suspicious_files || [];
 
-                <p>
-                    IronMind AI brings security monitoring,
-                    machine intelligence and automated
-                    response concepts together inside one
-                    operational interface.
-                </p>
+        files.forEach(file => {
 
-            </div>
+            const row = document.createElement("tr");
 
+            const name = document.createElement("td");
+            name.textContent = file.path || "-";
 
-            <div class="features">
+            const reason = document.createElement("td");
+            reason.textContent =
+                (file.reasons || []).join(", ") || "-";
 
-                <div class="feature">
+            const hash = document.createElement("td");
+            hash.textContent =
+                file.sha256 || "-";
 
-                    <div class="feature-icon">
-                        CY
-                    </div>
+            row.appendChild(name);
+            row.appendChild(reason);
+            row.appendChild(hash);
 
-                    <h3>
-                        Cyber Defense
-                    </h3>
+            table.appendChild(row);
 
-                    <p>
-                        Monitor simulated threats,
-                        suspicious activity, security
-                        events and attack indicators.
-                    </p>
+        });
 
-                </div>
+    }
 
+}
 
-                <div class="feature">
 
-                    <div class="feature-icon">
-                        EP
-                    </div>
+loadUSBStatus();
 
-                    <h3>
-                        Endpoint Intelligence
-                    </h3>
+setInterval(loadUSBStatus, 2000);
 
-                    <p>
-                        Centralized endpoint visibility,
-                        device status and security
-                        monitoring.
-                    </p>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        OT
-                    </div>
-
-                    <h3>
-                        Machine & IoT
-                    </h3>
-
-                    <p>
-                        Monitor machine temperature,
-                        vibration, RPM and simulated
-                        industrial anomalies.
-                    </p>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        AI
-                    </div>
-
-                    <h3>
-                        AI Intelligence
-                    </h3>
-
-                    <p>
-                        Combine security signals into
-                        an AI-inspired risk and analysis
-                        workflow.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================================================== -->
-        <!-- ARCHITECTURE -->
-        <!-- ================================================== -->
-
-        <section
-            class="section"
-            id="architecture"
-        >
-
-            <div class="section-heading">
-
-                <small>
-                    IRONMIND AI CORE
-                </small>
-
-                <h2>
-                    Detect → Analyze → Predict → Protect → Recover
-                </h2>
-
-                <p>
-                    The platform is organized around a continuous
-                    security intelligence workflow.
-                </p>
-
-            </div>
-
-
-            <div class="pipeline">
-
-                <div class="pipeline-item">
-
-                    <div class="pipeline-number">
-                        01
-                    </div>
-
-                    <h3>
-                        Detect
-                    </h3>
-
-                </div>
-
-
-                <div class="pipeline-item">
-
-                    <div class="pipeline-number">
-                        02
-                    </div>
-
-                    <h3>
-                        Analyze
-                    </h3>
-
-                </div>
-
-
-                <div class="pipeline-item">
-
-                    <div class="pipeline-number">
-                        03
-                    </div>
-
-                    <h3>
-                        Predict
-                    </h3>
-
-                </div>
-
-
-                <div class="pipeline-item">
-
-                    <div class="pipeline-number">
-                        04
-                    </div>
-
-                    <h3>
-                        Protect
-                    </h3>
-
-                </div>
-
-
-                <div class="pipeline-item">
-
-                    <div class="pipeline-number">
-                        05
-                    </div>
-
-                    <h3>
-                        Recover
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================================================== -->
-        <!-- CTA -->
-        <!-- ================================================== -->
-
-        <section class="cta">
-
-            <h2>
-                Enter the IronMind Security Center
-            </h2>
-
-            <p>
-                Explore the live simulated SOC environment.
-            </p>
-
-            <a
-                href="/dashboard"
-                class="btn btn-primary"
-            >
-                Open Dashboard →
-            </a>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================================================== -->
-    <!-- FOOTER -->
-    <!-- ================================================== -->
-
-    <footer>
-
-        <div>
-            © 2026 IronMind AI
-        </div>
-
-        <div>
-            Cyber Defense • Machine Intelligence • IoT Monitoring
-        </div>
-
-    </footer>
+</script>
 
 </body>
-
 </html>
