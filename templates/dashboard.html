@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>IronMind AI | Security Dashboard</title>
 
     <style>
@@ -10,295 +11,510 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
-            background: #05080d;
-            color: #e8f1f8;
+            background:
+                radial-gradient(circle at 80% 10%, rgba(0, 170, 255, 0.06), transparent 25%),
+                #05080d;
+            color: #eaf3f8;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        .layout {
-            display: flex;
-            min-height: 100vh;
+        button {
+            font-family: inherit;
         }
 
-        /* SIDEBAR */
+        /* =====================================================
+           LAYOUT
+        ===================================================== */
+
+        .layout {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
 
         .sidebar {
-            width: 235px;
+            width: 245px;
             min-height: 100vh;
-            background: #080d14;
-            border-right: 1px solid #172331;
-            padding: 25px 15px;
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
+
+            background: rgba(7, 12, 19, 0.98);
+            border-right: 1px solid #182633;
+
+            padding: 24px 14px;
+
+            z-index: 100;
         }
 
-        .logo {
-            padding: 8px 15px 30px;
+        .brand {
+            padding: 5px 16px 30px;
         }
 
-        .logo-main {
+        .brand-name {
             font-size: 22px;
             font-weight: 800;
             letter-spacing: 1px;
         }
 
-        .logo-main span {
+        .brand-name span {
             color: #00c8ff;
         }
 
-        .logo-sub {
-            color: #536679;
+        .brand-sub {
+            margin-top: 7px;
+            color: #536678;
             font-size: 8px;
-            letter-spacing: 1.5px;
-            margin-top: 6px;
+            letter-spacing: 1.8px;
         }
 
-        .nav {
+        .navigation {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
-        .nav a {
-            text-decoration: none;
-            color: #718396;
-            padding: 12px 14px;
+        .nav-button {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: #708294;
+
+            text-align: left;
+
+            padding: 13px 15px;
             border-radius: 8px;
-            font-size: 13px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+            transition: 0.2s ease;
         }
 
-        .nav a:hover,
-        .nav a.active {
+        .nav-button:hover {
+            background: #0d1721;
             color: #ffffff;
-            background: #101c28;
         }
 
-        .nav a.active {
+        .nav-button.active {
+            background: linear-gradient(
+                90deg,
+                rgba(0, 200, 255, 0.10),
+                rgba(0, 200, 255, 0.02)
+            );
+
+            color: #ffffff;
+
             border-left: 3px solid #00c8ff;
         }
 
-        .system {
+        .nav-icon {
+            display: inline-block;
+            width: 25px;
+            color: #00c8ff;
+        }
+
+        .sidebar-status {
             position: absolute;
-            bottom: 25px;
             left: 25px;
+            bottom: 25px;
+
             color: #35e69a;
+
             font-size: 9px;
             letter-spacing: 1px;
         }
 
-        .dot {
+        .status-dot {
             display: inline-block;
+
             width: 7px;
             height: 7px;
+
             border-radius: 50%;
+
             background: #35e69a;
+
             box-shadow: 0 0 10px #35e69a;
+
             margin-right: 7px;
         }
 
-        /* MAIN */
+        /* =====================================================
+           MAIN
+        ===================================================== */
 
         .main {
-            margin-left: 235px;
-            width: calc(100% - 235px);
+            margin-left: 245px;
+            width: calc(100% - 245px);
+
+            min-height: 100vh;
+
             padding: 30px;
         }
 
-        .top {
+        .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
+
+            margin-bottom: 25px;
         }
 
-        .top h1 {
+        .page-title h1 {
             margin: 0;
-            font-size: 27px;
+
+            font-size: 28px;
+            letter-spacing: -0.5px;
         }
 
-        .top p {
+        .page-title p {
             margin: 7px 0 0;
-            color: #627589;
+
+            color: #5f7386;
+
             font-size: 10px;
+            letter-spacing: 1.1px;
+        }
+
+        .live-status {
+            color: #35e69a;
+
+            font-size: 10px;
+            font-weight: bold;
+
             letter-spacing: 1px;
         }
 
-        .live {
-            color: #35e69a;
-            font-size: 11px;
+        /* =====================================================
+           PAGE SECTIONS
+        ===================================================== */
+
+        .page {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =====================================================
+           CARDS
+        ===================================================== */
+
+        .card {
+            background: rgba(9, 16, 24, 0.95);
+
+            border: 1px solid #182938;
+
+            border-radius: 12px;
+
+            padding: 20px;
+        }
+
+        .card-title {
+            margin: 0;
+
+            font-size: 15px;
             font-weight: bold;
         }
 
-        /* METRICS */
+        .card-subtitle {
+            margin-top: 5px;
+
+            color: #617588;
+
+            font-size: 10px;
+        }
+
+        /* =====================================================
+           METRICS
+        ===================================================== */
 
         .metrics {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-bottom: 18px;
         }
 
         .metric {
-            background: #0a1119;
-            border: 1px solid #182736;
+            background: #091019;
+
+            border: 1px solid #182938;
+
             border-radius: 12px;
+
             padding: 20px;
         }
 
         .metric-label {
             color: #65788b;
+
             font-size: 9px;
             letter-spacing: 1.2px;
         }
 
         .metric-value {
-            font-size: 29px;
-            font-weight: bold;
-            margin-top: 10px;
+            margin-top: 9px;
+
+            font-size: 28px;
+            font-weight: 800;
         }
 
         .metric-sub {
-            color: #35e69a;
-            font-size: 9px;
             margin-top: 6px;
+
+            color: #35e69a;
+
+            font-size: 9px;
         }
 
-        /* USB */
+        /* =====================================================
+           GRID
+        ===================================================== */
 
-        .usb {
-            background: #0a1119;
-            border: 1px solid #1b3040;
+        .two-column {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 18px;
+
+            margin-top: 18px;
+        }
+
+        .three-column {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-top: 18px;
+        }
+
+        /* =====================================================
+           USB
+        ===================================================== */
+
+        .usb-card {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(0, 200, 255, 0.045),
+                    rgba(9, 16, 24, 0.96)
+                );
+
+            border: 1px solid #1a3445;
+
             border-radius: 14px;
+
             padding: 22px;
-            margin-bottom: 20px;
+
+            margin-bottom: 18px;
         }
 
         .usb-header {
             display: flex;
+
             justify-content: space-between;
             align-items: center;
+
             margin-bottom: 20px;
         }
 
         .usb-heading {
             display: flex;
+
             align-items: center;
+
             gap: 12px;
         }
 
         .usb-icon {
-            width: 42px;
-            height: 42px;
+            width: 43px;
+            height: 43px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             border-radius: 10px;
-            background: #0d1d29;
+
+            background: #0c1c28;
+
             font-size: 20px;
         }
 
         .usb-heading h2 {
             margin: 0;
+
             font-size: 17px;
         }
 
         .usb-heading p {
             margin: 5px 0 0;
-            color: #63778a;
+
+            color: #627588;
+
             font-size: 10px;
         }
 
         .usb-badge {
             padding: 8px 13px;
+
             border-radius: 20px;
+
+            background: #131c24;
+
+            color: #7b8b99;
+
             font-size: 9px;
             font-weight: bold;
+
             letter-spacing: 1px;
-            background: #151e27;
-            color: #8292a1;
         }
 
         .usb-badge.connected {
             color: #35e69a;
-            background: rgba(53,230,154,.08);
-            border: 1px solid rgba(53,230,154,.2);
+
+            background: rgba(53, 230, 154, 0.08);
+
+            border: 1px solid rgba(53, 230, 154, 0.20);
         }
 
         .usb-badge.warning {
             color: #ffc04d;
-            background: rgba(255,192,77,.08);
+
+            background: rgba(255, 192, 77, 0.08);
+
+            border: 1px solid rgba(255, 192, 77, 0.20);
         }
 
         .usb-badge.danger {
-            color: #ff6476;
-            background: rgba(255,70,90,.08);
+            color: #ff6576;
+
+            background: rgba(255, 70, 90, 0.08);
+
+            border: 1px solid rgba(255, 70, 90, 0.20);
         }
 
         .waiting {
-            padding: 35px;
             text-align: center;
-            color: #637589;
-            font-size: 13px;
+
+            padding: 35px;
+
+            color: #65798c;
+
+            font-size: 12px;
         }
 
         .device-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
             gap: 12px;
         }
 
         .device-box {
             background: #070d14;
-            border: 1px solid #172634;
+
+            border: 1px solid #172735;
+
             border-radius: 9px;
+
             padding: 15px;
         }
 
         .device-label {
             color: #627588;
-            font-size: 9px;
-            text-transform: uppercase;
+
+            font-size: 8px;
+
             letter-spacing: 1px;
+
+            text-transform: uppercase;
+
             margin-bottom: 8px;
         }
 
         .device-value {
-            color: #edf5fa;
-            font-size: 14px;
+            color: #eef6fa;
+
+            font-size: 13px;
+
             font-weight: bold;
+
             word-break: break-word;
         }
 
-        /* RISK */
+        .risk-box {
+            margin-top: 14px;
 
-        .risk {
-            margin-top: 15px;
-            padding: 16px;
-            background: #070d14;
-            border: 1px solid #172634;
-            border-radius: 9px;
+            padding: 17px;
+
             display: flex;
+
             justify-content: space-between;
             align-items: center;
+
+            background: #070d14;
+
+            border: 1px solid #172735;
+
+            border-radius: 9px;
         }
 
-        .risk-title {
-            color: #6d8193;
-            font-size: 10px;
+        .risk-label {
+            color: #65798b;
+
+            font-size: 9px;
+
+            letter-spacing: 1px;
         }
 
         .risk-message {
-            margin-top: 5px;
-            font-size: 12px;
+            margin-top: 6px;
+
+            font-size: 11px;
         }
 
         .risk-value {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 17px;
+
+            font-weight: 800;
         }
 
         .low {
@@ -313,639 +529,2674 @@
             color: #ff6476;
         }
 
-        /* LOWER PANELS */
+        /* =====================================================
+           TABLE
+        ===================================================== */
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
+        .table-wrapper {
+            overflow-x: auto;
+
+            margin-top: 18px;
         }
 
-        .panel {
-            background: #0a1119;
-            border: 1px solid #182736;
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 180px;
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            font-size: 11px;
         }
 
-        .panel h2 {
-            margin: 0;
-            font-size: 15px;
-        }
-
-        .panel-sub {
+        th {
             color: #607487;
-            font-size: 10px;
-            margin-top: 5px;
+
+            text-align: left;
+
+            font-size: 9px;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+            padding: 11px;
+
+            border-bottom: 1px solid #1a2935;
         }
+
+        td {
+            padding: 13px 11px;
+
+            border-bottom: 1px solid #111e29;
+
+            color: #dce7ed;
+        }
+
+        .empty-state {
+            text-align: center;
+
+            padding: 35px 15px;
+
+            color: #607487;
+        }
+
+        /* =====================================================
+           STATUS ROWS
+        ===================================================== */
 
         .status-list {
-            margin-top: 20px;
+            margin-top: 18px;
         }
 
         .status-row {
             display: flex;
+
             justify-content: space-between;
-            padding: 11px 0;
-            border-bottom: 1px solid #14202b;
+
+            align-items: center;
+
+            padding: 12px 0;
+
+            border-bottom: 1px solid #14212c;
+
             font-size: 11px;
+        }
+
+        .status-row:last-child {
+            border-bottom: 0;
         }
 
         .secure {
             color: #35e69a;
         }
 
-        /* RESPONSIVE */
+        .warning-text {
+            color: #ffc04d;
+        }
 
-        @media(max-width: 950px) {
+        .danger-text {
+            color: #ff6476;
+        }
+
+        .muted {
+            color: #607487;
+        }
+
+        /* =====================================================
+           MODULE CARDS
+        ===================================================== */
+
+        .module-icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #0d1b26;
+
+            border-radius: 9px;
+
+            color: #00c8ff;
+
+            font-size: 19px;
+
+            margin-bottom: 15px;
+        }
+
+        .module-value {
+            margin-top: 14px;
+
+            font-size: 21px;
+
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           THREAT LEVEL
+        ===================================================== */
+
+        .severity {
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            border-radius: 12px;
+
+            font-size: 8px;
+
+            font-weight: bold;
+
+            letter-spacing: .8px;
+        }
+
+        .severity.low {
+            background: rgba(53,230,154,.08);
+            color: #35e69a;
+        }
+
+        .severity.medium {
+            background: rgba(255,192,77,.08);
+            color: #ffc04d;
+        }
+
+        .severity.high {
+            background: rgba(255,70,90,.08);
+            color: #ff6476;
+        }
+
+        /* =====================================================
+           REPORT BUTTON
+        ===================================================== */
+
+        .action-button {
+            border: 1px solid #1b394b;
+
+            background: #0b1822;
+
+            color: #00c8ff;
+
+            padding: 10px 14px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 10px;
+
+            margin-top: 15px;
+        }
+
+        .action-button:hover {
+            background: #102533;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media(max-width: 1050px) {
+
             .metrics {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
 
             .device-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .three-column {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
         }
 
-        @media(max-width: 700px) {
+        @media(max-width: 750px) {
+
             .sidebar {
-                display: none;
+                position: relative;
+
+                width: 100%;
+
+                min-height: auto;
+            }
+
+            .layout {
+                display: block;
             }
 
             .main {
                 margin-left: 0;
+
                 width: 100%;
+
                 padding: 18px;
             }
 
-            .grid {
+            .sidebar-status {
+                display: none;
+            }
+
+            .navigation {
+                display: grid;
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .two-column,
+            .three-column {
                 grid-template-columns: 1fr;
             }
         }
 
         @media(max-width: 500px) {
-            .metrics {
+
+            .metrics,
+            .device-grid {
                 grid-template-columns: 1fr;
             }
 
-            .device-grid {
-                grid-template-columns: 1fr;
+            .topbar {
+                align-items: flex-start;
+
+                gap: 15px;
+            }
+
+            .live-status {
+                display: none;
             }
         }
     </style>
 </head>
 
+
 <body>
 
 <div class="layout">
 
-    <!-- SIDEBAR -->
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
 
     <aside class="sidebar">
 
-        <div class="logo">
-            <div class="logo-main">
+        <div class="brand">
+
+            <div class="brand-name">
                 IRON<span>MIND</span> AI
             </div>
 
-            <div class="logo-sub">
+            <div class="brand-sub">
                 CYBER DEFENSE PLATFORM
             </div>
+
         </div>
 
-        <nav class="nav">
-            <a href="/dashboard" class="active">◈ Dashboard</a>
-            <a href="#">⚠ Threats</a>
-            <a href="#">▣ Endpoints</a>
-            <a href="#">☁ Cloud</a>
-            <a href="#">⌁ Network</a>
-            <a href="#">◉ IoT / Sensors</a>
-            <a href="#">✦ AI Intelligence</a>
-            <a href="#">▤ Reports</a>
+
+        <nav class="navigation">
+
+            <button
+                class="nav-button active"
+                data-page="dashboardPage">
+
+                <span class="nav-icon">◆</span>
+                Dashboard
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="threatsPage">
+
+                <span class="nav-icon">⚠</span>
+                Threats
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="endpointsPage">
+
+                <span class="nav-icon">▣</span>
+                Endpoints
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="cloudPage">
+
+                <span class="nav-icon">☁</span>
+                Cloud
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="networkPage">
+
+                <span class="nav-icon">⌁</span>
+                Network
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="iotPage">
+
+                <span class="nav-icon">◉</span>
+                IoT / Sensors
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="aiPage">
+
+                <span class="nav-icon">✦</span>
+                AI Intelligence
+
+            </button>
+
+
+            <button
+                class="nav-button"
+                data-page="reportsPage">
+
+                <span class="nav-icon">▤</span>
+                Reports
+
+            </button>
+
         </nav>
 
-        <div class="system">
-            <span class="dot"></span>
+
+        <div class="sidebar-status">
+
+            <span class="status-dot"></span>
+
             SYSTEM OPERATIONAL
+
         </div>
 
     </aside>
 
 
-    <!-- MAIN -->
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
 
     <main class="main">
 
-        <div class="top">
 
-            <div>
-                <h1>Security Dashboard</h1>
-                <p>IRONMIND AI CYBER DEFENSE & INTELLIGENCE</p>
+        <!-- =================================================
+             TOP BAR
+        ================================================== -->
+
+        <div class="topbar">
+
+            <div class="page-title">
+
+                <h1 id="pageTitle">
+                    Security Dashboard
+                </h1>
+
+                <p id="pageSubtitle">
+                    IRONMIND AI CYBER DEFENSE & INTELLIGENCE
+                </p>
+
             </div>
 
-            <div class="live">
+
+            <div class="live-status">
                 ● LIVE
             </div>
 
         </div>
 
 
-        <!-- METRICS -->
 
-        <section class="metrics">
+        <!-- =================================================
+             DASHBOARD PAGE
+        ================================================== -->
 
-            <div class="metric">
-                <div class="metric-label">RISK SCORE</div>
-                <div class="metric-value" id="risk">24</div>
-                <div class="metric-sub">LOW RISK</div>
-            </div>
-
-            <div class="metric">
-                <div class="metric-label">AI RISK INDEX</div>
-                <div class="metric-value" id="aiRisk">18</div>
-                <div class="metric-sub">AI ANALYSIS</div>
-            </div>
-
-            <div class="metric">
-                <div class="metric-label">THREATS DETECTED</div>
-                <div class="metric-value" id="threats">0</div>
-                <div class="metric-sub">ACTIVE EVENTS</div>
-            </div>
-
-            <div class="metric">
-                <div class="metric-label">THREATS BLOCKED</div>
-                <div class="metric-value" id="blocked">24</div>
-                <div class="metric-sub">PROTECTED</div>
-            </div>
-
-        </section>
+        <section
+            id="dashboardPage"
+            class="page active">
 
 
-        <!-- USB -->
+            <!-- METRICS -->
 
-        <section class="usb">
-
-            <div class="usb-header">
-
-                <div class="usb-heading">
-
-                    <div class="usb-icon">
-                        🔌
-                    </div>
-
-                    <div>
-                        <h2>USB Threat Intelligence</h2>
-
-                        <p>
-                            Real-time removable device monitoring
-                        </p>
-                    </div>
-
-                </div>
-
-                <div id="usbBadge" class="usb-badge">
-                    WAITING
-                </div>
-
-            </div>
+            <div class="metrics">
 
 
-            <!-- WAITING -->
+                <div class="metric">
 
-            <div id="usbWaiting" class="waiting">
-
-                <div style="font-size:30px;margin-bottom:10px;">
-                    🔌
-                </div>
-
-                Waiting for USB device...
-
-                <div style="font-size:10px;margin-top:7px;">
-                    Connect a removable device to begin inspection.
-                </div>
-
-            </div>
-
-
-            <!-- CONNECTED -->
-
-            <div id="usbConnected" style="display:none;">
-
-                <div class="device-grid">
-
-                    <div class="device-box">
-                        <div class="device-label">Device</div>
-                        <div id="usbDevice" class="device-value">—</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Drive</div>
-                        <div id="usbDrive" class="device-value">—</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Filesystem</div>
-                        <div id="usbFilesystem" class="device-value">—</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Scan Status</div>
-                        <div id="usbStatus" class="device-value">—</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Files Scanned</div>
-                        <div id="usbFiles" class="device-value">0</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Suspicious</div>
-                        <div id="usbSuspicious" class="device-value">0</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Total Size</div>
-                        <div id="usbTotal" class="device-value">—</div>
-                    </div>
-
-                    <div class="device-box">
-                        <div class="device-label">Free Space</div>
-                        <div id="usbFree" class="device-value">—</div>
-                    </div>
-
-                </div>
-
-
-                <div class="risk">
-
-                    <div>
-                        <div class="risk-title">
-                            USB SECURITY ANALYSIS
-                        </div>
-
-                        <div
-                            id="riskMessage"
-                            class="risk-message">
-                            Analysis complete
-                        </div>
+                    <div class="metric-label">
+                        RISK SCORE
                     </div>
 
                     <div
-                        id="usbRisk"
-                        class="risk-value low">
+                        id="risk"
+                        class="metric-value">
+                        24
+                    </div>
+
+                    <div class="metric-sub">
                         LOW RISK
                     </div>
 
                 </div>
 
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        AI RISK INDEX
+                    </div>
+
+                    <div
+                        id="aiRisk"
+                        class="metric-value">
+                        18
+                    </div>
+
+                    <div class="metric-sub">
+                        AI ANALYSIS
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        THREATS DETECTED
+                    </div>
+
+                    <div
+                        id="threats"
+                        class="metric-value">
+                        0
+                    </div>
+
+                    <div class="metric-sub">
+                        ACTIVE EVENTS
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        THREATS BLOCKED
+                    </div>
+
+                    <div
+                        id="blocked"
+                        class="metric-value">
+                        24
+                    </div>
+
+                    <div class="metric-sub">
+                        PROTECTED
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- USB SECURITY -->
+
+            <div class="usb-card">
+
+                <div class="usb-header">
+
+                    <div class="usb-heading">
+
+                        <div class="usb-icon">
+                            🔌
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                USB Threat Intelligence
+                            </h2>
+
+                            <p>
+                                Real-time removable device monitoring
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="usbBadge"
+                        class="usb-badge">
+
+                        WAITING
+
+                    </div>
+
+                </div>
+
+
+                <!-- USB WAITING -->
+
+                <div
+                    id="usbWaiting"
+                    class="waiting">
+
+                    <div style="font-size:30px;">
+                        🔌
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        Waiting for USB device...
+                    </div>
+
+                    <div
+                        class="muted"
+                        style="font-size:9px;margin-top:7px;">
+
+                        Connect a removable device to begin inspection.
+
+                    </div>
+
+                </div>
+
+
+                <!-- USB CONNECTED -->
+
+                <div
+                    id="usbConnected"
+                    style="display:none;">
+
+
+                    <div class="device-grid">
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Device
+                            </div>
+
+                            <div
+                                id="usbDevice"
+                                class="device-value">
+
+                                —
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Drive
+                            </div>
+
+                            <div
+                                id="usbDrive"
+                                class="device-value">
+
+                                —
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Filesystem
+                            </div>
+
+                            <div
+                                id="usbFilesystem"
+                                class="device-value">
+
+                                —
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Scan Status
+                            </div>
+
+                            <div
+                                id="usbStatus"
+                                class="device-value">
+
+                                —
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Files Scanned
+                            </div>
+
+                            <div
+                                id="usbFiles"
+                                class="device-value">
+
+                                0
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Suspicious
+                            </div>
+
+                            <div
+                                id="usbSuspicious"
+                                class="device-value">
+
+                                0
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Total Size
+                            </div>
+
+                            <div
+                                id="usbTotal"
+                                class="device-value">
+
+                                —
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="device-box">
+
+                            <div class="device-label">
+                                Free Space
+                            </div>
+
+                            <div
+                                id="usbFree"
+                                class="device-value">
+
+                                —
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="risk-box">
+
+                        <div>
+
+                            <div class="risk-label">
+                                USB SECURITY ANALYSIS
+                            </div>
+
+                            <div
+                                id="riskMessage"
+                                class="risk-message">
+
+                                Analysis complete.
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="usbRisk"
+                            class="risk-value low">
+
+                            LOW RISK
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- DASHBOARD MODULES -->
+
+            <div class="two-column">
+
+
+                <div class="card">
+
+                    <h2 class="card-title">
+                        Network Security
+                    </h2>
+
+                    <div class="card-subtitle">
+                        Network activity monitoring
+                    </div>
+
+
+                    <div class="status-list">
+
+                        <div class="status-row">
+
+                            <span>
+                                Network Status
+                            </span>
+
+                            <span class="secure">
+                                MONITORING
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Traffic Analysis
+                            </span>
+
+                            <span class="secure">
+                                ACTIVE
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Anomalies
+                            </span>
+
+                            <span>
+                                0
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <h2 class="card-title">
+                        IoT / Sensor Security
+                    </h2>
+
+                    <div class="card-subtitle">
+                        Machine and sensor monitoring
+                    </div>
+
+
+                    <div class="status-list">
+
+                        <div class="status-row">
+
+                            <span>
+                                Sensor System
+                            </span>
+
+                            <span class="secure">
+                                READY
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Connected Sensors
+                            </span>
+
+                            <span>
+                                0
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Machine Alerts
+                            </span>
+
+                            <span>
+                                0
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             THREATS PAGE
+        ================================================== -->
+
+        <section
+            id="threatsPage"
+            class="page">
+
+
+            <div class="card">
+
+                <h2 class="card-title">
+                    Threat Intelligence
+                </h2>
+
+                <div class="card-subtitle">
+                    Detected cybersecurity events and suspicious activity
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Threat</th>
+                                <th>Source</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="threatTable">
+
+                            <tr>
+
+                                <td>
+                                    No active threats
+                                </td>
+
+                                <td>
+                                    —
+                                </td>
+
+                                <td>
+                                    <span class="severity low">
+                                        CLEAR
+                                    </span>
+                                </td>
+
+                                <td class="secure">
+                                    MONITORING
+                                </td>
+
+                                <td>
+                                    No action required
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="three-column">
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⚠
+                    </div>
+
+                    <div class="card-title">
+                        Active Threats
+                    </div>
+
+                    <div
+                        id="threatCount"
+                        class="module-value">
+
+                        0
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        🛡
+                    </div>
+
+                    <div class="card-title">
+                        Threats Blocked
+                    </div>
+
+                    <div
+                        id="blockedThreatCount"
+                        class="module-value">
+
+                        24
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        🔍
+                    </div>
+
+                    <div class="card-title">
+                        Threat Analysis
+                    </div>
+
+                    <div class="module-value secure">
+                        ACTIVE
+                    </div>
+
+                </div>
+
+
             </div>
 
         </section>
 
 
-        <!-- OTHER SECURITY MODULES -->
 
-        <div class="grid">
+        <!-- =================================================
+             ENDPOINTS PAGE
+        ================================================== -->
 
-            <section class="panel">
+        <section
+            id="endpointsPage"
+            class="page">
 
-                <h2>Network Security</h2>
 
-                <div class="panel-sub">
-                    Network activity monitoring
+            <div class="card">
+
+                <h2 class="card-title">
+                    Endpoint Security
+                </h2>
+
+                <div class="card-subtitle">
+                    Computers and removable devices protected by IronMind AI
                 </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Protection</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    This Windows Laptop
+                                </td>
+
+                                <td>
+                                    Windows Endpoint
+                                </td>
+
+                                <td class="secure">
+                                    ONLINE
+                                </td>
+
+                                <td class="secure">
+                                    PROTECTED
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    USB Removable Device
+                                </td>
+
+                                <td>
+                                    External Storage
+                                </td>
+
+                                <td id="endpointUSBStatus">
+                                    WAITING
+                                </td>
+
+                                <td class="secure">
+                                    USB DEFENSE
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="three-column">
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        💻
+                    </div>
+
+                    <div class="card-title">
+                        Windows Endpoint
+                    </div>
+
+                    <div class="module-value secure">
+                        ONLINE
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        🔌
+                    </div>
+
+                    <div class="card-title">
+                        USB Monitoring
+                    </div>
+
+                    <div class="module-value secure">
+                        ACTIVE
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        🛡
+                    </div>
+
+                    <div class="card-title">
+                        Protection
+                    </div>
+
+                    <div class="module-value secure">
+                        ENABLED
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             CLOUD PAGE
+        ================================================== -->
+
+        <section
+            id="cloudPage"
+            class="page">
+
+
+            <div class="three-column">
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ☁
+                    </div>
+
+                    <div class="card-title">
+                        IronMind Cloud
+                    </div>
+
+                    <div class="module-value secure">
+                        ONLINE
+                    </div>
+
+                    <div class="card-subtitle">
+                        Cloud service connection
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⇄
+                    </div>
+
+                    <div class="card-title">
+                        API Status
+                    </div>
+
+                    <div class="module-value secure">
+                        CONNECTED
+                    </div>
+
+                    <div class="card-subtitle">
+                        Agent communication
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        🔐
+                    </div>
+
+                    <div class="card-title">
+                        Data Security
+                    </div>
+
+                    <div class="module-value secure">
+                        ACTIVE
+                    </div>
+
+                    <div class="card-subtitle">
+                        Security telemetry
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="card" style="margin-top:18px;">
+
+                <h2 class="card-title">
+                    Cloud Monitoring
+                </h2>
+
+                <div class="card-subtitle">
+                    IronMind AI cloud communication status
+                </div>
+
 
                 <div class="status-list">
 
                     <div class="status-row">
-                        <span>Network Status</span>
-                        <span class="secure">MONITORING</span>
+
+                        <span>
+                            Web Service
+                        </span>
+
+                        <span class="secure">
+                            OPERATIONAL
+                        </span>
+
                     </div>
 
-                    <div class="status-row">
-                        <span>Traffic Analysis</span>
-                        <span class="secure">ACTIVE</span>
-                    </div>
 
                     <div class="status-row">
-                        <span>Anomalies</span>
-                        <span>0</span>
+
+                        <span>
+                            USB Event API
+                        </span>
+
+                        <span class="secure">
+                            RECEIVING
+                        </span>
+
+                    </div>
+
+
+                    <div class="status-row">
+
+                        <span>
+                            Dashboard API
+                        </span>
+
+                        <span class="secure">
+                            AVAILABLE
+                        </span>
+
                     </div>
 
                 </div>
 
-            </section>
+            </div>
+
+        </section>
 
 
-            <section class="panel">
 
-                <h2>IoT / Sensor Security</h2>
+        <!-- =================================================
+             NETWORK PAGE
+        ================================================== -->
 
-                <div class="panel-sub">
-                    Machine and sensor monitoring
+        <section
+            id="networkPage"
+            class="page">
+
+
+            <div class="three-column">
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⌁
+                    </div>
+
+                    <div class="card-title">
+                        Network Status
+                    </div>
+
+                    <div class="module-value secure">
+                        MONITORING
+                    </div>
+
                 </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⇅
+                    </div>
+
+                    <div class="card-title">
+                        Traffic Analysis
+                    </div>
+
+                    <div class="module-value secure">
+                        ACTIVE
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⚡
+                    </div>
+
+                    <div class="card-title">
+                        Anomalies
+                    </div>
+
+                    <div class="module-value">
+                        0
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="two-column">
+
+
+                <div class="card">
+
+                    <h2 class="card-title">
+                        Network Defense
+                    </h2>
+
+                    <div class="status-list">
+
+                        <div class="status-row">
+
+                            <span>
+                                Network Monitor
+                            </span>
+
+                            <span class="secure">
+                                ACTIVE
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Traffic Inspection
+                            </span>
+
+                            <span class="secure">
+                                READY
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Anomaly Detection
+                            </span>
+
+                            <span class="secure">
+                                READY
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2 class="card-title">
+                        Network Events
+                    </h2>
+
+                    <div class="empty-state">
+
+                        No network events available.
+
+                        <br>
+
+                        <span class="muted">
+                            Connect a network monitoring source to populate this panel.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             IOT / SENSORS PAGE
+        ================================================== -->
+
+        <section
+            id="iotPage"
+            class="page">
+
+
+            <div class="three-column">
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ◉
+                    </div>
+
+                    <div class="card-title">
+                        Connected Sensors
+                    </div>
+
+                    <div
+                        id="sensorCount"
+                        class="module-value">
+
+                        0
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⚙
+                    </div>
+
+                    <div class="card-title">
+                        Machine Status
+                    </div>
+
+                    <div class="module-value secure">
+                        READY
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⚠
+                    </div>
+
+                    <div class="card-title">
+                        Sensor Alerts
+                    </div>
+
+                    <div class="module-value">
+                        0
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="card" style="margin-top:18px;">
+
+                <h2 class="card-title">
+                    IoT & Machine Monitoring
+                </h2>
+
+                <div class="card-subtitle">
+                    Real-time machine and sensor security
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Device</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Security</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    Sensor Network
+                                </td>
+
+                                <td>
+                                    IoT
+                                </td>
+
+                                <td class="muted">
+                                    NOT CONNECTED
+                                </td>
+
+                                <td class="secure">
+                                    READY
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Machine Monitor
+                                </td>
+
+                                <td>
+                                    Industrial / Machine
+                                </td>
+
+                                <td class="muted">
+                                    WAITING
+                                </td>
+
+                                <td class="secure">
+                                    READY
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             AI INTELLIGENCE PAGE
+        ================================================== -->
+
+        <section
+            id="aiPage"
+            class="page">
+
+
+            <div class="three-column">
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ✦
+                    </div>
+
+                    <div class="card-title">
+                        AI Engine
+                    </div>
+
+                    <div class="module-value secure">
+                        ACTIVE
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        🧠
+                    </div>
+
+                    <div class="card-title">
+                        Threat Analysis
+                    </div>
+
+                    <div class="module-value secure">
+                        RUNNING
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ◈
+                    </div>
+
+                    <div class="card-title">
+                        Prediction Engine
+                    </div>
+
+                    <div class="module-value secure">
+                        READY
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="two-column">
+
+
+                <div class="card">
+
+                    <h2 class="card-title">
+                        AI Risk Assessment
+                    </h2>
+
+                    <div class="card-subtitle">
+                        Current intelligence assessment
+                    </div>
+
+
+                    <div
+                        id="aiRiskDisplay"
+                        class="module-value">
+
+                        18
+
+                    </div>
+
+                    <div class="secure">
+                        LOW RISK INDEX
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2 class="card-title">
+                        Analysis Pipeline
+                    </h2>
+
+
+                    <div class="status-list">
+
+                        <div class="status-row">
+
+                            <span>
+                                Detect
+                            </span>
+
+                            <span class="secure">
+                                ACTIVE
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Analyze
+                            </span>
+
+                            <span class="secure">
+                                ACTIVE
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Predict
+                            </span>
+
+                            <span class="secure">
+                                READY
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Protect
+                            </span>
+
+                            <span class="secure">
+                                READY
+                            </span>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                Recover
+                            </span>
+
+                            <span class="secure">
+                                READY
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             REPORTS PAGE
+        ================================================== -->
+
+        <section
+            id="reportsPage"
+            class="page">
+
+
+            <div class="three-column">
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        📄
+                    </div>
+
+                    <div class="card-title">
+                        USB Scan Reports
+                    </div>
+
+                    <div class="module-value">
+                        LIVE
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        ⚠
+                    </div>
+
+                    <div class="card-title">
+                        Threat Reports
+                    </div>
+
+                    <div class="module-value">
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="module-icon">
+                        📊
+                    </div>
+
+                    <div class="card-title">
+                        Security Summary
+                    </div>
+
+                    <div class="module-value secure">
+                        HEALTHY
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="card" style="margin-top:18px;">
+
+                <h2 class="card-title">
+                    Latest USB Security Report
+                </h2>
+
+                <div class="card-subtitle">
+                    Latest result received from the Windows USB agent
+                </div>
+
 
                 <div class="status-list">
 
                     <div class="status-row">
-                        <span>Sensor System</span>
-                        <span class="secure">READY</span>
+
+                        <span>
+                            Device
+                        </span>
+
+                        <span id="reportDevice">
+                            —
+                        </span>
+
                     </div>
 
-                    <div class="status-row">
-                        <span>Connected Sensors</span>
-                        <span>0</span>
-                    </div>
 
                     <div class="status-row">
-                        <span>Machine Alerts</span>
-                        <span>0</span>
+
+                        <span>
+                            Drive
+                        </span>
+
+                        <span id="reportDrive">
+                            —
+                        </span>
+
                     </div>
+
+
+                    <div class="status-row">
+
+                        <span>
+                            Files Scanned
+                        </span>
+
+                        <span id="reportFiles">
+                            0
+                        </span>
+
+                    </div>
+
+
+                    <div class="status-row">
+
+                        <span>
+                            Suspicious Files
+                        </span>
+
+                        <span id="reportSuspicious">
+                            0
+                        </span>
+
+                    </div>
+
+
+                    <div class="status-row">
+
+                        <span>
+                            Risk
+                        </span>
+
+                        <span
+                            id="reportRisk"
+                            class="secure">
+
+                            —
+
+                        </span>
+
+                    </div>
+
 
                 </div>
 
-            </section>
+            </div>
 
+        </section>
 
-            <section class="panel">
-
-                <h2>AI Intelligence</h2>
-
-                <div class="panel-sub">
-                    IronMind analysis engine
-                </div>
-
-                <div class="status-list">
-
-                    <div class="status-row">
-                        <span>AI Engine</span>
-                        <span class="secure">ACTIVE</span>
-                    </div>
-
-                    <div class="status-row">
-                        <span>Threat Analysis</span>
-                        <span class="secure">RUNNING</span>
-                    </div>
-
-                    <div class="status-row">
-                        <span>Prediction Engine</span>
-                        <span class="secure">READY</span>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section class="panel">
-
-                <h2>System Protection</h2>
-
-                <div class="panel-sub">
-                    Current defense status
-                </div>
-
-                <div class="status-list">
-
-                    <div class="status-row">
-                        <span>Cyber Defense</span>
-                        <span class="secure">ACTIVE</span>
-                    </div>
-
-                    <div class="status-row">
-                        <span>USB Defense</span>
-                        <span class="secure">ACTIVE</span>
-                    </div>
-
-                    <div class="status-row">
-                        <span>Response Engine</span>
-                        <span class="secure">READY</span>
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
 
     </main>
 
 </div>
 
 
-<!-- ======================================================
-     USB STATUS
-     
-     This is only inside dashboard.html.
-     script.js is NOT modified.
-     ====================================================== -->
+
+<!-- =========================================================
+     DASHBOARD PAGE NAVIGATION + USB STATUS
+
+     IMPORTANT:
+     This is contained inside dashboard.html.
+     Your existing static/script.js is NOT modified.
+========================================================= -->
 
 <script>
 
-function formatBytes(bytes) {
+(function () {
 
-    if (!bytes || bytes <= 0) {
-        return "—";
+    /* =====================================================
+       PAGE NAVIGATION
+    ===================================================== */
+
+    const navButtons =
+        document.querySelectorAll(".nav-button");
+
+    const pages =
+        document.querySelectorAll(".page");
+
+
+    const pageTitles = {
+
+        dashboardPage: [
+            "Security Dashboard",
+            "IRONMIND AI CYBER DEFENSE & INTELLIGENCE"
+        ],
+
+        threatsPage: [
+            "Threat Intelligence",
+            "DETECTION, ANALYSIS & RESPONSE"
+        ],
+
+        endpointsPage: [
+            "Endpoint Security",
+            "DEVICE PROTECTION & MONITORING"
+        ],
+
+        cloudPage: [
+            "Cloud Security",
+            "IRONMIND AI CLOUD SERVICES"
+        ],
+
+        networkPage: [
+            "Network Security",
+            "NETWORK MONITORING & ANOMALY DETECTION"
+        ],
+
+        iotPage: [
+            "IoT / Sensor Security",
+            "MACHINE & SENSOR MONITORING"
+        ],
+
+        aiPage: [
+            "AI Intelligence",
+            "ARTIFICIAL INTELLIGENCE THREAT ANALYSIS"
+        ],
+
+        reportsPage: [
+            "Security Reports",
+            "IRONMIND AI SECURITY TELEMETRY"
+        ]
+
+    };
+
+
+    navButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const pageId =
+                button.getAttribute("data-page");
+
+
+            /* Remove active from all buttons*/
+
+            navButtons.forEach(function (item) {
+
+                item.classList.remove("active");
+
+            });
+
+
+            /* Hide all pages */
+
+            pages.forEach(function (page) {
+
+                page.classList.remove("active");
+
+            });
+
+
+            /* Activate selected button */
+
+            button.classList.add("active");
+
+
+            /* Show selected page */
+
+            const selectedPage =
+                document.getElementById(pageId);
+
+
+            if (selectedPage) {
+
+                selectedPage.classList.add("active");
+
+            }
+
+
+            /* Change title */
+
+            if (pageTitles[pageId]) {
+
+                document.getElementById(
+                    "pageTitle"
+                ).textContent =
+                    pageTitles[pageId][0];
+
+
+                document.getElementById(
+                    "pageSubtitle"
+                ).textContent =
+                    pageTitles[pageId][1];
+
+            }
+
+        });
+
+    });
+
+
+
+    /* =====================================================
+       FORMAT BYTES
+    ===================================================== */
+
+    function formatBytes(bytes) {
+
+        if (!bytes || Number(bytes) <= 0) {
+            return "—";
+        }
+
+
+        const units = [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+        ];
+
+
+        let value =
+            Number(bytes);
+
+        let index = 0;
+
+
+        while (
+            value >= 1024 &&
+            index < units.length - 1
+        ) {
+
+            value =
+                value / 1024;
+
+            index++;
+
+        }
+
+
+        return (
+            value.toFixed(1) +
+            " " +
+            units[index]
+        );
+
     }
 
-    const units = ["B", "KB", "MB", "GB", "TB"];
-
-    let value = Number(bytes);
-    let index = 0;
-
-    while (value >= 1024 && index < units.length - 1) {
-        value = value / 1024;
-        index++;
-    }
-
-    return value.toFixed(1) + " " + units[index];
-}
 
 
-function updateUSB(data) {
+    /* =====================================================
+       UPDATE USB INFORMATION
+    ===================================================== */
 
-    const waiting =
-        document.getElementById("usbWaiting");
+    function updateUSB(data) {
 
-    const connected =
-        document.getElementById("usbConnected");
+        const waiting =
+            document.getElementById(
+                "usbWaiting"
+            );
 
-    const badge =
-        document.getElementById("usbBadge");
+        const connected =
+            document.getElementById(
+                "usbConnected"
+            );
 
-
-    if (!data || !data.connected) {
-
-        waiting.style.display = "block";
-        connected.style.display = "none";
-
-        badge.className = "usb-badge";
-        badge.textContent = "WAITING";
-
-        return;
-    }
+        const badge =
+            document.getElementById(
+                "usbBadge"
+            );
 
 
-    waiting.style.display = "none";
-    connected.style.display = "block";
+        if (!data || !data.connected) {
+
+            waiting.style.display =
+                "block";
+
+            connected.style.display =
+                "none";
+
+            badge.className =
+                "usb-badge";
+
+            badge.textContent =
+                "WAITING";
 
 
-    const device = data.device || {};
-    const scan = data.scan || {};
+            document.getElementById(
+                "endpointUSBStatus"
+            ).textContent =
+                "WAITING";
 
 
-    document.getElementById("usbDevice").textContent =
-        device.label || "USB DEVICE";
+            return;
+        }
 
 
-    document.getElementById("usbDrive").textContent =
-        device.drive
-            ? device.drive + ":"
-            : "—";
+        waiting.style.display =
+            "none";
+
+        connected.style.display =
+            "block";
 
 
-    document.getElementById("usbFilesystem").textContent =
-        device.filesystem || "—";
+        const device =
+            data.device || {};
 
 
-    document.getElementById("usbStatus").textContent =
-        data.status || "SCANNING";
+        const scan =
+            data.scan || {};
 
 
-    document.getElementById("usbFiles").textContent =
-        scan.files_scanned ?? 0;
+        /* DEVICE */
+
+        document.getElementById(
+            "usbDevice"
+        ).textContent =
+            device.label ||
+            device.device_name ||
+            "USB DEVICE";
 
 
-    document.getElementById("usbSuspicious").textContent =
-        scan.suspicious_count ?? 0;
+        /* DRIVE */
+
+        document.getElementById(
+            "usbDrive"
+        ).textContent =
+            device.drive
+                ? device.drive + ":"
+                : "—";
 
 
-    document.getElementById("usbTotal").textContent =
-        formatBytes(device.total_bytes);
+        /* FILESYSTEM */
+
+        document.getElementById(
+            "usbFilesystem"
+        ).textContent =
+            device.filesystem ||
+            "—";
 
 
-    document.getElementById("usbFree").textContent =
-        formatBytes(device.free_bytes);
+        /* STATUS */
+
+        document.getElementById(
+            "usbStatus"
+        ).textContent =
+            data.status ||
+            "SCANNING";
 
 
-    const risk =
-        String(scan.risk || "UNKNOWN").toUpperCase();
+        /* FILES */
+
+        const filesScanned =
+            scan.files_scanned ?? 0;
 
 
-    const riskElement =
-        document.getElementById("usbRisk");
+        document.getElementById(
+            "usbFiles"
+        ).textContent =
+            filesScanned;
 
 
-    const riskMessage =
-        document.getElementById("riskMessage");
+        /* SUSPICIOUS */
+
+        const suspiciousCount =
+            scan.suspicious_count ?? 0;
 
 
-    if (risk === "LOW") {
+        document.getElementById(
+            "usbSuspicious"
+        ).textContent =
+            suspiciousCount;
 
-        riskElement.className =
-            "risk-value low";
 
-        riskElement.textContent =
-            "LOW RISK";
+        /* STORAGE */
 
-        riskMessage.textContent =
-            "No suspicious indicators detected.";
+        document.getElementById(
+            "usbTotal"
+        ).textContent =
+            formatBytes(
+                device.total_bytes
+            );
 
-        badge.className =
-            "usb-badge connected";
-        badge.textContent =
-            "USB CONNECTED";
 
-    }
+        document.getElementById(
+            "usbFree"
+        ).textContent =
+            formatBytes(
+                device.free_bytes
+            );
 
-    else if (
-        risk === "MEDIUM" ||
-        risk === "MODERATE"
-    ) {
 
-        riskElement.className =
-            "risk-value medium";
+        /* ENDPOINT */
 
-        riskElement.textContent =
-            "MEDIUM RISK";
+        document.getElementById(
+            "endpointUSBStatus"
+        ).textContent =
+            "CONNECTED";
 
-        riskMessage.textContent =
-            "Suspicious indicators detected.";
 
-        badge.className =
-            "usb-badge warning";
+        document.getElementById(
+            "endpointUSBStatus"
+        ).className =
+            "secure";
 
-        badge.textContent =
-            "THREAT DETECTED";
 
-    }
+        /* =================================================
+           RISK
+        ================================================= */
 
-    else if (
-        risk === "HIGH" ||
-        risk === "CRITICAL"
-    ) {
+        const risk =
+            String(
+                scan.risk ||
+                "UNKNOWN"
+            ).toUpperCase();
 
-        riskElement.className =
-            "risk-value high";
 
-        riskElement.textContent =
-            "HIGH RISK";
+        const riskElement =
+            document.getElementById(
+                "usbRisk"
+            );
 
-        riskMessage.textContent =
-            "Potentially harmful content detected.";
 
-        badge.className =
-            "usb-badge danger";
+        const riskMessage =
+            document.getElementById(
+                "riskMessage"
+            );
 
-        badge.textContent =
-            "HIGH RISK";
 
-    }
+        if (risk === "LOW") {
 
-    else {
+            riskElement.className =
+                "risk-value low";
 
-        riskElement.className =
-            "risk-value";
+            riskElement.textContent =
+                "LOW RISK";
 
-        riskElement.textContent =
+
+            riskMessage.textContent =
+                scan.message ||
+                "No suspicious indicators detected.";
+
+
+            badge.className =
+                "usb-badge connected";
+
+            badge.textContent =
+                "USB CONNECTED";
+
+        }
+
+
+        else if (
+            risk === "MEDIUM" ||
+            risk === "MODERATE"
+        ) {
+
+            riskElement.className =
+                "risk-value medium";
+
+            riskElement.textContent =
+                "MEDIUM RISK";
+
+
+            riskMessage.textContent =
+                scan.message ||
+                "Suspicious indicators detected.";
+
+
+            badge.className =
+                "usb-badge warning";
+
+            badge.textContent =
+                "THREAT DETECTED";
+
+        }
+
+
+        else if (
+            risk === "HIGH" ||
+            risk === "CRITICAL"
+        ) {
+
+            riskElement.className =
+                "risk-value high";
+
+            riskElement.textContent =
+                "HIGH RISK";
+
+
+            riskMessage.textContent =
+                scan.message ||
+                "Potentially harmful content detected.";
+
+
+            badge.className =
+                "usb-badge danger";
+
+            badge.textContent =
+                "HIGH RISK";
+
+        }
+
+
+        else {
+
+            riskElement.className =
+                "risk-value";
+
+
+            riskElement.textContent =
+                risk;
+
+
+            riskMessage.textContent =
+                scan.message ||
+                "Security analysis in progress.";
+
+
+            badge.className =
+                "usb-badge";
+
+
+            badge.textContent =
+                data.status ||
+                "SCANNING";
+
+        }
+
+
+
+        /* =================================================
+           REPORT PAGE
+        ================================================= */
+
+        document.getElementById(
+            "reportDevice"
+        ).textContent =
+            device.label ||
+            "USB DEVICE";
+
+
+        document.getElementById(
+            "reportDrive"
+        ).textContent =
+            device.drive
+                ? device.drive + ":"
+                : "—";
+
+
+        document.getElementById(
+            "reportFiles"
+        ).textContent =
+            filesScanned;
+
+
+        document.getElementById(
+            "reportSuspicious"
+        ).textContent =
+            suspiciousCount;
+
+
+        const reportRisk =
+            document.getElementById(
+                "reportRisk"
+            );
+
+
+        reportRisk.textContent =
             risk;
 
-        riskMessage.textContent =
-            "Security analysis in progress.";
 
-        badge.className =
-            "usb-badge";
+        reportRisk.className =
+            risk === "LOW"
+                ? "secure"
+                : risk === "MEDIUM" ||
+                  risk === "MODERATE"
+                    ? "warning-text"
+                    : "danger-text";
 
-        badge.textContent =
-            data.status || "SCANNING";
+
+
+        /* =================================================
+           THREAT COUNT
+        ================================================= */
+
+        document.getElementById(
+            "threatCount"
+        ).textContent =
+            suspiciousCount;
+
+
+        document.getElementById(
+            "blockedThreatCount"
+        ).textContent =
+            "24";
+
+
+
+        /* =================================================
+           AI RISK
+        ================================================= */
+
+        if (
+            risk === "HIGH" ||
+            risk === "CRITICAL"
+        ) {
+
+            document.getElementById(
+"aiRiskDisplay"
+            ).textContent =
+                "HIGH";
+
+        }
+
+        else if (
+            risk === "MEDIUM" ||
+            risk === "MODERATE"
+        ) {
+
+            document.getElementById(
+                "aiRiskDisplay"
+            ).textContent =
+                "MEDIUM";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "aiRiskDisplay"
+            ).textContent =
+                "18";
+
+        }
+
+
+        /* =================================================
+           THREAT TABLE
+        ================================================= */
+
+        const table =
+            document.getElementById(
+                "threatTable"
+            );
+
+
+        if (suspiciousCount > 0) {
+
+            table.innerHTML = `
+
+                <tr>
+
+                    <td>
+                        USB suspicious indicator
+                    </td>
+
+                    <td>
+                        ${device.label || "USB Device"}
+                    </td>
+
+                    <td>
+
+                        <span class="severity medium">
+                            SUSPICIOUS
+                        </span>
+
+                    </td>
+
+                    <td class="warning-text">
+                        INVESTIGATING
+                    </td>
+
+                    <td>
+                        Review USB scan
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+        else {
+
+            table.innerHTML = `
+
+                <tr>
+
+                    <td>
+                        No active threats
+                    </td>
+
+                    <td>
+                        —
+                    </td>
+
+                    <td>
+
+                        <span class="severity low">
+                            CLEAR
+                        </span>
+
+                    </td>
+
+                    <td class="secure">
+                        MONITORING
+                    </td>
+
+                    <td>
+                        No action required
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
     }
-}
 
 
-function checkUSBStatus() {
 
-    fetch("/api/usb-status")
+    /* =====================================================
+       GET USB STATUS FROM FLASK
+    ===================================================== */
 
-        .then(response => response.json())
+    function checkUSBStatus() {
 
-        .then(data => {
-            updateUSB(data);
+        fetch(
+            "/api/usb-status",
+            {
+                cache: "no-store"
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "USB status request failed"
+                );
+
+            }
+
+            return response.json();
+
         })
 
-        .catch(error => {
-            console.log("USB status unavailable");
+        .then(function (data) {
+
+            updateUSB(data);
+
+        })
+
+        .catch(function (error) {
+
+            console.log(
+                "USB status unavailable:",
+                error
+            );
+
         });
-}
+
+    }
 
 
-/* Start immediately */
-checkUSBStatus();
 
-/* Refresh every 2 seconds */
-setInterval(checkUSBStatus, 2000);
+    /* =====================================================
+       START USB MONITORING
+    ===================================================== */
+
+    checkUSBStatus();
+
+
+    setInterval(
+        checkUSBStatus,
+        2000
+    );
+
+
+})();
 
 </script>
 
+
 </body>
 </html>
+```
