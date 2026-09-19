@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="IronMind AI - AI-powered Cyber Defense, Machine Monitoring and IoT Intelligence Platform."
+    >
+
+    <title>IronMind AI | Intelligent Security</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(
+                    circle at 20% 20%,
+                    rgba(0, 150, 255, 0.12),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 80% 30%,
+                    rgba(0, 255, 200, 0.08),
+                    transparent 30%
+                ),
+                #020812;
+
+            color: #eaf7ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* -------------------------------------------------- */
+        /* NAVBAR */
+        /* -------------------------------------------------- */
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+
+            background: rgba(2, 8, 18, 0.82);
+            backdrop-filter: blur(16px);
+
+            border-bottom: 1px solid rgba(90, 190, 255, 0.15);
+
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: linear-gradient(
+                135deg,
+                #00b7ff,
+                #006cff
+            );
+
+            color: white;
+
+            box-shadow:
+                0 0 25px rgba(0, 170, 255, 0.35);
+        }
+
+        .brand-text span {
+            display: block;
+        }
+
+        .brand-name {
+            font-size: 17px;
+        }
+
+        .brand-subtitle {
+            color: #6c8da4;
+            font-size: 9px;
+            margin-top: 3px;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #8faec2;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.25s;
+        }
+
+        .nav-links a:hover {
+            color: #45c7ff;
+        }
+
+        .nav-dashboard {
+            padding: 11px 18px;
+            border: 1px solid rgba(60, 190, 255, 0.35);
+            border-radius: 8px;
+
+            color: #65d1ff !important;
+
+            background: rgba(0, 130, 255, 0.08);
+        }
+
+        /* -------------------------------------------------- */
+        /* HERO */
+        /* -------------------------------------------------- */
+
+        .hero {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+
+            padding:
+                120px 8%
+                70px;
+
+            position: relative;
+        }
+
+        .hero-content {
+            width: 58%;
+            max-width: 800px;
+            z-index: 2;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            border: 1px solid rgba(40, 190, 255, 0.25);
+            border-radius: 30px;
+
+            color: #5bd2ff;
+            background: rgba(0, 150, 255, 0.07);
+
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+
+            margin-bottom: 25px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+
+            background: #00e6a8;
+
+            box-shadow:
+                0 0 10px #00e6a8;
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 7vw, 86px);
+            line-height: 0.98;
+
+            letter-spacing: -3px;
+
+            margin-bottom: 28px;
+        }
+
+        .hero h1 .gradient {
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #48caff,
+                    #00e0b0
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .hero-description {
+            max-width: 650px;
+
+            color: #8ea8ba;
+
+            font-size: 18px;
+            line-height: 1.7;
+
+            margin-bottom: 35px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+
+            padding: 14px 23px;
+
+            border-radius: 8px;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            transition: 0.25s;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(
+                135deg,
+                #009dff,
+                #0067ff
+            );
+
+            color: white;
+
+            box-shadow:
+                0 10px 35px rgba(0, 120, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 45px rgba(0, 150, 255, 0.4);
+        }
+
+        .btn-secondary {
+            color: #9dc0d5;
+
+            border: 1px solid rgba(120, 190, 220, 0.2);
+
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .btn-secondary:hover {
+            color: white;
+            border-color: rgba(80, 200, 255, 0.45);
+        }
+
+        /* -------------------------------------------------- */
+        /* HUD */
+        /* -------------------------------------------------- */
+
+        .hero-visual {
+            position: absolute;
+
+            right: 7%;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            width: 390px;
+            height: 390px;
+        }
+
+        .hud-circle {
+            position: absolute;
+
+            inset: 30px;
+
+            border:
+                1px solid rgba(50, 190, 255, 0.25);
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 80px rgba(0, 150, 255, 0.12);
+        }
+
+        .hud-circle::before,
+        .hud-circle::after {
+            content: "";
+
+            position: absolute;
+
+            border-radius: 50%;
+
+            border: 1px dashed rgba(0, 210, 255, 0.18);
+        }
+
+        .hud-circle::before {
+            inset: 35px;
+        }
+
+        .hud-circle::after {
+            inset: 75px;
+        }
+
+        .hud-core {
+            position: absolute;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            width: 125px;
+            height: 125px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 190, 255, 0.25),
+                    rgba(0, 90, 160, 0.05)
+                );
+
+            border:
+                1px solid rgba(70, 210, 255, 0.4);
+
+            box-shadow:
+                0 0 60px rgba(0, 160, 255, 0.25);
+        }
+
+        .core-inner {
+            color: #64d7ff;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .hud-line {
+            position: absolute;
+
+            background: rgba(70, 205, 255, 0.18);
+        }
+
+        .hud-line.horizontal {
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+        }
+
+        .hud-line.vertical {
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+        }
+
+        .scan {
+            position: absolute;
+
+            width: 50%;
+            height: 2px;
+
+            left: 50%;
+            top: 50%;
+
+            transform-origin: left;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(0, 220, 255, 0.8),
+                    transparent
+                );
+
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* -------------------------------------------------- */
+        /* FEATURES */
+        /* -------------------------------------------------- */
+
+        .section {
+            padding: 100px 8%;
+        }
+
+        .section-heading {
+            max-width: 700px;
+            margin-bottom: 45px;
+        }
+
+        .section-heading small {
+            color: #43caff;
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-size: 11px;
+        }
+
+        .section-heading h2 {
+            font-size: 40px;
+            margin: 12px 0 15px;
+        }
+
+        .section-heading p {
+            color: #8099aa;
+            line-height: 1.7;
+        }
+
+        .features {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+        }
+
+        .feature {
+            padding: 28px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(10, 30, 48, 0.75),
+                    rgba(4, 13, 24, 0.8)
+                );
+
+            border:
+                1px solid rgba(80, 180, 230, 0.13);
+
+            border-radius: 14px;
+
+            transition: 0.3s;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+
+            border-color:
+                rgba(60, 200, 255, 0.35);
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 45px;
+            height: 45px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background:
+                rgba(0, 160, 255, 0.1);
+
+            border:
+                1px solid rgba(60, 200, 255, 0.18);
+
+            color: #53ceff;
+
+            margin-bottom: 20px;
+        }
+
+        .feature h3 {
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            color: #7891a3;
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        /* -------------------------------------------------- */
+        /* PIPELINE */
+        /* -------------------------------------------------- */
+
+        .pipeline {
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap: 12px;
+        }
+
+        .pipeline-item {
+            padding: 25px 18px;
+
+            text-align: center;
+
+            border:
+                1px solid rgba(70, 190, 240, 0.14);
+
+            background:
+                rgba(255, 255, 255, 0.02);
+
+            border-radius: 12px;
+        }
+
+        .pipeline-number {
+            color: #4ecaff;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .pipeline-item h3 {
+            font-size: 15px;
+        }
+
+        /* -------------------------------------------------- */
+        /* CTA */
+        /* -------------------------------------------------- */
+
+        .cta {
+            margin: 40px 8% 100px;
+
+            padding: 55px;
+
+            border-radius: 18px;
+
+            border:
+                1px solid rgba(70, 190, 240, 0.18);
+
+            background:
+                radial-gradient(
+                    circle at right,
+                    rgba(0, 150, 255, 0.14),
+                    transparent 45%
+                ),
+                rgba(7, 19, 32, 0.8);
+
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .cta p {
+            color: #829bab;
+            margin-bottom: 25px;
+        }
+
+        /* -------------------------------------------------- */
+        /* FOOTER */
+        /* -------------------------------------------------- */
+
+        footer {
+            padding: 30px 8%;
+
+            border-top:
+                1px solid rgba(80, 180, 220, 0.1);
+
+            color: #5f7888;
+
+            font-size: 12px;
+
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        /* -------------------------------------------------- */
+        /* RESPONSIVE */
+        /* -------------------------------------------------- */
+
+        @media (max-width: 1000px) {
+
+            .hero-content {
+                width: 100%;
+            }
+
+            .hero-visual {
+                opacity: 0.25;
+                right: -70px;
+            }
+
+            .features {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .pipeline {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links a:not(.nav-dashboard) {
+                display: none;
+            }
+
+            .hero {
+                padding:
+                    120px 25px
+                    70px;
+            }
+
+            .hero h1 {
+                font-size: 50px;
+            }
+
+            .hero-description {
+                font-size: 16px;
+            }
+
+            .hero-visual {
+                width: 300px;
+                height: 300px;
+                right: -100px;
+            }
+
+            .section {
+                padding:
+                    70px 25px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .pipeline {
+                grid-template-columns: 1fr;
+            }
+
+            .cta {
+                margin:
+                    20px 25px 70px;
+
+                padding: 35px 20px;
+            }
+
+            footer {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- ================================================== -->
+    <!-- NAVIGATION -->
+    <!-- ================================================== -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                IM
+            </div>
+
+            <div class="brand-text">
+
+                <span class="brand-name">
+                    IRONMIND AI
+                </span>
+
+                <span class="brand-subtitle">
+                    INTELLIGENT SECURITY PLATFORM
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="#features">
+                Platform
+            </a>
+
+            <a href="#architecture">
+                Architecture
+            </a>
+
+            <a
+                href="/dashboard"
+                class="nav-dashboard"
+            >
+                Open SOC →
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================================================== -->
+    <!-- HERO -->
+    <!-- ================================================== -->
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <div class="eyebrow">
+
+                    <span class="status-dot"></span>
+
+                    AI SECURITY OPERATIONS PLATFORM
+
+                </div>
+
+
+                <h1>
+
+                    Defend.
+                    <span class="gradient">
+                        Predict.
+                    </span>
+                    Protect.
+
+                </h1>
+
+
+                <p class="hero-description">
+
+                    IronMind AI is an intelligent security and
+                    industrial monitoring platform designed to
+                    combine cyber threat intelligence, endpoint
+                    monitoring, network visibility and machine
+                    anomaly detection in one unified command center.
+
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="/dashboard"
+                        class="btn btn-primary"
+                    >
+                        Launch Security Center →
+                    </a>
+
+                    <a
+                        href="#features"
+                        class="btn btn-secondary"
+                    >
+                        Explore Platform
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- HUD VISUAL -->
+
+            <div class="hero-visual">
+
+                <div class="hud-circle">
+
+                    <div class="hud-line horizontal"></div>
+
+                    <div class="hud-line vertical"></div>
+
+                    <div class="scan"></div>
+
+                </div>
+
+
+                <div class="hud-core">
+
+                    <div class="core-inner">
+
+                        AI<br>
+                        DEFENSE<br>
+                        ACTIVE
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- FEATURES -->
+        <!-- ================================================== -->
+
+        <section
+            class="section"
+            id="features"
+        >
+
+            <div class="section-heading">
+
+                <small>
+                    PLATFORM CAPABILITIES
+                </small>
+
+                <h2>
+                    One intelligence layer.
+                    Multiple defense domains.
+                </h2>
+
+                <p>
+                    IronMind AI brings security monitoring,
+                    machine intelligence and automated
+                    response concepts together inside one
+                    operational interface.
+                </p>
+
+            </div>
+
+
+            <div class="features">
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        CY
+                    </div>
+
+                    <h3>
+                        Cyber Defense
+                    </h3>
+
+                    <p>
+                        Monitor simulated threats,
+                        suspicious activity, security
+                        events and attack indicators.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        EP
+                    </div>
+
+                    <h3>
+                        Endpoint Intelligence
+                    </h3>
+
+                    <p>
+                        Centralized endpoint visibility,
+                        device status and security
+                        monitoring.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        OT
+                    </div>
+
+                    <h3>
+                        Machine & IoT
+                    </h3>
+
+                    <p>
+                        Monitor machine temperature,
+                        vibration, RPM and simulated
+                        industrial anomalies.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        AI
+                    </div>
+
+                    <h3>
+                        AI Intelligence
+                    </h3>
+
+                    <p>
+                        Combine security signals into
+                        an AI-inspired risk and analysis
+                        workflow.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- ARCHITECTURE -->
+        <!-- ================================================== -->
+
+        <section
+            class="section"
+            id="architecture"
+        >
+
+            <div class="section-heading">
+
+                <small>
+                    IRONMIND AI CORE
+                </small>
+
+                <h2>
+                    Detect → Analyze → Predict → Protect → Recover
+                </h2>
+
+                <p>
+                    The platform is organized around a continuous
+                    security intelligence workflow.
+                </p>
+
+            </div>
+
+
+            <div class="pipeline">
+
+                <div class="pipeline-item">
+
+                    <div class="pipeline-number">
+                        01
+                    </div>
+
+                    <h3>
+                        Detect
+                    </h3>
+
+                </div>
+
+
+                <div class="pipeline-item">
+
+                    <div class="pipeline-number">
+                        02
+                    </div>
+
+                    <h3>
+                        Analyze
+                    </h3>
+
+                </div>
+
+
+                <div class="pipeline-item">
+
+                    <div class="pipeline-number">
+                        03
+                    </div>
+
+                    <h3>
+                        Predict
+                    </h3>
+
+                </div>
+
+
+                <div class="pipeline-item">
+
+                    <div class="pipeline-number">
+                        04
+                    </div>
+
+                    <h3>
+                        Protect
+                    </h3>
+
+                </div>
+
+
+                <div class="pipeline-item">
+
+                    <div class="pipeline-number">
+                        05
+                    </div>
+
+                    <h3>
+                        Recover
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- CTA -->
+        <!-- ================================================== -->
+
+        <section class="cta">
+
+            <h2>
+                Enter the IronMind Security Center
+            </h2>
+
+            <p>
+                Explore the live simulated SOC environment.
+            </p>
+
+            <a
+                href="/dashboard"
+                class="btn btn-primary"
+            >
+                Open Dashboard →
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================================================== -->
+    <!-- FOOTER -->
+    <!-- ================================================== -->
+
+    <footer>
+
+        <div>
+            © 2026 IronMind AI
+        </div>
+
+        <div>
+            Cyber Defense • Machine Intelligence • IoT Monitoring
+        </div>
+
+    </footer>
+
+</body>
+
+</html>
