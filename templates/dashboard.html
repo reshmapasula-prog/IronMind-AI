@@ -3,204 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>IronMind AI | Security Dashboard</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='dashboard.css') }}">
-
     <style>
-        /* =====================================================
-           USB SECURITY PANEL
-           ===================================================== */
-
-        .usb-panel {
-            margin-top: 24px;
-            background: #0b1119;
-            border: 1px solid #1d2b3a;
-            border-radius: 14px;
-            padding: 22px;
+        * {
+            box-sizing: border-box;
         }
 
-        .usb-panel-header {
+        body {
+            margin: 0;
+            background: #05080d;
+            color: #e8f1f8;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 235px;
+            min-height: 100vh;
+            background: #080d14;
+            border-right: 1px solid #172331;
+            padding: 25px 15px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .logo {
+            padding: 8px 15px 30px;
+        }
+
+        .logo-main {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .logo-main span {
+            color: #00c8ff;
+        }
+
+        .logo-sub {
+            color: #536679;
+            font-size: 8px;
+            letter-spacing: 1.5px;
+            margin-top: 6px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #718396;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            color: #ffffff;
+            background: #101c28;
+        }
+
+        .nav a.active {
+            border-left: 3px solid #00c8ff;
+        }
+
+        .system {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            color: #35e69a;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #35e69a;
+            box-shadow: 0 0 10px #35e69a;
+            margin-right: 7px;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 235px;
+            width: calc(100% - 235px);
+            padding: 30px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .top h1 {
+            margin: 0;
+            font-size: 27px;
+        }
+
+        .top p {
+            margin: 7px 0 0;
+            color: #627589;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        .live {
+            color: #35e69a;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* METRICS */
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            background: #0a1119;
+            border: 1px solid #182736;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .metric-label {
+            color: #65788b;
+            font-size: 9px;
+            letter-spacing: 1.2px;
+        }
+
+        .metric-value {
+            font-size: 29px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .metric-sub {
+            color: #35e69a;
+            font-size: 9px;
+            margin-top: 6px;
+        }
+
+        /* USB */
+
+        .usb {
+            background: #0a1119;
+            border: 1px solid #1b3040;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .usb-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
 
-        .usb-title {
+        .usb-heading {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .usb-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 9px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #111d29;
+            border-radius: 10px;
+            background: #0d1d29;
             font-size: 20px;
         }
 
-        .usb-title h2 {
+        .usb-heading h2 {
             margin: 0;
             font-size: 17px;
         }
 
-        .usb-title p {
-            margin: 4px 0 0;
-            color: #718296;
-            font-size: 11px;
+        .usb-heading p {
+            margin: 5px 0 0;
+            color: #63778a;
+            font-size: 10px;
         }
 
-        .usb-status {
-            padding: 7px 12px;
+        .usb-badge {
+            padding: 8px 13px;
             border-radius: 20px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             letter-spacing: 1px;
-            background: #18212b;
-            color: #8191a0;
+            background: #151e27;
+            color: #8292a1;
         }
 
-        .usb-status.connected {
-            background: rgba(30, 220, 140, 0.10);
+        .usb-badge.connected {
             color: #35e69a;
-            border: 1px solid rgba(30, 220, 140, 0.20);
+            background: rgba(53,230,154,.08);
+            border: 1px solid rgba(53,230,154,.2);
         }
 
-        .usb-status.warning {
-            background: rgba(255, 180, 50, 0.10);
+        .usb-badge.warning {
             color: #ffc04d;
-            border: 1px solid rgba(255, 180, 50, 0.20);
+            background: rgba(255,192,77,.08);
         }
 
-        .usb-status.danger {
-            background: rgba(255, 65, 85, 0.10);
-            color: #ff6878;
-            border: 1px solid rgba(255, 65, 85, 0.20);
+        .usb-badge.danger {
+            color: #ff6476;
+            background: rgba(255,70,90,.08);
         }
 
-        .usb-waiting {
+        .waiting {
+            padding: 35px;
             text-align: center;
-            padding: 28px;
-            color: #657688;
+            color: #637589;
             font-size: 13px;
         }
 
-        .usb-device-grid {
+        .device-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
         }
 
-        .usb-stat {
-            background: #080e15;
-            border: 1px solid #182634;
-            border-radius: 10px;
+        .device-box {
+            background: #070d14;
+            border: 1px solid #172634;
+            border-radius: 9px;
             padding: 15px;
         }
 
-        .usb-stat-label {
-            color: #687b8e;
-            font-size: 10px;
+        .device-label {
+            color: #627588;
+            font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
         }
 
-        .usb-stat-value {
-            color: #e8f1f8;
+        .device-value {
+            color: #edf5fa;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: bold;
             word-break: break-word;
         }
 
-        .usb-risk {
+        /* RISK */
+
+        .risk {
             margin-top: 15px;
-            padding: 15px;
-            border-radius: 10px;
-            background: #080e15;
-            border: 1px solid #182634;
+            padding: 16px;
+            background: #070d14;
+            border: 1px solid #172634;
+            border-radius: 9px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .usb-risk-label {
-            color: #7d8e9f;
-            font-size: 11px;
+        .risk-title {
+            color: #6d8193;
+            font-size: 10px;
         }
 
-        .usb-risk-value {
+        .risk-message {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .risk-value {
+            font-size: 16px;
             font-weight: bold;
-            font-size: 13px;
         }
 
-        .usb-risk-low {
+        .low {
             color: #35e69a;
         }
 
-        .usb-risk-medium {
+        .medium {
             color: #ffc04d;
         }
 
-        .usb-risk-high {
-            color: #ff6878;
+        .high {
+            color: #ff6476;
         }
 
-        .usb-files {
-            margin-top: 15px;
-            overflow-x: auto;
+        /* LOWER PANELS */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
         }
 
-        .usb-files table {
-            width: 100%;
-            border-collapse: collapse;
+        .panel {
+            background: #0a1119;
+            border: 1px solid #182736;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 180px;
+        }
+
+        .panel h2 {
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .panel-sub {
+            color: #607487;
+            font-size: 10px;
+            margin-top: 5px;
+        }
+
+        .status-list {
+            margin-top: 20px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid #14202b;
             font-size: 11px;
         }
 
-        .usb-files th {
-            text-align: left;
-            padding: 10px;
-            color: #617487;
-            border-bottom: 1px solid #182634;
-        }
-
-        .usb-files td {
-            padding: 11px 10px;
-            color: #b9c6d1;
-            border-bottom: 1px solid #111d28;
-        }
-
-        .usb-clean {
+        .secure {
             color: #35e69a;
         }
 
-        .usb-suspicious {
-            color: #ff6878;
-            font-weight: bold;
-        }
+        /* RESPONSIVE */
 
-        @media (max-width: 900px) {
-            .usb-device-grid {
+        @media(max-width: 950px) {
+            .metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .device-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (max-width: 550px) {
-            .usb-device-grid {
+        @media(max-width: 700px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 18px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 500px) {
+            .metrics {
                 grid-template-columns: 1fr;
             }
 
-            .usb-panel-header {
-                align-items: flex-start;
-                gap: 12px;
-                flex-direction: column;
+            .device-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -208,136 +398,97 @@
 
 <body>
 
-<!-- =========================================================
-     SIDEBAR
-     ========================================================= -->
+<div class="layout">
 
-<div class="sidebar">
+    <!-- SIDEBAR -->
 
-    <div class="logo">
-        <div class="logo-main">IRONMIND <span>AI</span></div>
-        <div class="logo-sub">CYBER DEFENSE PLATFORM</div>
-    </div>
+    <aside class="sidebar">
 
-    <div class="nav-item active" data-page="dashboard">
-        <span>◈</span>
-        Dashboard
-    </div>
+        <div class="logo">
+            <div class="logo-main">
+                IRON<span>MIND</span> AI
+            </div>
 
-    <div class="nav-item" data-page="threats">
-        <span>⚠</span>
-        Threats
-    </div>
+            <div class="logo-sub">
+                CYBER DEFENSE PLATFORM
+            </div>
+        </div>
 
-    <div class="nav-item" data-page="endpoints">
-        <span>▣</span>
-        Endpoints
-    </div>
+        <nav class="nav">
+            <a href="/dashboard" class="active">◈ Dashboard</a>
+            <a href="#">⚠ Threats</a>
+            <a href="#">▣ Endpoints</a>
+            <a href="#">☁ Cloud</a>
+            <a href="#">⌁ Network</a>
+            <a href="#">◉ IoT / Sensors</a>
+            <a href="#">✦ AI Intelligence</a>
+            <a href="#">▤ Reports</a>
+        </nav>
 
-    <div class="nav-item" data-page="cloud">
-        <span>☁</span>
-        Cloud
-    </div>
-
-    <div class="nav-item" data-page="network">
-        <span>⌁</span>
-        Network
-    </div>
-
-    <div class="nav-item" data-page="iot">
-        <span>◉</span>
-        IoT / Sensors
-    </div>
-
-    <div class="nav-item" data-page="ai">
-        <span>✦</span>
-        AI Intelligence
-    </div>
-
-    <div class="nav-item" data-page="reports">
-        <span>▤</span>
-        Reports
-    </div>
-
-    <div class="sidebar-bottom">
-        <div class="system-status">
-            <span class="status-dot"></span>
+        <div class="system">
+            <span class="dot"></span>
             SYSTEM OPERATIONAL
         </div>
-    </div>
 
-</div>
+    </aside>
 
 
-<!-- =========================================================
-     MAIN CONTENT
-     ========================================================= -->
+    <!-- MAIN -->
 
-<div class="main">
+    <main class="main">
 
-    <!-- TOP BAR -->
+        <div class="top">
 
-    <div class="topbar">
+            <div>
+                <h1>Security Dashboard</h1>
+                <p>IRONMIND AI CYBER DEFENSE & INTELLIGENCE</p>
+            </div>
 
-        <div>
-            <h1>Security Dashboard</h1>
-            <p>IRONMIND AI CYBER DEFENSE & INTELLIGENCE</p>
+            <div class="live">
+                ● LIVE
+            </div>
+
         </div>
 
-        <div class="topbar-right">
-            <span id="connectionStatus">● LIVE</span>
-            <span id="currentTime"></span>
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         DASHBOARD PAGE
-         ===================================================== -->
-
-    <div class="page active" id="page-dashboard">
 
         <!-- METRICS -->
 
-        <div class="metrics">
+        <section class="metrics">
 
-            <div class="metric-card">
+            <div class="metric">
                 <div class="metric-label">RISK SCORE</div>
                 <div class="metric-value" id="risk">24</div>
-                <div class="metric-sub" id="riskLabel">LOW RISK</div>
+                <div class="metric-sub">LOW RISK</div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric">
                 <div class="metric-label">AI RISK INDEX</div>
                 <div class="metric-value" id="aiRisk">18</div>
                 <div class="metric-sub">AI ANALYSIS</div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric">
                 <div class="metric-label">THREATS DETECTED</div>
                 <div class="metric-value" id="threats">0</div>
                 <div class="metric-sub">ACTIVE EVENTS</div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric">
                 <div class="metric-label">THREATS BLOCKED</div>
                 <div class="metric-value" id="blocked">24</div>
                 <div class="metric-sub">PROTECTED</div>
             </div>
 
-        </div>
+        </section>
 
 
-        <!-- =================================================
-             USB SECURITY
-             ================================================= -->
+        <!-- USB -->
 
-        <div class="usb-panel">
+        <section class="usb">
 
-            <div class="usb-panel-header">
+            <div class="usb-header">
 
-                <div class="usb-title">
+                <div class="usb-heading">
 
                     <div class="usb-icon">
                         🔌
@@ -345,794 +496,454 @@
 
                     <div>
                         <h2>USB Threat Intelligence</h2>
+
                         <p>
-                            Real-time removable-device monitoring
+                            Real-time removable device monitoring
                         </p>
                     </div>
 
                 </div>
 
-                <div
-                    id="usbStatusBadge"
-                    class="usb-status">
+                <div id="usbBadge" class="usb-badge">
                     WAITING
                 </div>
 
             </div>
 
 
-            <!-- WAITING STATE -->
+            <!-- WAITING -->
 
-            <div id="usbWaiting" class="usb-waiting">
+            <div id="usbWaiting" class="waiting">
 
-                <div style="font-size:28px; margin-bottom:10px;">
+                <div style="font-size:30px;margin-bottom:10px;">
                     🔌
                 </div>
 
-                No USB device detected.
+                Waiting for USB device...
 
-                <br>
-
-                <span style="font-size:11px;">
-                    Connect a USB device to begin inspection.
-                </span>
+                <div style="font-size:10px;margin-top:7px;">
+                    Connect a removable device to begin inspection.
+                </div>
 
             </div>
 
 
-            <!-- CONNECTED DEVICE -->
+            <!-- CONNECTED -->
 
             <div id="usbConnected" style="display:none;">
 
-                <div class="usb-device-grid">
+                <div class="device-grid">
 
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Device
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbDeviceName">
-                            —
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Device</div>
+                        <div id="usbDevice" class="device-value">—</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Drive
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbDrive">
-                            —
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Drive</div>
+                        <div id="usbDrive" class="device-value">—</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Filesystem
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbFilesystem">
-                            —
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Filesystem</div>
+                        <div id="usbFilesystem" class="device-value">—</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Scan Status
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbScanStatus">
-                            —
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Scan Status</div>
+                        <div id="usbStatus" class="device-value">—</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Files Scanned
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbFilesScanned">
-                            0
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Files Scanned</div>
+                        <div id="usbFiles" class="device-value">0</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Suspicious Files
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbSuspicious">
-                            0
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Suspicious</div>
+                        <div id="usbSuspicious" class="device-value">0</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Total Size
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbTotalSize">
-                            —
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Total Size</div>
+                        <div id="usbTotal" class="device-value">—</div>
                     </div>
 
-
-                    <div class="usb-stat">
-                        <div class="usb-stat-label">
-                            Free Space
-                        </div>
-
-                        <div
-                            class="usb-stat-value"
-                            id="usbFreeSpace">
-                            —
-                        </div>
+                    <div class="device-box">
+                        <div class="device-label">Free Space</div>
+                        <div id="usbFree" class="device-value">—</div>
                     </div>
 
                 </div>
 
 
-                <!-- RISK -->
-
-                <div class="usb-risk">
+                <div class="risk">
 
                     <div>
-                        <div class="usb-risk-label">
-                            USB SECURITY RISK
+                        <div class="risk-title">
+                            USB SECURITY ANALYSIS
                         </div>
 
                         <div
-                            style="margin-top:5px;"
-                            id="usbRiskMessage">
+                            id="riskMessage"
+                            class="risk-message">
                             Analysis complete
                         </div>
                     </div>
 
                     <div
-                        id="usbRiskValue"
-                        class="usb-risk-value usb-risk-low">
-                        LOW
+                        id="usbRisk"
+                        class="risk-value low">
+                        LOW RISK
                     </div>
 
                 </div>
 
-
-                <!-- SUSPICIOUS FILES -->
-
-                <div
-                    id="usbFilesSection"
-                    class="usb-files"
-                    style="display:none;">
-
-                    <div
-                        style="
-                        font-size:12px;
-                        font-weight:bold;
-                        margin-bottom:10px;
-                        color:#dce6ee;
-                        ">
-                        SUSPICIOUS FILES
-                    </div>
-
-                    <table>
-
-                        <thead>
-                            <tr>
-                                <th>FILE</th>
-                                <th>REASON</th>
-                                <th>RISK</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="usbSuspiciousTable">
-                        </tbody>
-
-                    </table>
-
-                </div>
-
             </div>
 
-        </div>
+        </section>
 
 
-        <!-- =================================================
-             EXISTING DASHBOARD SECTIONS
-             ================================================= -->
+        <!-- OTHER SECURITY MODULES -->
 
-        <div class="dashboard-grid">
+        <div class="grid">
 
-            <div class="panel">
+            <section class="panel">
 
-                <div class="panel-header">
-                    <h2>Threat Overview</h2>
-                    <span>LIVE</span>
-                </div>
-
-                <canvas id="threatChart"></canvas>
-
-            </div>
-
-
-            <div class="panel">
-
-                <div class="panel-header">
-                    <h2>Global Threat Map</h2>
-                    <span>REAL TIME</span>
-                </div>
-
-                <div class="map-placeholder">
-                    <div class="map-grid">
-                        <span>●</span>
-                        <span>●</span>
-                        <span>●</span>
-                        <span>●</span>
-                        <span>●</span>
-                    </div>
-
-                    <div class="map-label">
-                        GLOBAL THREAT ACTIVITY
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- AI PROCESSING -->
-
-        <div class="panel ai-panel">
-
-            <div class="panel-header">
-                <h2>AI Threat Intelligence</h2>
-                <span>ACTIVE</span>
-            </div>
-
-            <div class="ai-processing">
-
-                <div class="ai-circle">
-                    AI
-                </div>
-
-                <div>
-                    <h3>IRONMIND ANALYSIS ENGINE</h3>
-
-                    <p>
-                        Continuously analyzing cyber,
-                        USB, machine and network telemetry.
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ACTIVE THREATS -->
-
-        <div class="panel">
-
-            <div class="panel-header">
-                <h2>Active Threats</h2>
-                <span id="activeThreatCount">0 ACTIVE</span>
-            </div>
-
-            <div id="activeThreats">
-
-                <div class="empty-threat">
-                    No active threats detected.
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ATTACK VECTORS -->
-
-        <div class="panel">
-
-            <div class="panel-header">
-                <h2>Attack Vectors</h2>
-                <span>MONITORING</span>
-            </div>
-
-            <div class="attack-vectors">
-
-                <div class="vector">
-                    <span>USB</span>
-                    <div class="bar">
-                        <div id="usbVector" style="width:10%;"></div>
-                    </div>
-                </div>
-
-                <div class="vector">
-                    <span>Network</span>
-                    <div class="bar">
-                        <div id="networkVector" style="width:15%;"></div>
-                    </div>
-                </div>
-
-                <div class="vector">
-                    <span>Endpoint</span>
-                    <div class="bar">
-                        <div id="endpointVector" style="width:20%;"></div>
-                    </div>
-                </div>
-
-                <div class="vector">
-                    <span>IoT</span>
-                    <div class="bar">
-                        <div id="iotVector" style="width:8%;"></div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- SYSTEM MODULES -->
-
-        <div class="module-grid">
-
-            <div class="module-card">
-                <span>🖥</span>
-                <h3>Endpoints</h3>
-                <p>Endpoint security monitoring</p>
-            </div>
-
-            <div class="module-card">
-                <span>☁</span>
-                <h3>Cloud</h3>
-                <p>Cloud security intelligence</p>
-            </div>
-
-            <div class="module-card">
-                <span>⌁</span>
-                <h3>Network</h3>
-                <p>Network anomaly monitoring</p>
-            </div>
-
-            <div class="module-card">
-                <span>⚙</span>
-                <h3>IoT / Sensors</h3>
-                <p>Machine and sensor telemetry</p>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         OTHER PAGES
-         ===================================================== -->
-
-    <div class="page" id="page-threats">
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Threat Intelligence</h2>
-            </div>
-            <p>Threat monitoring and incident analysis.</p>
-        </div>
-    </div>
-
-
-    <div class="page" id="page-endpoints">
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Endpoint Security</h2>
-            </div>
-            <p>Endpoint monitoring and protection.</p>
-        </div>
-    </div>
-
-
-    <div class="page" id="page-cloud">
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Cloud Security</h2>
-            </div>
-            <p>Cloud infrastructure monitoring.</p>
-        </div>
-    </div>
-
-
-    <div class="page" id="page-network">
-        <div class="panel">
-            <div class="panel-header">
                 <h2>Network Security</h2>
-            </div>
-            <p>Network activity and anomaly monitoring.</p>
-        </div>
-    </div>
+
+                <div class="panel-sub">
+                    Network activity monitoring
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>Network Status</span>
+                        <span class="secure">MONITORING</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Traffic Analysis</span>
+                        <span class="secure">ACTIVE</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Anomalies</span>
+                        <span>0</span>
+                    </div>
+
+                </div>
+
+            </section>
 
 
-    <div class="page" id="page-iot">
-        <div class="panel">
-            <div class="panel-header">
+            <section class="panel">
+
                 <h2>IoT / Sensor Security</h2>
-            </div>
-            <p>Machine and sensor telemetry monitoring.</p>
-        </div>
-    </div>
+
+                <div class="panel-sub">
+                    Machine and sensor monitoring
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>Sensor System</span>
+                        <span class="secure">READY</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Connected Sensors</span>
+                        <span>0</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Machine Alerts</span>
+                        <span>0</span>
+                    </div>
+
+                </div>
+
+            </section>
 
 
-    <div class="page" id="page-ai">
-        <div class="panel">
-            <div class="panel-header">
+            <section class="panel">
+
                 <h2>AI Intelligence</h2>
-            </div>
-            <p>IronMind AI analysis engine.</p>
+
+                <div class="panel-sub">
+                    IronMind analysis engine
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>AI Engine</span>
+                        <span class="secure">ACTIVE</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Threat Analysis</span>
+                        <span class="secure">RUNNING</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Prediction Engine</span>
+                        <span class="secure">READY</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="panel">
+
+                <h2>System Protection</h2>
+
+                <div class="panel-sub">
+                    Current defense status
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>Cyber Defense</span>
+                        <span class="secure">ACTIVE</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>USB Defense</span>
+                        <span class="secure">ACTIVE</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span>Response Engine</span>
+                        <span class="secure">READY</span>
+                    </div>
+
+                </div>
+
+            </section>
+
         </div>
-    </div>
 
-
-    <div class="page" id="page-reports">
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Security Reports</h2>
-            </div>
-            <p>Security events and historical reports.</p>
-        </div>
-    </div>
-
+    </main>
 
 </div>
 
 
-<!-- =========================================================
-     YOUR EXISTING JAVASCRIPT
-     ========================================================= -->
-
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-
-
-<!-- =========================================================
-     USB DISPLAY ONLY
+<!-- ======================================================
+     USB STATUS
      
-     This does NOT modify script.js.
-     It only reads /api/usb-status and updates the USB panel.
-     ========================================================= -->
+     This is only inside dashboard.html.
+     script.js is NOT modified.
+     ====================================================== -->
 
 <script>
 
-(function () {
+function formatBytes(bytes) {
 
-    function formatBytes(bytes) {
+    if (!bytes || bytes <= 0) {
+        return "—";
+    }
 
-        if (!bytes || bytes <= 0) {
-            return "—";
-        }
+    const units = ["B", "KB", "MB", "GB", "TB"];
 
-        const units = [
-            "B",
-            "KB",
-            "MB",
-            "GB",
-            "TB"
-        ];
+    let value = Number(bytes);
+    let index = 0;
 
-        let index = 0;
-        let value = Number(bytes);
+    while (value >= 1024 && index < units.length - 1) {
+        value = value / 1024;
+        index++;
+    }
 
-        while (value >= 1024 && index < units.length - 1) {
-            value /= 1024;
-            index++;
-        }
+    return value.toFixed(1) + " " + units[index];
+}
 
-        return value.toFixed(1) + " " + units[index];
+
+function updateUSB(data) {
+
+    const waiting =
+        document.getElementById("usbWaiting");
+
+    const connected =
+        document.getElementById("usbConnected");
+
+    const badge =
+        document.getElementById("usbBadge");
+
+
+    if (!data || !data.connected) {
+
+        waiting.style.display = "block";
+        connected.style.display = "none";
+
+        badge.className = "usb-badge";
+        badge.textContent = "WAITING";
+
+        return;
     }
 
 
-    function updateUSB(data) {
-
-        const waiting = document.getElementById("usbWaiting");
-        const connected = document.getElementById("usbConnected");
-        const badge = document.getElementById("usbStatusBadge");
-
-        if (!data || !data.connected) {
-
-            waiting.style.display = "block";
-            connected.style.display = "none";
-
-            badge.className = "usb-status";
-            badge.textContent = "WAITING";
-
-            return;
-        }
+    waiting.style.display = "none";
+    connected.style.display = "block";
 
 
-        waiting.style.display = "none";
-        connected.style.display = "block";
+    const device = data.device || {};
+    const scan = data.scan || {};
 
 
-        /*
-         * DEVICE INFORMATION
-         */
-
-        const device = data.device || {};
-        const scan = data.scan || {};
+    document.getElementById("usbDevice").textContent =
+        device.label || "USB DEVICE";
 
 
-        document.getElementById("usbDeviceName").textContent =
-            device.label || "USB DEVICE";
+    document.getElementById("usbDrive").textContent =
+        device.drive
+            ? device.drive + ":"
+            : "—";
 
 
-        document.getElementById("usbDrive").textContent =
-            device.drive
-                ? device.drive + ":"
-                : "—";
+    document.getElementById("usbFilesystem").textContent =
+        device.filesystem || "—";
 
 
-        document.getElementById("usbFilesystem").textContent =
-            device.filesystem || "—";
+    document.getElementById("usbStatus").textContent =
+        data.status || "SCANNING";
 
 
-        document.getElementById("usbScanStatus").textContent =
-            data.status || "SCANNING";
+    document.getElementById("usbFiles").textContent =
+        scan.files_scanned ?? 0;
 
 
-        document.getElementById("usbFilesScanned").textContent =
-            scan.files_scanned !== undefined
-                ? scan.files_scanned
-                : "0";
+    document.getElementById("usbSuspicious").textContent =
+        scan.suspicious_count ?? 0;
 
 
-        document.getElementById("usbSuspicious").textContent =
-            scan.suspicious_count !== undefined
-                ? scan.suspicious_count
-                : "0";
+    document.getElementById("usbTotal").textContent =
+        formatBytes(device.total_bytes);
 
 
-        document.getElementById("usbTotalSize").textContent =
-            formatBytes(device.total_bytes);
+    document.getElementById("usbFree").textContent =
+        formatBytes(device.free_bytes);
 
 
-        document.getElementById("usbFreeSpace").textContent =
-            formatBytes(device.free_bytes);
+    const risk =
+        String(scan.risk || "UNKNOWN").toUpperCase();
 
 
-        /*
-         * RISK
-         */
-
-        const risk = String(
-            scan.risk || "UNKNOWN"
-        ).toUpperCase();
+    const riskElement =
+        document.getElementById("usbRisk");
 
 
-        const riskElement =
-            document.getElementById("usbRiskValue");
+    const riskMessage =
+        document.getElementById("riskMessage");
 
 
-        const riskMessage =
-            document.getElementById("usbRiskMessage");
-
+    if (risk === "LOW") {
 
         riskElement.className =
-            "usb-risk-value";
+            "risk-value low";
 
+        riskElement.textContent =
+            "LOW RISK";
 
-        if (risk === "LOW") {
+        riskMessage.textContent =
+            "No suspicious indicators detected.";
 
-            riskElement.classList.add("usb-risk-low");
-
-            riskElement.textContent = "LOW";
-
-            riskMessage.textContent =
-                "No suspicious indicators detected.";
-
-            badge.className =
-                "usb-status connected";
-
-            badge.textContent =
-                "USB CONNECTED";
-
-        }
-
-        else if (
-            risk === "MEDIUM" ||
-            risk === "MODERATE"
-        ) {
-
-            riskElement.classList.add("usb-risk-medium");
-
-            riskElement.textContent = "MEDIUM";
-
-            riskMessage.textContent =
-                "Suspicious indicators require investigation.";
-
-            badge.className =
-                "usb-status warning";
-
-            badge.textContent =
-                "THREAT DETECTED";
-
-        }
-
-        else if (
-            risk === "HIGH" ||
-            risk === "CRITICAL"
-        ) {
-
-            riskElement.classList.add("usb-risk-high");
-
-            riskElement.textContent = risk;
-
-            riskMessage.textContent =
-                "Potentially harmful content detected.";
-
-            badge.className =
-                "usb-status danger";
-
-            badge.textContent =
-                "HIGH RISK";
-
-        }
-
-        else {
-
-            riskElement.textContent = risk;
-
-            riskMessage.textContent =
-                "Security analysis in progress.";
-
-            badge.className =
-                "usb-status";
-
-            badge.textContent =
-                data.status || "SCANNING";
-        }
-
-
-        /*
-         * SUSPICIOUS FILE TABLE
-         */
-
-        const filesSection =
-            document.getElementById("usbFilesSection");
-
-        const table =
-            document.getElementById("usbSuspiciousTable");
-
-
-        table.innerHTML = "";
-
-
-        const suspiciousFiles =
-            scan.suspicious_files || [];
-
-
-        if (suspiciousFiles.length > 0) {
-
-            filesSection.style.display =
-                "block";
-
-
-            suspiciousFiles.forEach(function (file) {
-
-                const row =
-                    document.createElement("tr");
-
-
-                const name =
-                    typeof file === "string"
-                        ? file
-                        : (
-                            file.path ||
-                            file.name ||
-                            "Suspicious file"
-                        );
-
-
-                const reason =
-                    typeof file === "string"
-                        ? "Suspicious indicator"
-                        : (
-                            file.reason ||
-                            file.reasons ||
-                            "Suspicious indicator"
-                        );
-
-
-                const fileRisk =
-                    typeof file === "object" &&
-                    file.risk
-                        ? file.risk
-                        : "HIGH";
-
-
-                row.innerHTML = `
-                    <td class="usb-suspicious">
-                        ${name}
-                    </td>
-
-                    <td>
-                        ${reason}
-                    </td>
-
-                    <td class="usb-suspicious">
-                        ${fileRisk}
-                    </td>
-                `;
-
-
-                table.appendChild(row);
-
-            });
-
-        }
-
-        else {
-
-            filesSection.style.display =
-                "none";
-        }
+        badge.className =
+            "usb-badge connected";
+        badge.textContent =
+            "USB CONNECTED";
 
     }
 
+    else if (
+        risk === "MEDIUM" ||
+        risk === "MODERATE"
+    ) {
 
-    function checkUSB() {
+        riskElement.className =
+            "risk-value medium";
 
-        fetch("/api/usb-status")
+        riskElement.textContent =
+            "MEDIUM RISK";
 
-            .then(function (response) {
-                return response.json();
-            })
+        riskMessage.textContent =
+            "Suspicious indicators detected.";
 
-            .then(function (data) {
-                updateUSB(data);
-            })
+        badge.className =
+            "usb-badge warning";
 
-            .catch(function () {
-                /*
-                 * Keep existing dashboard working
-                 * if USB API is temporarily unavailable.
-                 */
-            });
+        badge.textContent =
+            "THREAT DETECTED";
 
     }
 
+    else if (
+        risk === "HIGH" ||
+        risk === "CRITICAL"
+    ) {
 
-    /*
-     * Check immediately.
-     */
+        riskElement.className =
+            "risk-value high";
 
-    checkUSB();
+        riskElement.textContent =
+            "HIGH RISK";
+
+        riskMessage.textContent =
+            "Potentially harmful content detected.";
+
+        badge.className =
+            "usb-badge danger";
+
+        badge.textContent =
+            "HIGH RISK";
+
+    }
+
+    else {
+
+        riskElement.className =
+            "risk-value";
+
+        riskElement.textContent =
+            risk;
+
+        riskMessage.textContent =
+            "Security analysis in progress.";
+
+        badge.className =
+            "usb-badge";
+
+        badge.textContent =
+            data.status || "SCANNING";
+    }
+}
 
 
-    /*
-     * Continue monitoring.
-     * USB state is refreshed every 2 seconds.
-     */
+function checkUSBStatus() {
 
-    setInterval(checkUSB, 2000);
+    fetch("/api/usb-status")
+
+        .then(response => response.json())
+
+        .then(data => {
+            updateUSB(data);
+        })
+
+        .catch(error => {
+            console.log("USB status unavailable");
+        });
+}
 
 
-})();
+/* Start immediately */
+checkUSBStatus();
+
+/* Refresh every 2 seconds */
+setInterval(checkUSBStatus, 2000);
 
 </script>
 
