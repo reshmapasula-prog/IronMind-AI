@@ -1,13 +1,12 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from datetime import datetime
 import random
 import threading
 
 
 # ============================================================
-# IRONMIND AI - FLASK APPLICATION
-# Cyber Defense + Machine / IoT Monitoring
-# Prototype / Simulation
+# IRONMIND AI
+# Cyber Defense + Endpoint + USB Monitoring Platform
 # ============================================================
 
 app = Flask(
@@ -16,66 +15,96 @@ app = Flask(
     template_folder="templates"
 )
 
+state_lock = threading.Lock()
+
 
 # ============================================================
 # SYSTEM STATE
 # ============================================================
 
-state_lock = threading.Lock()
-
 system_state = {
-    # Main security state
+    # -------------------------
+    # General
+    # -------------------------
     "risk": 18,
-    "ai_risk": 22,
-    "status": "SYSTEM PROTECTED",
-    "incident": "NO ACTIVE INCIDENT",
-
-    # Monitoring systems
+    "ai_risk": 16,
+    "status": "PROTECTED",
+    "incident": "No active security incident",
     "ai_engine": "ACTIVE",
+
+    # -------------------------
+    # Security modules
+    # -------------------------
     "endpoint": "SECURE",
     "network": "MONITORING",
-    "iot_ot": "READY",
+    "iot_ot": "MONITORING",
 
-    # Threat counters
-    "threats": 0,
+    # -------------------------
+    # Threat information
+    # -------------------------
+    "threats": 3,
     "blocked": 24,
-    "events": 1934,
+    "critical": 0,
+    "high": 1,
+    "medium": 1,
+    "low": 1,
 
-    # Severity
-    "critical": 2,
-    "high": 8,
-    "medium": 21,
-    "low": 57,
-
+    # -------------------------
     # Infrastructure
-    "endpoints": 7892,
-    "cloud": 1256,
-    "network_devices": 4325,
+    # -------------------------
+    "endpoints": 12,
+    "cloud": 8,
+    "network_devices": 18,
 
-    # Performance
-    "ai_processing": 87,
-    "cpu": 34,
-    "memory": 52,
-    "network_traffic": 48,
+    # -------------------------
+    # AI
+    # -------------------------
+    "ai_processing": 72,
 
+    # -------------------------
+    # Endpoint telemetry
+    # -------------------------
+    "cpu": 32,
+    "memory": 46,
+    "network_traffic": 38,
+    "usb_activity": "NO USB EVENT",
+
+    # -------------------------
     # Machine / IoT
-    "machine_temperature": 62,
-    "machine_vibration": 3.2,
-    "machine_rpm": 1450,
+    # -------------------------
+    "machine_temperature": 42.5,
+    "machine_vibration": 1.2,
+    "machine_rpm": 1498,
 
-    # USB
-    "usb_activity": "NORMAL",
+    # -------------------------
+    # USB REAL-WORLD MONITORING
+    # -------------------------
+    "usb_connected": False,
+    "usb_drive": "",
+    "usb_event": "NO USB EVENT",
+    "usb_time": "",
 
-    # Mode
-    "demo_mode": "normal",
+    # -------------------------
+    # Event system
+    # -------------------------
+    "events": 18,
 
-    # Timestamp
-    "last_update": ""
+    # -------------------------
+    # Last update
+    # -------------------------
+    "last_update": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 }
 
 
 # ============================================================
-# HELPERS
+# DEMO MODE
+# ============================================================
+
+demo_mode = "normal"
+
+
+# ============================================================
+# TIMESTAMP
 # ============================================================
 
 def update_timestamp():
@@ -84,243 +113,370 @@ def update_timestamp():
     )
 
 
+# ============================================================
+# LIVE SIMULATION
+# ============================================================
+
 def generate_live_data():
-    """
-    Generates simulated monitoring data for the prototype.
-    """
 
-    mode = system_state["demo_mode"]
+    global demo_mode
 
-    # --------------------------------------------------------
-    # NORMAL MODE
-    # --------------------------------------------------------
-
-    if mode == "normal":
-
-        system_state["risk"] = random.randint(10, 30)
-        system_state["ai_risk"] = random.randint(5, 35)
-
-        system_state["status"] = "SYSTEM PROTECTED"
-        system_state["incident"] = "NO ACTIVE INCIDENT"
-
-        system_state["threats"] = random.choice([0, 0, 0, 1])
-
-        system_state["endpoint"] = "SECURE"
-        system_state["network"] = "MONITORING"
-        system_state["iot_ot"] = "READY"
-
-        system_state["usb_activity"] = random.choice([
-            "NORMAL",
-            "NORMAL",
-            "MONITORED"
-        ])
-
-    # --------------------------------------------------------
-    # CYBER TEST MODE
-    # --------------------------------------------------------
-
-    elif mode == "cyber":
-
-        system_state["risk"] = random.randint(72, 96)
-        system_state["ai_risk"] = random.randint(70, 99)
-
-        system_state["status"] = "THREAT DETECTED"
-        system_state["incident"] = "SUSPICIOUS USB DATA TRANSFER"
-
-        system_state["threats"] = random.randint(1, 3)
-
-        system_state["endpoint"] = "THREAT BLOCKED"
-        system_state["network"] = "MONITORING"
-        system_state["iot_ot"] = "READY"
-
-        system_state["usb_activity"] = "SUSPICIOUS TRANSFER BLOCKED"
-
-    # --------------------------------------------------------
-    # MACHINE TEST MODE
-    # --------------------------------------------------------
-
-    elif mode == "machine":
-
-        system_state["risk"] = random.randint(55, 78)
-        system_state["ai_risk"] = random.randint(50, 88)
-
-        system_state["status"] = "MACHINE WARNING"
-        system_state["incident"] = "ABNORMAL MACHINE SENSOR VALUES"
-
-        system_state["threats"] = 1
-
-        system_state["endpoint"] = "MONITORING"
-        system_state["network"] = "MONITORING"
-        system_state["iot_ot"] = "ANOMALY DETECTED"
-
-        system_state["usb_activity"] = "NORMAL"
-
-    # --------------------------------------------------------
-    # COMMON LIVE VALUES
-    # --------------------------------------------------------
-
-    system_state["cpu"] = random.randint(20, 85)
-    system_state["memory"] = random.randint(30, 80)
-    system_state["network_traffic"] = random.randint(20, 90)
-
-    system_state["ai_processing"] = random.randint(60, 99)
-
-    system_state["machine_temperature"] = random.randint(55, 85)
-    system_state["machine_vibration"] = round(
-        random.uniform(1.5, 6.5), 1
-    )
-    system_state["machine_rpm"] = random.randint(1100, 1800)
-
-    # Infrastructure values
-    system_state["endpoints"] = random.randint(7800, 8050)
-    system_state["cloud"] = random.randint(1200, 1300)
-    system_state["network_devices"] = random.randint(4200, 4400)
-
-    # Event counter
-    system_state["events"] += random.randint(1, 8)
-
-    # Blocked counter
-    if mode == "cyber":
-        system_state["blocked"] += random.randint(1, 3)
-    else:
-        if random.random() > 0.7:
-            system_state["blocked"] += 1
-
-    # Severity counts
-    system_state["critical"] = random.randint(1, 5)
-    system_state["high"] = random.randint(5, 15)
-    system_state["medium"] = random.randint(15, 35)
-    system_state["low"] = random.randint(40, 80)
-
-    update_timestamp()
-
-
-def get_state():
-    """
-    Return a safe copy of the current state.
-    """
     with state_lock:
-        return dict(system_state)
+
+        # ----------------------------------------------------
+        # NORMAL MODE
+        # ----------------------------------------------------
+
+        if demo_mode == "normal":
+
+            system_state["risk"] = random.randint(10, 28)
+            system_state["ai_risk"] = random.randint(8, 25)
+
+            system_state["threats"] = random.randint(1, 5)
+            system_state["critical"] = 0
+            system_state["high"] = random.randint(0, 2)
+            system_state["medium"] = random.randint(1, 3)
+            system_state["low"] = random.randint(1, 4)
+
+            system_state["endpoint"] = "SECURE"
+            system_state["network"] = "MONITORING"
+            system_state["iot_ot"] = "MONITORING"
+
+            system_state["cpu"] = random.randint(20, 55)
+            system_state["memory"] = random.randint(35, 65)
+            system_state["network_traffic"] = random.randint(20, 55)
+
+            system_state["machine_temperature"] = round(
+                random.uniform(38, 48), 1
+            )
+
+            system_state["machine_vibration"] = round(
+                random.uniform(0.8, 1.8), 1
+            )
+
+            system_state["machine_rpm"] = random.randint(
+                1450, 1550
+            )
+
+            system_state["status"] = "PROTECTED"
+            system_state["incident"] = "No active security incident"
+
+        # ----------------------------------------------------
+        # CYBER TEST MODE
+        # ----------------------------------------------------
+
+        elif demo_mode == "cyber":
+
+            system_state["risk"] = random.randint(65, 90)
+            system_state["ai_risk"] = random.randint(70, 95)
+
+            system_state["threats"] = random.randint(7, 14)
+            system_state["critical"] = random.randint(1, 3)
+            system_state["high"] = random.randint(2, 5)
+            system_state["medium"] = random.randint(2, 5)
+            system_state["low"] = random.randint(1, 4)
+
+            system_state["endpoint"] = "THREAT DETECTED"
+            system_state["network"] = "ANALYZING"
+            system_state["iot_ot"] = "MONITORING"
+
+            system_state["status"] = "UNDER ATTACK"
+
+            system_state["incident"] = (
+                "Cybersecurity test event detected"
+            )
+
+            system_state["cpu"] = random.randint(55, 90)
+            system_state["memory"] = random.randint(55, 85)
+            system_state["network_traffic"] = random.randint(60, 95)
+
+        # ----------------------------------------------------
+        # MACHINE TEST MODE
+        # ----------------------------------------------------
+
+        elif demo_mode == "machine":
+
+            system_state["risk"] = random.randint(55, 85)
+            system_state["ai_risk"] = random.randint(60, 90)
+
+            system_state["machine_temperature"] = round(
+                random.uniform(65, 85), 1
+            )
+
+            system_state["machine_vibration"] = round(
+                random.uniform(4.0, 7.0), 1
+            )
+
+            system_state["machine_rpm"] = random.randint(
+                1050, 1250
+            )
+
+            system_state["endpoint"] = "SECURE"
+            system_state["network"] = "MONITORING"
+            system_state["iot_ot"] = "ANOMALY DETECTED"
+
+            system_state["status"] = "MACHINE ANOMALY"
+
+            system_state["incident"] = (
+                "Machine telemetry anomaly detected"
+            )
+
+        update_timestamp()
 
 
 # ============================================================
-# PAGE ROUTES
+# HOME PAGE
 # ============================================================
 
 @app.route("/")
 def home():
-    """
-    Public IronMind AI landing page.
-    """
-    return render_template("index.html")
-
-
-@app.route("/dashboard")
-def dashboard():
-    """
-    Security Operations Center dashboard.
-    """
     return render_template("dashboard.html")
 
 
 # ============================================================
-# API - LIVE STATUS
+# DASHBOARD
 # ============================================================
 
-@app.route("/api/status", methods=["GET"])
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+# ============================================================
+# API - CURRENT STATUS
+# ============================================================
+
+@app.route("/api/status")
 def api_status():
 
+    # Update simulated values
+    generate_live_data()
+
     with state_lock:
-        generate_live_data()
         data = dict(system_state)
+
+    return jsonify(data)
+
+
+# ============================================================
+# API - USB EVENT
+# REAL HARDWARE CONNECTION
+# ============================================================
+
+@app.route("/api/usb-event", methods=["POST"])
+def usb_event():
+
+    data = request.get_json(silent=True) or {}
+
+    event = data.get(
+        "event",
+        "unknown"
+    )
+
+    drive = data.get(
+        "drive",
+        "Unknown USB"
+    )
+
+    timestamp = data.get(
+        "timestamp",
+        datetime.now().isoformat()
+    )
+
+    with state_lock:
+
+        # ----------------------------------------------------
+        # USB CONNECTED
+        # ----------------------------------------------------
+
+        if event == "connected":
+
+            system_state["usb_connected"] = True
+
+            system_state["usb_drive"] = drive
+
+            system_state["usb_event"] = (
+                "USB DEVICE DETECTED"
+            )
+
+            system_state["usb_activity"] = (
+                "USB DEVICE CONNECTED"
+            )
+
+            system_state["incident"] = (
+                f"USB device detected on {drive}"
+            )
+
+            # Increase risk slightly for visibility
+            system_state["risk"] = max(
+                system_state["risk"],
+                32
+            )
+
+            system_state["ai_risk"] = max(
+                system_state["ai_risk"],
+                28
+            )
+
+        # ----------------------------------------------------
+        # USB REMOVED
+        # ----------------------------------------------------
+
+        elif event == "removed":
+
+            system_state["usb_connected"] = False
+
+            system_state["usb_drive"] = ""
+
+            system_state["usb_event"] = (
+                "USB DEVICE REMOVED"
+            )
+
+            system_state["usb_activity"] = (
+                "USB DEVICE REMOVED"
+            )
+
+            system_state["incident"] = (
+                "USB device removed from endpoint"
+            )
+
+        # ----------------------------------------------------
+        # UNKNOWN EVENT
+        # ----------------------------------------------------
+
+        else:
+
+            system_state["usb_event"] = (
+                "UNKNOWN USB EVENT"
+            )
+
+            system_state["usb_activity"] = (
+                "UNKNOWN USB EVENT"
+            )
+
+        system_state["usb_time"] = timestamp
+
+        system_state["events"] += 1
+
+        update_timestamp()
+
+        response_data = dict(system_state)
 
     return jsonify({
         "success": True,
-        "data": data
+        "message": "USB event received by IronMind AI",
+        "data": response_data
     })
 
 
 # ============================================================
-# API - CYBER SECURITY TEST
+# API - CYBER TEST
 # ============================================================
 
-@app.route("/api/cyber-test", methods=["POST"])
+@app.route("/api/cyber-test", methods=["GET", "POST"])
 def cyber_test():
 
+    global demo_mode
+
+    demo_mode = "cyber"
+
+    generate_live_data()
+
     with state_lock:
+        system_state["blocked"] += random.randint(
+            1,
+            3
+        )
 
-        system_state["demo_mode"] = "cyber"
-
-        system_state["blocked"] += random.randint(1, 3)
-        system_state["events"] += random.randint(5, 15)
-
-        generate_live_data()
+        system_state["events"] += 1
 
         data = dict(system_state)
 
     return jsonify({
         "success": True,
-        "message": "Cyber security simulation completed.",
+        "message": "Cybersecurity test executed",
         "data": data
     })
 
 
 # ============================================================
-# API - MACHINE / IOT TEST
+# API - MACHINE TEST
 # ============================================================
 
-@app.route("/api/machine-test", methods=["POST"])
+@app.route("/api/machine-test", methods=["GET", "POST"])
 def machine_test():
 
+    global demo_mode
+
+    demo_mode = "machine"
+
+    generate_live_data()
+
     with state_lock:
 
-        system_state["demo_mode"] = "machine"
-
-        system_state["events"] += random.randint(5, 15)
-
-        generate_live_data()
+        system_state["events"] += 1
 
         data = dict(system_state)
 
     return jsonify({
         "success": True,
-        "message": "Machine and IoT simulation completed.",
+        "message": "Machine anomaly test executed",
         "data": data
     })
 
 
 # ============================================================
-# API - RESET
+# API - RESET SYSTEM
 # ============================================================
 
-@app.route("/api/reset", methods=["POST"])
+@app.route("/api/reset", methods=["GET", "POST"])
 def reset_system():
+
+    global demo_mode
+
+    demo_mode = "normal"
 
     with state_lock:
 
-        system_state["demo_mode"] = "normal"
-
         system_state["risk"] = 18
-        system_state["ai_risk"] = 22
+        system_state["ai_risk"] = 16
 
-        system_state["status"] = "SYSTEM PROTECTED"
-        system_state["incident"] = "NO ACTIVE INCIDENT"
+        system_state["status"] = "PROTECTED"
 
-        system_state["threats"] = 0
+        system_state["incident"] = (
+            "No active security incident"
+        )
 
         system_state["endpoint"] = "SECURE"
         system_state["network"] = "MONITORING"
-        system_state["iot_ot"] = "READY"
+        system_state["iot_ot"] = "MONITORING"
 
-        system_state["usb_activity"] = "NORMAL"
+        system_state["threats"] = 3
+        system_state["critical"] = 0
+        system_state["high"] = 1
+        system_state["medium"] = 1
+        system_state["low"] = 1
 
-        generate_live_data()
+        system_state["cpu"] = 32
+        system_state["memory"] = 46
+        system_state["network_traffic"] = 38
+
+        system_state["machine_temperature"] = 42.5
+        system_state["machine_vibration"] = 1.2
+        system_state["machine_rpm"] = 1498
+
+        system_state["usb_activity"] = "NO USB EVENT"
+        system_state["usb_event"] = "NO USB EVENT"
+
+        system_state["events"] = 18
+
+        update_timestamp()
 
         data = dict(system_state)
 
     return jsonify({
         "success": True,
-        "message": "IronMind AI system has been reset.",
+        "message": "IronMind AI system reset",
         "data": data
     })
 
@@ -335,27 +491,20 @@ def health():
     return jsonify({
         "status": "online",
         "service": "IronMind AI",
+        "usb_monitoring": True,
         "timestamp": datetime.now().isoformat()
     })
 
 
 # ============================================================
-# APPLICATION START
+# RUN LOCAL SERVER
+# Render uses Gunicorn instead of this section.
 # ============================================================
 
 if __name__ == "__main__":
 
-    print("=" * 60)
-    print("IRONMIND AI")
-    print("Cyber Defense + Machine / IoT Monitoring")
-    print("=" * 60)
-    print("Landing Page : http://127.0.0.1:5000/")
-    print("Dashboard    : http://127.0.0.1:5000/dashboard")
-    print("Health Check : http://127.0.0.1:5000/health")
-    print("=" * 60)
-
     app.run(
         host="0.0.0.0",
         port=5000,
-        debug=False
+        debug=True
     )
