@@ -4,116 +4,126 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>IronMind AI | 3D Security Command Center</title>
+<title>IronMind AI | Security Command Center</title>
 
 <style>
-
-*{
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
 }
 
-html{
-    scroll-behavior:smooth;
+html {
+    scroll-behavior: smooth;
 }
 
-:root{
-    --bg:#02060b;
-    --panel:#07111b;
-    --panel2:#0a1722;
-    --border:#153246;
-    --cyan:#00c8ff;
-    --blue:#168cff;
-    --green:#35e69a;
-    --red:#ff5268;
-    --yellow:#ffc04d;
-    --text:#eaf7ff;
-    --muted:#688095;
+:root {
+    --bg: #02070d;
+    --panel: rgba(7, 16, 25, 0.88);
+    --panel2: rgba(10, 22, 34, 0.92);
+    --line: rgba(45, 154, 205, 0.22);
+    --cyan: #00c8ff;
+    --cyan2: #39dcff;
+    --green: #35e69a;
+    --yellow: #ffc04d;
+    --red: #ff6476;
+    --text: #eaf5fa;
+    --muted: #657b8d;
 }
 
-body{
-    margin:0;
-    min-height:100vh;
-    overflow-x:hidden;
+body {
+    margin: 0;
+    min-height: 100vh;
 
     background:
-        radial-gradient(circle at 50% 0%,
-        rgba(0,140,255,.14),
-        transparent 35%),
-
-        radial-gradient(circle at 100% 70%,
-        rgba(0,255,190,.06),
-        transparent 30%),
-
+        radial-gradient(
+            circle at 72% 25%,
+            rgba(0, 150, 255, 0.11),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 55% 70%,
+            rgba(0, 255, 190, 0.035),
+            transparent 30%
+        ),
         #02060b;
 
-    color:var(--text);
+    color: var(--text);
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
+
+    overflow-x: hidden;
 }
 
 
 /* =========================================================
-   GLOBAL 3D ENVIRONMENT
+   GLOBAL CYBER GRID
 ========================================================= */
 
-body::before{
-    content:"";
+body::before {
+    content: "";
 
-    position:fixed;
+    position: fixed;
+    inset: 0;
 
-    left:0;
-    right:0;
-    bottom:0;
+    pointer-events: none;
 
-    height:35vh;
-
-    pointer-events:none;
+    z-index: -5;
 
     background:
         linear-gradient(
-            rgba(0,160,255,.05) 1px,
+            rgba(0, 180, 255, 0.028) 1px,
             transparent 1px
         ),
         linear-gradient(
             90deg,
-            rgba(0,160,255,.05) 1px,
+            rgba(0, 180, 255, 0.028) 1px,
             transparent 1px
         );
 
-    background-size:45px 45px;
+    background-size: 55px 55px;
 
-    transform:
-        perspective(500px)
-        rotateX(62deg)
-        scale(1.7);
+    mask-image:
+        radial-gradient(
+            circle at 60% 45%,
+            black,
+            transparent 78%
+        );
 
-    transform-origin:center bottom;
-
-    opacity:.35;
-
-    z-index:-1;
+    animation: gridMove 20s linear infinite;
 }
 
-body::after{
-    content:"";
 
-    position:fixed;
+body::after {
+    content: "";
 
-    inset:0;
+    position: fixed;
 
-    pointer-events:none;
+    width: 650px;
+    height: 650px;
+
+    left: 63%;
+    top: 48%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
 
     background:
         radial-gradient(
-            circle at center,
-            transparent 35%,
-            rgba(0,0,0,.55) 100%
+            circle,
+            rgba(0, 150, 255, 0.08),
+            transparent 68%
         );
 
-    z-index:999;
+    filter: blur(18px);
+
+    pointer-events: none;
+
+    z-index: -6;
+
+    animation: ambientPulse 7s ease-in-out infinite;
 }
 
 
@@ -121,9 +131,10 @@ body::after{
    LAYOUT
 ========================================================= */
 
-.layout{
-    min-height:100vh;
-    display:flex;
+.layout {
+    min-height: 100vh;
+
+    display: flex;
 }
 
 
@@ -131,225 +142,216 @@ body::after{
    SIDEBAR
 ========================================================= */
 
-.sidebar{
+.sidebar {
+    width: 245px;
+    min-height: 100vh;
 
-    width:245px;
+    position: fixed;
 
-    min-height:100vh;
+    left: 0;
+    top: 0;
+    bottom: 0;
 
-    position:fixed;
+    z-index: 100;
 
-    left:0;
-    top:0;
-    bottom:0;
-
-    z-index:100;
-
-    padding:25px 14px;
+    padding: 24px 14px;
 
     background:
         linear-gradient(
-            180deg,
-            rgba(4,12,20,.98),
-            rgba(2,7,12,.98)
+            145deg,
+            rgba(8, 18, 29, 0.98),
+            rgba(2, 7, 13, 0.99)
         );
 
-    border-right:1px solid #153042;
+    border-right:
+        1px solid rgba(0, 190, 255, 0.14);
 
     box-shadow:
-        15px 0 50px rgba(0,80,150,.08);
+        18px 0 55px rgba(0,0,0,0.34);
 
-    transform-style:preserve-3d;
+    transform-style: preserve-3d;
 }
 
 
-/* sidebar holographic edge */
+.sidebar::after {
+    content: "";
 
-.sidebar::after{
+    position: absolute;
 
-    content:"";
+    top: 0;
+    right: 0;
 
-    position:absolute;
-
-    top:0;
-    right:-1px;
-
-    width:1px;
-    height:100%;
+    width: 1px;
+    height: 100%;
 
     background:
         linear-gradient(
             transparent,
-            var(--cyan),
+            rgba(0,200,255,0.75),
             transparent
         );
 
-    box-shadow:
-        0 0 18px var(--cyan);
+    opacity: .45;
 }
 
 
-.brand{
-    padding:5px 16px 30px;
+.brand {
+    padding: 5px 16px 30px;
 }
 
-.brand-name{
-    font-size:22px;
-    font-weight:900;
-    letter-spacing:1px;
+
+.brand-name {
+    font-size: 22px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
 
     text-shadow:
-        0 0 18px rgba(0,200,255,.3);
-}
-
-.brand-name span{
-    color:var(--cyan);
-}
-
-.brand-sub{
-    margin-top:7px;
-
-    color:#536b7d;
-
-    font-size:8px;
-
-    letter-spacing:2px;
+        0 0 20px rgba(0,200,255,.15);
 }
 
 
-.navigation{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
+.brand-name span {
+    color: var(--cyan);
 }
 
 
-.nav-button{
+.brand-sub {
+    margin-top: 7px;
 
-    position:relative;
+    color: #536b7d;
 
-    width:100%;
+    font-size: 8px;
 
-    border:1px solid transparent;
+    letter-spacing: 1.8px;
+}
 
-    background:transparent;
 
-    color:#71879a;
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
-    text-align:left;
+.navigation {
+    display: flex;
 
-    padding:13px 15px;
+    flex-direction: column;
 
-    border-radius:8px;
+    gap: 5px;
+}
 
-    cursor:pointer;
 
-    font-size:12px;
+.nav-button,
+.nav-item {
+    width: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #708697;
+
+    text-align: left;
+
+    padding: 13px 15px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 12px;
 
     transition:
         .25s ease;
 
-    transform-style:preserve-3d;
+    position: relative;
+
+    transform-style: preserve-3d;
 }
 
-.nav-button:hover{
 
-    color:#fff;
+.nav-button:hover,
+.nav-item:hover {
+    color: white;
 
     background:
         linear-gradient(
             90deg,
-            rgba(0,200,255,.12),
+            rgba(0,190,255,.09),
             transparent
         );
-
-    border-color:#15394c;
 
     transform:
         translateX(5px)
         translateZ(8px);
 
     box-shadow:
-        0 0 20px rgba(0,150,255,.12);
+        0 0 25px rgba(0,160,255,.06);
 }
 
-.nav-button.active{
 
-    color:#fff;
+.nav-button.active,
+.nav-item.active {
+    color: white;
 
     background:
         linear-gradient(
             90deg,
-            rgba(0,200,255,.18),
-            rgba(0,100,180,.04)
+            rgba(0,200,255,.12),
+            rgba(0,200,255,.015)
         );
 
-    border-left:3px solid var(--cyan);
+    border-left:
+        3px solid var(--cyan);
 
     box-shadow:
-        inset 0 0 20px rgba(0,150,255,.08),
-        0 0 18px rgba(0,150,255,.08);
+        inset 0 0 20px rgba(0,160,255,.04);
 }
 
-.nav-icon{
 
-    display:inline-block;
+.nav-icon {
+    display: inline-block;
 
-    width:28px;
+    width: 25px;
 
-    color:var(--cyan);
+    color: var(--cyan);
 
     text-shadow:
-        0 0 10px rgba(0,200,255,.7);
+        0 0 10px rgba(0,200,255,.6);
 }
 
 
-.sidebar-status{
+/* =========================================================
+   SIDEBAR STATUS
+========================================================= */
 
-    position:absolute;
+.sidebar-status {
+    position: absolute;
 
-    left:25px;
-    bottom:25px;
+    left: 25px;
+    bottom: 25px;
 
-    color:var(--green);
+    color: var(--green);
 
-    font-size:9px;
+    font-size: 9px;
 
-    letter-spacing:1px;
+    letter-spacing: 1px;
 }
 
-.status-dot{
 
-    display:inline-block;
+.status-dot {
+    display: inline-block;
 
-    width:7px;
-    height:7px;
+    width: 7px;
+    height: 7px;
 
-    border-radius:50%;
+    border-radius: 50%;
 
-    background:var(--green);
+    background: var(--green);
 
     box-shadow:
-        0 0 8px var(--green),
-        0 0 20px rgba(53,230,154,.5);
+        0 0 10px var(--green);
 
-    margin-right:7px;
-
-    animation:
-        statusPulse 1.8s infinite;
-}
-
-@keyframes statusPulse{
-
-    0%,100%{
-        opacity:.6;
-        transform:scale(.8);
-    }
-
-    50%{
-        opacity:1;
-        transform:scale(1.2);
-    }
+    margin-right: 7px;
 }
 
 
@@ -357,82 +359,71 @@ body::after{
    MAIN
 ========================================================= */
 
-.main{
+.main {
+    margin-left: 245px;
 
-    margin-left:245px;
+    width:
+        calc(100% - 245px);
 
-    width:calc(100% - 245px);
+    min-height: 100vh;
 
-    min-height:100vh;
+    padding: 30px;
 
-    padding:30px;
+    position: relative;
 
-    perspective:1600px;
+    transform-style: preserve-3d;
 }
 
 
 /* =========================================================
-   TOPBAR
+   TOP BAR
 ========================================================= */
 
-.topbar{
+.topbar {
+    display: flex;
 
-    display:flex;
+    justify-content: space-between;
 
-    justify-content:space-between;
+    align-items: center;
 
-    align-items:center;
-
-    margin-bottom:25px;
-
-    position:relative;
+    margin-bottom: 25px;
 }
 
-.page-title h1{
 
-    margin:0;
+.page-title h1 {
+    margin: 0;
 
-    font-size:28px;
+    font-size: 28px;
 
-    letter-spacing:-.5px;
+    letter-spacing: -0.5px;
 
     text-shadow:
-        0 0 20px rgba(0,180,255,.18);
+        0 0 25px rgba(0,180,255,.12);
 }
 
-.page-title p{
 
-    margin:7px 0 0;
+.page-title p {
+    margin: 7px 0 0;
 
-    color:#60778b;
+    color: #5f7386;
 
-    font-size:10px;
+    font-size: 10px;
 
-    letter-spacing:1.2px;
+    letter-spacing: 1.1px;
 }
 
-.live-status{
 
-    color:var(--green);
+.live-status {
+    color: var(--green);
 
-    font-size:10px;
+    font-size: 10px;
 
-    font-weight:bold;
+    font-weight: bold;
 
-    letter-spacing:1px;
+    letter-spacing: 1px;
 
-    padding:8px 13px;
-
-    border:
-        1px solid rgba(53,230,154,.2);
-
-    border-radius:20px;
-
-    background:
-        rgba(53,230,154,.05);
-
-    box-shadow:
-        0 0 20px rgba(53,230,154,.08);
+    text-shadow:
+        0 0 12px rgba(53,230,154,.5);
 }
 
 
@@ -440,1351 +431,1219 @@ body::after{
    PAGES
 ========================================================= */
 
-.page{
-
-    display:none;
+.page {
+    display: none;
 
     animation:
-        pageEnter .45s ease;
+        pageIn
+        .45s
+        ease;
 }
 
-.page.active{
-    display:block;
+
+.page.active {
+    display: block;
 }
 
-@keyframes pageEnter{
 
-    from{
-        opacity:0;
+@keyframes pageIn {
+
+    from {
+        opacity: 0;
+
         transform:
-            perspective(1200px)
-            rotateX(4deg)
-            translateY(15px);
+            perspective(1000px)
+            rotateX(2deg)
+            translateY(12px)
+            translateZ(-20px);
     }
 
-    to{
-        opacity:1;
+    to {
+        opacity: 1;
+
         transform:
-            perspective(1200px)
+            perspective(1000px)
             rotateX(0)
-            translateY(0);
+            translateY(0)
+            translateZ(0);
     }
 }
 
 
 /* =========================================================
-   3D METRICS
+   METRICS
 ========================================================= */
 
-.metrics{
-
-    display:grid;
+.metrics {
+    display: grid;
 
     grid-template-columns:
-        repeat(4,minmax(0,1fr));
+        repeat(4, minmax(0,1fr));
 
-    gap:14px;
+    gap: 14px;
 
-    margin-bottom:18px;
-
-    perspective:1200px;
+    margin-bottom: 18px;
 }
 
-.metric{
 
-    position:relative;
+.metric {
+    position: relative;
 
-    min-height:125px;
+    min-height: 125px;
 
-    padding:20px;
+    padding: 20px;
+
+    overflow: hidden;
+
+    border-radius: 14px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(10,28,42,.95),
-            rgba(4,11,18,.98)
+            rgba(13,28,42,.92),
+            rgba(5,11,18,.96)
         );
 
     border:
-        1px solid #16374a;
+        1px solid rgba(0,180,255,.18);
 
-    border-radius:12px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        inset 0 0 25px rgba(0,100,180,.025),
+        0 18px 45px rgba(0,0,0,.25);
 
-    overflow:hidden;
-
-    transform-style:preserve-3d;
+    transform-style: preserve-3d;
 
     transition:
         .35s ease;
-
-    cursor:pointer;
 }
 
-.metric::before{
 
-    content:"";
+.metric::before {
+    content: "";
 
-    position:absolute;
+    position: absolute;
 
-    width:130px;
-    height:130px;
+    left: -30%;
+    top: -100%;
 
-    right:-50px;
-    top:-50px;
+    width: 60%;
+    height: 300%;
 
-    border-radius:50%;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(0,200,255,.045),
+            transparent
+        );
+
+    transform: rotate(25deg);
+
+    pointer-events: none;
+}
+
+
+.metric:hover {
+    transform:
+        translateY(-6px)
+        rotateX(3deg)
+        rotateY(-2deg);
+
+    border-color:
+        rgba(0,200,255,.42);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.4),
+        0 0 28px rgba(0,150,255,.08);
+}
+
+
+.metric-label {
+    color: #65788b;
+
+    font-size: 9px;
+
+    letter-spacing: 1.2px;
+}
+
+
+.metric-value {
+    margin-top: 9px;
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+    min-height: 34px;
+
+    color: #edf8fc;
+
+    text-shadow:
+        0 0 18px rgba(0,200,255,.1);
+}
+
+
+.metric-sub {
+    margin-top: 6px;
+
+    color: var(--green);
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   DASHBOARD 3D COMMAND CORE
+========================================================= */
+
+.command-core {
+    position: relative;
+
+    min-height: 440px;
+
+    margin-bottom: 18px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    border:
+        1px solid rgba(0,190,255,.22);
 
     background:
         radial-gradient(
-            circle,
-            rgba(0,200,255,.15),
-            transparent 65%
-        );
-}
-
-.metric::after{
-
-    content:"";
-
-    position:absolute;
-
-    left:0;
-    right:0;
-    top:0;
-
-    height:1px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            var(--cyan),
-            transparent
-        );
-
-    opacity:.7;
-}
-
-.metric:hover{
-
-    transform:
-        translateY(-8px)
-        rotateX(4deg)
-        rotateY(-3deg)
-        translateZ(20px);
-
-    border-color:
-        rgba(0,200,255,.65);
-
-    box-shadow:
-        0 20px 45px rgba(0,100,180,.18),
-        inset 0 0 25px rgba(0,130,255,.06);
-}
-
-.metric-label{
-
-    color:#657c90;
-
-    font-size:9px;
-
-    letter-spacing:1.2px;
-}
-
-.metric-value{
-
-    margin-top:9px;
-
-    font-size:30px;
-
-    font-weight:900;
-
-    position:relative;
-
-    z-index:2;
-}
-
-.metric-sub{
-
-    margin-top:6px;
-
-    color:var(--green);
-
-    font-size:9px;
-
-    letter-spacing:.5px;
-}
-
-
-/* =========================================================
-   MAIN 3D COMMAND CENTER
-========================================================= */
-
-.command-center{
-
-    display:grid;
-
-    grid-template-columns:
-        1fr 1.5fr 1fr;
-
-    gap:16px;
-
-    min-height:500px;
-
-    perspective:1600px;
-
-    margin-bottom:18px;
-}
-
-
-/* =========================================================
-   HOLOGRAPHIC PANELS
-========================================================= */
-
-.holo-panel{
-
-    position:relative;
-
-    background:
+            circle at 50% 48%,
+            rgba(0,140,255,.13),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(0,255,190,.035),
+            transparent 55%
+        ),
         linear-gradient(
             145deg,
-            rgba(7,22,34,.94),
-            rgba(2,9,16,.98)
-        );
-
-    border:
-        1px solid #16384c;
-
-    border-radius:14px;
-
-    padding:18px;
-
-    overflow:hidden;
-
-    transform-style:preserve-3d;
-
-    box-shadow:
-        0 20px 50px rgba(0,0,0,.35),
-        inset 0 0 30px rgba(0,100,180,.025);
-
-    transition:
-        .4s ease;
-}
-
-.holo-panel:hover{
-
-    border-color:
-        rgba(0,200,255,.6);
-
-    transform:
-        translateZ(18px)
-        rotateX(1deg);
-
-    box-shadow:
-        0 25px 60px rgba(0,80,150,.2),
-        inset 0 0 35px rgba(0,150,255,.06);
-}
-
-.holo-panel::before{
-
-    content:"";
-
-    position:absolute;
-
-    top:0;
-    left:10%;
-    right:10%;
-
-    height:1px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            var(--cyan),
-            transparent
+            #071521,
+            #02070d
         );
 
     box-shadow:
-        0 0 15px var(--cyan);
+        inset 0 0 70px rgba(0,120,255,.08),
+        0 25px 75px rgba(0,0,0,.34);
 
-    opacity:.7;
-}
+    perspective: 1100px;
 
-.panel-title{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:14px;
-
-    position:relative;
-
-    z-index:3;
-}
-
-.panel-title h3{
-
-    margin:0;
-
-    font-size:13px;
-}
-
-.panel-title span{
-
-    color:var(--green);
-
-    font-size:8px;
-
-    letter-spacing:1px;
+    transform-style: preserve-3d;
 }
 
 
 /* =========================================================
-   3D GLOBE
+   3D FLOOR
 ========================================================= */
 
-.globe-panel{
+.command-core::before {
+    content: "";
 
-    display:flex;
+    position: absolute;
 
-    flex-direction:column;
+    left: -10%;
+    right: -10%;
 
-    justify-content:center;
+    bottom: -35%;
 
-    align-items:center;
+    height: 75%;
 
-    min-height:500px;
+    background:
+        linear-gradient(
+            rgba(0,180,255,.11) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(0,180,255,.11) 1px,
+            transparent 1px
+        );
 
-    overflow:hidden;
+    background-size:
+        35px 35px;
+
+    transform:
+        perspective(550px)
+        rotateX(62deg);
+
+    transform-origin: bottom;
+
+    opacity: .42;
+
+    mask-image:
+        linear-gradient(
+            to top,
+            black,
+            transparent
+        );
 }
 
-.globe{
 
-    position:relative;
+/* =========================================================
+   HOLOGRAPHIC SCAN
+========================================================= */
 
-    width:310px;
-    height:310px;
+.command-core::after {
+    content: "";
 
-    transform-style:preserve-3d;
+    position: absolute;
 
-    perspective:1000px;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            transparent 0%,
+            transparent 45%,
+            rgba(0,200,255,.07) 50%,
+            transparent 55%,
+            transparent 100%
+        );
+
+    background-size:
+        100% 240px;
+
+    animation:
+        scanLine
+        5s
+        linear
+        infinite;
 }
 
-.globe-core{
 
-    position:absolute;
+/* =========================================================
+   CORE TITLE
+========================================================= */
 
-    left:50%;
-    top:50%;
+.core-title {
+    position: absolute;
 
-    width:190px;
-    height:190px;
+    left: 28px;
+    top: 25px;
+
+    z-index: 10;
+}
+
+
+.core-title strong {
+    display: block;
+
+    font-size: 13px;
+
+    letter-spacing: 1.2px;
+}
+
+
+.core-title span {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #5f7b8e;
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+}
+
+
+.core-live {
+    position: absolute;
+
+    right: 28px;
+    top: 25px;
+
+    z-index: 10;
+
+    color: var(--green);
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   GLOBE / CORE
+========================================================= */
+
+.cyber-orb {
+    position: absolute;
+
+    left: 50%;
+    top: 53%;
+
+    width: 180px;
+    height: 180px;
 
     transform:
         translate(-50%,-50%)
-        rotateX(10deg);
+        translateZ(75px);
 
-    border-radius:50%;
+    transform-style: preserve-3d;
+
+    border-radius: 50%;
 
     background:
         radial-gradient(
-            circle at 32% 28%,
-            rgba(100,220,255,.38),
-            rgba(8,60,90,.75) 35%,
-            rgba(2,12,22,.98) 72%
+            circle at 32% 27%,
+            rgba(255,255,255,.26),
+            transparent 8%
+        ),
+        radial-gradient(
+            circle,
+            rgba(0,190,255,.42),
+            rgba(0,65,120,.27) 42%,
+            rgba(0,7,15,.98) 73%
         );
 
     border:
-        1px solid rgba(0,190,255,.8);
+        1px solid rgba(68,211,255,.9);
 
     box-shadow:
-        0 0 25px rgba(0,150,255,.65),
-        0 0 70px rgba(0,100,255,.25),
-        inset -35px -20px 50px rgba(0,0,0,.8);
+        0 0 35px rgba(0,170,255,.58),
+        0 0 95px rgba(0,100,255,.18),
+        inset 0 0 35px rgba(0,200,255,.25);
 
     animation:
-        globeFloat 5s ease-in-out infinite;
-
-    transform-style:preserve-3d;
+        orbFloat
+        5s
+        ease-in-out
+        infinite;
 }
 
-.globe-core::before,
-.globe-core::after{
 
-    content:"";
+.cyber-orb::before {
+    content: "";
 
-    position:absolute;
+    position: absolute;
 
-    inset:0;
+    inset: 8px;
 
-    border-radius:50%;
-
-    border:
-        1px solid rgba(0,180,255,.3);
-}
-
-.globe-core::before{
-
-    transform:
-        rotateY(60deg);
-}
-
-.globe-core::after{
-
-    transform:
-        rotateY(-60deg);
-}
-
-.globe-grid{
-
-    position:absolute;
-
-    inset:0;
-
-    border-radius:50%;
+    border-radius: 50%;
 
     background:
         repeating-linear-gradient(
             90deg,
             transparent 0 18px,
-            rgba(50,200,255,.14) 19px 20px
+            rgba(70,210,255,.13) 19px 20px
         ),
         repeating-linear-gradient(
             0deg,
             transparent 0 18px,
-            rgba(50,200,255,.1) 19px 20px
+            rgba(70,210,255,.11) 19px 20px
         );
 
-    opacity:.75;
+    transform:
+        rotateX(15deg)
+        rotateY(-15deg);
+
+    opacity: .78;
 }
 
-.globe-shield{
 
-    position:absolute;
+.cyber-orb::after {
+    content: "";
 
-    left:50%;
-    top:50%;
+    position: absolute;
+
+    inset: 26px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(0,220,255,.26);
+
+    box-shadow:
+        inset 0 0 30px rgba(0,180,255,.12);
+}
+
+
+/* =========================================================
+   CORE SYMBOL
+========================================================= */
+
+.core-symbol {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 70px;
+    height: 70px;
 
     transform:
         translate(-50%,-50%)
-        translateZ(50px);
+        translateZ(45px);
 
-    width:70px;
-    height:70px;
+    display: flex;
 
-    border:
-        2px solid var(--cyan);
+    align-items: center;
+    justify-content: center;
 
-    border-radius:50%;
+    border-radius: 50%;
 
-    display:flex;
+    color: #7ce7ff;
 
-    align-items:center;
-    justify-content:center;
-
-    color:#71ddff;
-
-    font-size:27px;
+    font-size: 27px;
 
     background:
-        rgba(0,120,220,.08);
-
-    box-shadow:
-        0 0 25px rgba(0,180,255,.7),
-        inset 0 0 20px rgba(0,180,255,.15);
-
-    text-shadow:
-        0 0 15px var(--cyan);
-
-    animation:
-        shieldPulse 2.5s infinite;
-}
-
-
-/* globe rings */
-
-.ring{
-
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    border-radius:50%;
+        rgba(0,100,170,.16);
 
     border:
-        1px solid rgba(0,180,255,.55);
+        2px solid #31d8ff;
 
-    transform-style:preserve-3d;
+    box-shadow:
+        0 0 20px rgba(0,200,255,.75),
+        inset 0 0 22px rgba(0,200,255,.2);
 
-    pointer-events:none;
+    text-shadow:
+        0 0 16px #00c8ff;
 }
 
-.ring-one{
 
-    width:300px;
-    height:105px;
+/* =========================================================
+   ORBIT RINGS
+========================================================= */
+
+.orbit {
+    position: absolute;
+
+    left: 50%;
+    top: 53%;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(0,200,255,.5);
+
+    transform-style: preserve-3d;
+
+    pointer-events: none;
+}
+
+
+.orbit-a {
+    width: 315px;
+    height: 115px;
 
     transform:
         translate(-50%,-50%)
         rotateX(68deg);
 
     animation:
-        ringOne 7s linear infinite;
+        orbitA
+        7s
+        linear
+        infinite;
 }
 
-.ring-two{
 
-    width:270px;
-    height:270px;
+.orbit-b {
+    width: 270px;
+    height: 270px;
+
+    border-color:
+        rgba(53,230,154,.28);
 
     transform:
         translate(-50%,-50%)
-        rotateY(66deg);
-
-    border-color:
-        rgba(53,230,154,.3);
+        rotateY(65deg);
 
     animation:
-        ringTwo 11s linear infinite;
+        orbitB
+        11s
+        linear
+        infinite;
 }
 
-.ring-three{
 
-    width:350px;
-    height:130px;
+.orbit-c {
+    width: 380px;
+    height: 150px;
+
+    border-color:
+        rgba(0,140,255,.24);
 
     transform:
         translate(-50%,-50%)
         rotateX(70deg)
-        rotateZ(35deg);
-
-    border-color:
-        rgba(0,120,255,.25);
+        rotateZ(30deg);
 
     animation:
-        ringThree 13s linear infinite;
-}
-
-@keyframes globeFloat{
-
-    0%,100%{
-        transform:
-            translate(-50%,-50%)
-            rotateX(10deg)
-            translateY(0);
-    }
-
-    50%{
-        transform:
-            translate(-50%,-50%)
-            rotateX(10deg)
-            translateY(-8px);
-    }
-}
-
-@keyframes shieldPulse{
-
-    0%,100%{
-        box-shadow:
-            0 0 15px rgba(0,180,255,.5),
-            inset 0 0 15px rgba(0,180,255,.1);
-    }
-
-    50%{
-        box-shadow:
-            0 0 35px rgba(0,200,255,.9),
-            0 0 60px rgba(0,100,255,.3),
-            inset 0 0 25px rgba(0,180,255,.2);
-    }
-}
-
-@keyframes ringOne{
-
-    from{
-        transform:
-            translate(-50%,-50%)
-            rotateX(68deg)
-            rotateZ(0);
-    }
-
-    to{
-        transform:
-            translate(-50%,-50%)
-            rotateX(68deg)
-            rotateZ(360deg);
-    }
-}
-
-@keyframes ringTwo{
-
-    from{
-        transform:
-            translate(-50%,-50%)
-            rotateY(66deg)
-            rotateZ(0);
-    }
-
-    to{
-        transform:
-            translate(-50%,-50%)
-            rotateY(66deg)
-            rotateZ(-360deg);
-    }
-}
-
-@keyframes ringThree{
-
-    from{
-        transform:
-            translate(-50%,-50%)
-            rotateX(70deg)
-            rotateZ(35deg);
-    }
-
-    to{
-        transform:
-            translate(-50%,-50%)
-            rotateX(70deg)
-            rotateZ(395deg);
-    }
+        orbitC
+        14s
+        linear
+        infinite;
 }
 
 
 /* =========================================================
-   THREAT NODES
+   CORE NODES
 ========================================================= */
 
-.threat-node{
+.core-node {
+    position: absolute;
 
-    position:absolute;
+    width: 10px;
+    height: 10px;
 
-    width:11px;
-    height:11px;
+    border-radius: 50%;
 
-    border-radius:50%;
+    background: var(--green);
 
-    background:var(--red);
+    box-shadow:
+        0 0 10px var(--green),
+        0 0 25px rgba(53,230,154,.6);
+
+    z-index: 8;
+
+    animation:
+        nodePulse
+        2s
+        ease-in-out
+        infinite;
+}
+
+
+.core-node.red {
+    background: var(--red);
 
     box-shadow:
         0 0 10px var(--red),
-        0 0 25px rgba(255,70,90,.7);
-
-    z-index:20;
-
-    animation:
-        nodePulse 1.7s infinite;
+        0 0 25px rgba(255,100,118,.6);
 }
 
-.node-a{
-    left:30%;
-    top:30%;
+
+.node-1 {
+    left: 24%;
+    top: 35%;
 }
 
-.node-b{
-    right:26%;
-    top:32%;
 
-    animation-delay:.4s;
+.node-2 {
+    left: 74%;
+    top: 31%;
+
+    animation-delay: .5s;
 }
 
-.node-c{
-    right:22%;
-    bottom:28%;
 
-    animation-delay:.8s;
+.node-3 {
+    left: 78%;
+    top: 68%;
+
+    animation-delay: 1s;
 }
 
-.node-d{
-    left:25%;
-    bottom:25%;
 
-    animation-delay:1.2s;
-}
+.node-4 {
+    left: 22%;
+    top: 69%;
 
-@keyframes nodePulse{
-
-    0%,100%{
-        transform:
-            scale(.8)
-            translateZ(20px);
-
-        opacity:.55;
-    }
-
-    50%{
-        transform:
-            scale(1.8)
-            translateZ(80px);
-
-        opacity:1;
-    }
+    animation-delay: 1.5s;
 }
 
 
 /* =========================================================
-   LEFT / RIGHT FACTOR PANELS
+   CORE LABEL
 ========================================================= */
 
-.factor-card{
+.core-label {
+    position: absolute;
 
-    min-height:145px;
-
-    margin-bottom:14px;
-
-    cursor:pointer;
-
-    position:relative;
-
-    overflow:hidden;
-
-    transition:
-        .35s ease;
-
-    transform-style:preserve-3d;
-}
-
-.factor-card:hover{
+    left: 50%;
+    bottom: 25px;
 
     transform:
-        translateX(5px)
-        translateZ(15px)
-        rotateY(-2deg);
+        translateX(-50%)
+        translateZ(35px);
 
-    border-color:
-        rgba(0,200,255,.7);
+    color: #67dfff;
 
-    box-shadow:
-        0 15px 40px rgba(0,100,180,.2);
-}
+    font-size: 9px;
 
-.factor-icon{
+    letter-spacing: 3px;
 
-    width:42px;
-    height:42px;
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    border:
-        1px solid #1a4256;
-
-    border-radius:10px;
-
-    color:var(--cyan);
-
-    font-size:19px;
-
-    background:
-        rgba(0,100,160,.08);
-
-    box-shadow:
-        0 0 18px rgba(0,150,255,.08);
-
-    transform:
-        translateZ(20px);
-}
-
-.factor-name{
-
-    margin-top:12px;
-
-    font-size:12px;
-
-    font-weight:bold;
-}
-
-.factor-description{
-
-    margin-top:6px;
-
-    color:#61788b;
-
-    font-size:9px;
-
-    line-height:1.5;
-}
-
-.factor-status{
-
-    margin-top:12px;
-
-    color:var(--green);
-
-    font-size:8px;
-
-    letter-spacing:1px;
-}
-
-
-/* =========================================================
-   BOTTOM 3D PANELS
-========================================================= */
-
-.bottom-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        1fr 1fr 1fr;
-
-    gap:16px;
-
-    margin-top:18px;
-}
-
-
-/* =========================================================
-   NETWORK 3D
-========================================================= */
-
-.network-visual{
-
-    position:relative;
-
-    height:230px;
-
-    overflow:hidden;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(0,130,255,.08),
-            transparent 65%
-        );
-}
-
-.network-core{
-
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    width:70px;
-    height:70px;
-
-    transform:
-        translate(-50%,-50%);
-
-    border-radius:50%;
-
-    border:
-        2px solid var(--cyan);
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    color:var(--cyan);
-
-    font-size:12px;
-
-    box-shadow:
-        0 0 25px rgba(0,180,255,.5);
-}
-
-.network-node{
-
-    position:absolute;
-
-    width:35px;
-    height:35px;
-
-    border-radius:50%;
-
-    border:
-        1px solid #1d7597;
-
-    background:
-        rgba(0,80,120,.35);
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    color:#7bdcff;
-
-    font-size:9px;
-
-    box-shadow:
-        0 0 15px rgba(0,150,255,.15);
-
-    animation:
-        networkFloat 3s ease-in-out infinite;
-}
-
-.n1{
-    left:15%;
-    top:25%;
-}
-
-.n2{
-    right:15%;
-    top:20%;
-
-    animation-delay:.5s;
-}
-
-.n3{
-    left:18%;
-    bottom:20%;
-
-    animation-delay:1s;
-}
-
-.n4{
-    right:18%;
-    bottom:18%;
-
-    animation-delay:1.5s;
-}
-
-.network-line{
-
-    position:absolute;
-
-    height:1px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            var(--cyan),
-            transparent
-        );
-
-    transform-origin:left center;
-
-    opacity:.45;
-}
-
-.line1{
-    width:130px;
-    left:28%;
-    top:43%;
-    transform:rotate(16deg);
-}
-
-.line2{
-    width:130px;
-    right:28%;
-    top:40%;
-    transform:rotate(165deg);
-}
-
-.line3{
-    width:120px;
-    left:30%;
-    bottom:38%;
-    transform:rotate(-18deg);
-}
-
-.line4{
-    width:120px;
-    right:30%;
-    bottom:35%;
-    transform:rotate(200deg);
-}
-
-@keyframes networkFloat{
-
-    0%,100%{
-        transform:
-            translateY(0)
-            translateZ(10px);
-    }
-
-    50%{
-        transform:
-            translateY(-9px)
-            translateZ(30px);
-    }
-}
-
-
-/* =========================================================
-   AI CORE
-========================================================= */
-
-.ai-core{
-
-    position:relative;
-
-    height:230px;
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    overflow:hidden;
-}
-
-.ai-circle{
-
-    width:125px;
-    height:125px;
-
-    border-radius:50%;
-
-    border:
-        1px solid var(--cyan);
-display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    font-size:42px;
-
-    color:#65d9ff;
+    white-space: nowrap;
 
     text-shadow:
-        0 0 25px var(--cyan);
-
-    box-shadow:
-        0 0 25px rgba(0,180,255,.5),
-        inset 0 0 30px rgba(0,180,255,.12);
-
-    animation:
-        aiPulse 3s infinite;
-}
-
-.ai-orbit{
-
-    position:absolute;
-
-    width:180px;
-    height:70px;
-
-    border:
-        1px solid rgba(0,200,255,.45);
-
-    border-radius:50%;
-
-    transform:
-        rotateX(70deg);
-
-    animation:
-        aiOrbit 6s linear infinite;
-}
-
-@keyframes aiPulse{
-
-    0%,100%{
-        transform:scale(1);
-    }
-
-    50%{
-        transform:scale(1.08);
-    }
-}
-
-@keyframes aiOrbit{
-
-    from{
-        transform:
-            rotateX(70deg)
-            rotateZ(0);
-    }
-
-    to{
-        transform:
-            rotateX(70deg)
-            rotateZ(360deg);
-    }
+        0 0 15px rgba(0,200,255,.7);
 }
 
 
 /* =========================================================
-   SYSTEM RESOURCE RINGS
+   TWO COLUMN
 ========================================================= */
 
-.resource-list{
-
-    display:grid;
+.two-column {
+    display: grid;
 
     grid-template-columns:
-        repeat(3,1fr);
+        repeat(2,minmax(0,1fr));
 
-    gap:12px;
+    gap: 18px;
 
-    margin-top:20px;
+    margin-top: 18px;
 }
 
-.resource{
 
-    text-align:center;
-}
+.three-column {
+    display: grid;
 
-.resource-ring{
+    grid-template-columns:
+        repeat(3,minmax(0,1fr));
 
-    width:75px;
-    height:75px;
+    gap: 15px;
 
-    margin:auto;
-
-    border-radius:50%;
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    border:
-        5px solid #123144;
-
-    border-top-color:
-        var(--cyan);
-
-    border-right-color:
-        var(--cyan);
-
-    box-shadow:
-        0 0 18px rgba(0,150,255,.15);
-
-    font-size:12px;
-
-    font-weight:bold;
-}
-
-.resource small{
-
-    display:block;
-
-    margin-top:8px;
-
-    color:#61788b;
-
-    font-size:8px;
+    margin-top: 18px;
 }
 
 
 /* =========================================================
-   DETAIL OVERLAY
+   CARD
 ========================================================= */
 
-.detail-overlay{
-
-    position:fixed;
-
-    inset:0;
-
-    z-index:500;
-
-    display:none;
-
-    align-items:center;
-    justify-content:center;
-
-    padding:30px;
-
-    background:
-        rgba(0,4,9,.82);
-
-    backdrop-filter:
-        blur(10px);
-
-    perspective:1500px;
-}
-
-.detail-overlay.active{
-
-    display:flex;
-
-    animation:
-        overlayIn .3s ease;
-}
-
-@keyframes overlayIn{
-
-    from{
-        opacity:0;
-    }
-
-    to{
-        opacity:1;
-    }
-}
-
-.detail-window{
-
-    width:min(900px,95vw);
-
-    max-height:85vh;
-
-    overflow:auto;
-
-    padding:28px;
+.card {
+    position: relative;
 
     background:
         linear-gradient(
             145deg,
-            rgba(8,25,39,.98),
-            rgba(2,9,16,.99)
+            rgba(10,22,34,.94),
+            rgba(4,10,16,.97)
         );
 
     border:
-        1px solid rgba(0,200,255,.55);
+        1px solid rgba(0,180,255,.17);
 
-    border-radius:18px;
+    border-radius: 14px;
+
+    padding: 20px;
 
     box-shadow:
-        0 40px 100px rgba(0,0,0,.7),
-        0 0 50px rgba(0,120,255,.15),
-        inset 0 0 40px rgba(0,120,255,.05);
+        inset 0 1px 0 rgba(255,255,255,.025),
+        0 18px 45px rgba(0,0,0,.25);
+
+    transform-style: preserve-3d;
+
+    transition:
+        .35s ease;
+}
+
+
+.card:hover {
+    transform:
+        translateY(-5px)
+        rotateX(2deg)
+        rotateY(-1deg);
+
+    border-color:
+        rgba(0,200,255,.4);
+
+    box-shadow:
+        0 25px 55px rgba(0,0,0,.38),
+        0 0 25px rgba(0,150,255,.07);
+}
+
+
+.card-title {
+    margin: 0;
+
+    font-size: 15px;
+
+    font-weight: bold;
+}
+
+
+.card-subtitle {
+    margin-top: 5px;
+
+    color: #617588;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   MODULE CARDS
+========================================================= */
+
+.module-card {
+    position: relative;
+
+    padding: 22px;
+
+    min-height: 190px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10,23,35,.94),
+            rgba(4,10,16,.97)
+        );
+
+    border:
+        1px solid rgba(0,180,255,.17);
+
+    transform-style: preserve-3d;
+
+    transition:
+        .35s ease;
+
+    box-shadow:
+        0 18px 40px rgba(0,0,0,.24);
+}
+
+
+.module-card:hover {
+    transform:
+        translateY(-7px)
+        rotateX(3deg)
+        rotateY(-2deg)
+        translateZ(12px);
+
+    border-color:
+        rgba(0,200,255,.45);
+
+    box-shadow:
+        0 30px 65px rgba(0,0,0,.4),
+        0 0 30px rgba(0,150,255,.08);
+}
+
+
+.module-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0d2534,
+            #07121c
+        );
+
+    border:
+        1px solid rgba(0,200,255,.24);
+
+    border-radius: 11px;
+
+    color: var(--cyan);
+
+    font-size: 19px;
+
+    margin-bottom: 15px;
+
+    box-shadow:
+        0 0 20px rgba(0,150,255,.07);
 
     transform:
-        rotateX(2deg)
-        translateZ(50px);
-
-    animation:
-        detailEnter .45s ease;
+        translateZ(18px);
 }
 
-@keyframes detailEnter{
 
-    from{
-        opacity:0;
-        transform:
-            rotateX(12deg)
-            translateY(30px)
-            translateZ(-100px)
-            scale(.94);
-    }
+.module-card h3 {
+    margin: 0;
 
-    to{
-        opacity:1;
-        transform:
-            rotateX(2deg)
-            translateY(0)
-            translateZ(50px)
-            scale(1);
-    }
+    font-size: 14px;
 }
 
-.detail-header{
 
-    display:flex;
+.module-card p {
+    color: #64798a;
 
-    justify-content:space-between;
+    font-size: 10px;
 
-    align-items:center;
-
-    margin-bottom:25px;
+    line-height: 1.6;
 }
 
-.detail-header h2{
 
-    margin:0;
+.module-value {
+    margin-top: 14px;
 
-    font-size:22px;
+    font-size: 20px;
 
-    text-shadow:
-        0 0 20px rgba(0,180,255,.2);
+    font-weight: bold;
 }
 
-.close-detail{
 
-    width:38px;
-    height:38px;
+/* =========================================================
+   USB
+========================================================= */
 
-    border:
-        1px solid #21465b;
-
-    border-radius:50%;
+.usb-card {
+    position: relative;
 
     background:
-        #081721;
+        linear-gradient(
+            145deg,
+            rgba(0,130,190,.06),
+            rgba(7,16,25,.95)
+        );
 
-    color:#9cb2c0;
+    border:
+        1px solid rgba(0,190,255,.22);
 
-    cursor:pointer;
+    border-radius: 15px;
 
-    font-size:18px;
-}
+    padding: 22px;
 
-.close-detail:hover{
+    margin-bottom: 18px;
 
-    color:white;
-
-    border-color:var(--cyan);
+    transform-style: preserve-3d;
 
     box-shadow:
-        0 0 15px rgba(0,180,255,.25);
+        0 20px 50px rgba(0,0,0,.27);
 }
 
-.detail-grid{
 
-    display:grid;
+.usb-header {
+    display: flex;
 
-    grid-template-columns:
-        repeat(3,1fr);
+    justify-content: space-between;
 
-    gap:14px;
+    align-items: center;
+
+    margin-bottom: 20px;
 }
 
-.detail-box{
 
-    padding:18px;
+.usb-heading {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+    }
+
+
+.usb-icon {
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #102c3b,
+            #07131d
+        );
 
     border:
-        1px solid #18384a;
+        1px solid rgba(0,200,255,.2);
 
-    border-radius:12px;
+    font-size: 20px;
+
+    color: var(--cyan);
+}
+
+
+.usb-heading h2 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.usb-heading p {
+    margin: 5px 0 0;
+
+    color: #627588;
+
+    font-size: 10px;
+}
+
+
+.usb-badge {
+    padding: 8px 13px;
+
+    border-radius: 20px;
+
+    background: #131c24;
+
+    color: #7b8b99;
+
+    font-size: 9px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+
+.usb-badge.connected {
+    color: var(--green);
 
     background:
-        rgba(2,12,20,.75);
+        rgba(53,230,154,.08);
 
-    min-height:100px;
+    border:
+        1px solid rgba(53,230,154,.2);
 }
 
-.detail-box label{
 
-    display:block;
-
-    color:#5f778a;
-
-    font-size:8px;
-
-    letter-spacing:1px;
-
-    text-transform:uppercase;
-}
-
-.detail-box strong{
-
-    display:block;
-
-    margin-top:10px;
-
-    font-size:22px;
-}
-
-.detail-description{
-
-    margin-top:20px;
-
-    padding:18px;
-
-    border-left:
-        2px solid var(--cyan);
+.usb-badge.warning {
+    color: var(--yellow);
 
     background:
-        rgba(0,130,200,.04);
+        rgba(255,192,77,.08);
 
-    color:#91a7b7;
+    border:
+        1px solid rgba(255,192,77,.2);
+}
 
-    font-size:11px;
 
-    line-height:1.7;
+.usb-badge.danger {
+    color: var(--red);
+
+    background:
+        rgba(255,70,90,.08);
+
+    border:
+        1px solid rgba(255,70,90,.2);
+}
+
+
+.waiting {
+    text-align: center;
+
+    padding: 35px;
+
+    color: #65798c;
+
+    font-size: 12px;
+}
+
+
+.device-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,minmax(0,1fr));
+
+    gap: 12px;
+}
+
+
+.device-box {
+    background:
+        rgba(2,9,15,.75);
+
+    border:
+        1px solid #172735;
+
+    border-radius: 9px;
+
+    padding: 15px;
+
+    transform-style: preserve-3d;
+
+    transition: .25s ease;
+}
+
+
+.device-box:hover {
+    transform:
+        translateZ(8px);
+
+    border-color:
+        rgba(0,190,255,.3);
+}
+
+
+.device-label {
+    color: #627588;
+
+    font-size: 8px;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+
+    margin-bottom: 8px;
+}
+
+
+.device-value {
+    color: #eef6fa;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    word-break: break-word;
+}
+
+
+.risk-box {
+    margin-top: 14px;
+
+    padding: 17px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    background:
+        rgba(2,9,15,.78);
+
+    border:
+        1px solid #172735;
+
+    border-radius: 9px;
+}
+
+
+.risk-label {
+    color: #65798b;
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+}
+
+
+.risk-message {
+    margin-top: 6px;
+
+    font-size: 11px;
+}
+
+
+.risk-value {
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-list {
+    margin-top: 18px;
+}
+
+
+.status-row {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 12px 0;
+
+    border-bottom:
+        1px solid #14212c;
+
+    font-size: 11px;
+}
+
+
+.status-row:last-child {
+    border-bottom: 0;
+}
+
+
+.secure {
+    color: var(--green);
+}
+
+
+.warning-text {
+    color: var(--yellow);
+}
+
+
+.danger-text {
+    color: var(--red);
+}
+
+
+.muted {
+    color: #607487;
+}
+
+
+.low {
+    color: var(--green);
+}
+
+
+.medium {
+    color: var(--yellow);
+}
+
+
+.high {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   THREAT SEVERITY
+========================================================= */
+
+.severity {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 12px;
+
+    font-size: 8px;
+
+    font-weight: bold;
+
+    letter-spacing: .8px;
+}
+
+
+.severity.low {
+    background:
+        rgba(53,230,154,.08);
+
+    color: var(--green);
+}
+
+
+.severity.medium {
+    background:
+        rgba(255,192,77,.08);
+
+    color: var(--yellow);
+}
+
+
+.severity.high {
+    background:
+        rgba(255,70,90,.08);
+
+    color: var(--red);
 }
 
 
@@ -1792,207 +1651,250 @@ display:flex;
    TABLE
 ========================================================= */
 
-.table-wrapper{
+.table-wrapper {
+    overflow-x: auto;
 
-    overflow:auto;
-
-    margin-top:18px;
+    margin-top: 18px;
 }
 
-table{
 
-    width:100%;
+table {
+    width: 100%;
 
-    border-collapse:collapse;
+    border-collapse: collapse;
 
-    font-size:10px;
+    font-size: 11px;
 }
 
-th{
 
-    color:#607487;
+th {
+    color: #607487;
 
-    text-align:left;
+    text-align: left;
 
-    padding:11px;
+    font-size: 9px;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+
+    padding: 11px;
 
     border-bottom:
         1px solid #1a2935;
-
-    font-size:8px;
-
-    letter-spacing:1px;
 }
 
-td{
 
-    padding:12px 11px;
+td {
+    padding: 13px 11px;
 
     border-bottom:
         1px solid #111e29;
 
-    color:#dce7ed;
+    color: #dce7ed;
 }
 
-.severity{
 
-    display:inline-block;
+.empty-state {
+    text-align: center;
 
-    padding:5px 9px;
+    padding: 35px 15px;
 
-    border-radius:12px;
-
-    font-size:8px;
-
-    font-weight:bold;
-}
-
-.severity.low{
-
-    color:var(--green);
-
-    background:
-        rgba(53,230,154,.08);
-}
-
-.severity.medium{
-
-    color:var(--yellow);
-
-    background:
-        rgba(255,192,77,.08);
-}
-
-.severity.high{
-
-    color:var(--red);
-
-    background:
-        rgba(255,70,90,.08);
+    color: #607487;
 }
 
 
 /* =========================================================
-   USB PANEL
+   ACTION BUTTON
 ========================================================= */
 
-.usb-status{
-
-    padding:15px;
-
+.action-button {
     border:
-        1px solid #18384a;
-
-    border-radius:10px;
+        1px solid #1b394b;
 
     background:
-        rgba(0,80,120,.04);
-}
+        linear-gradient(
+            145deg,
+            #0c1d2a,
+            #071019
+        );
 
-.usb-state{
+    color: var(--cyan);
 
-    color:var(--green);
+    padding: 10px 14px;
 
-    font-weight:bold;
+    border-radius: 7px;
 
-    font-size:12px;
-}
+    cursor: pointer;
 
-.usb-details{
+    font-size: 10px;
 
-    display:grid;
+    margin-top: 15px;
 
-    grid-template-columns:
-        repeat(2,1fr);
-
-    gap:10px;
-
-    margin-top:15px;
-}
-
-.usb-detail{
-
-    padding:12px;
-
-    background:
-        #06101a;
-
-    border:
-        1px solid #142c3c;
-
-    border-radius:8px;
-}
-
-.usb-detail small{
-
-    display:block;
-
-    color:#607487;
-
-    font-size:8px;
-}
-
-.usb-detail strong{
-
-    display:block;
-
-    margin-top:6px;
-
-    font-size:12px;
+    transition: .25s ease;
 }
 
 
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-.action-row{
-
-    display:flex;
-
-    gap:10px;
-
-    flex-wrap:wrap;
-
-    margin-top:16px;
-}
-
-.action-button{
-
-    border:
-        1px solid #1b4054;
-
-    background:
-        #081722;
-
-    color:var(--cyan);
-
-    padding:10px 15px;
-
-    border-radius:7px;
-
-    cursor:pointer;
-
-    font-size:9px;
-
-    letter-spacing:.5px;
-
-    transition:.25s ease;
-}
-
-.action-button:hover{
-
-    background:
-        #0d2432;
-
-    border-color:
-        var(--cyan);
-
-    box-shadow:
-        0 0 18px rgba(0,180,255,.15);
-
+.action-button:hover {
     transform:
         translateY(-2px);
+
+    background:
+        #102b3c;
+
+    box-shadow:
+        0 0 20px rgba(0,180,255,.08);
+}
+
+
+/* =========================================================
+   REPORTS
+========================================================= */
+
+.report-card {
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes gridMove {
+
+    from {
+        background-position:
+            0 0,
+            0 0;
+    }
+
+    to {
+        background-position:
+            0 55px,
+            55px 0;
+    }
+}
+
+
+@keyframes ambientPulse {
+
+    0%,100% {
+        opacity: .4;
+
+        transform:
+            translate(-50%,-50%)
+            scale(.92);
+    }
+
+    50% {
+        opacity: .8;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.08);
+    }
+}
+
+
+@keyframes scanLine {
+
+    from {
+        background-position:
+            0 -240px;
+    }
+
+    to {
+        background-position:
+            0 500px;
+    }
+}
+
+
+@keyframes orbFloat {
+
+    0%,100% {
+        transform:
+            translate(-50%,-50%)
+            translateZ(65px)
+            rotateY(0deg);
+    }
+
+    50% {
+        transform:
+            translate(-50%,-50%)
+            translateZ(90px)
+            rotateY(8deg);
+    }
+}
+
+
+@keyframes orbitA {
+
+    from {
+        transform:
+            translate(-50%,-50%)
+            rotateX(68deg)
+            rotateZ(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%,-50%)
+            rotateX(68deg)
+            rotateZ(360deg);
+    }
+}
+
+
+@keyframes orbitB {
+
+    from {
+        transform:
+            translate(-50%,-50%)
+            rotateY(65deg)
+            rotateZ(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%,-50%)
+            rotateY(65deg)
+            rotateZ(-360deg);
+    }
+}
+
+
+@keyframes orbitC {
+
+    from {
+        transform:
+            translate(-50%,-50%)
+            rotateX(70deg)
+            rotateZ(30deg);
+    }
+
+    to {
+        transform:
+            translate(-50%,-50%)
+            rotateX(70deg)
+            rotateZ(390deg);
+    }
+}
+
+
+@keyframes nodePulse {
+
+    0%,100% {
+        transform: scale(1);
+
+        opacity: .65;
+    }
+
+    50% {
+        transform: scale(1.8);
+
+        opacity: 1;
+    }
 }
 
 
@@ -2000,136 +1902,126 @@ td{
    RESPONSIVE
 ========================================================= */
 
-@media(max-width:1100px){
+@media(max-width:1050px) {
 
-    .command-center{
-
+    .metrics {
         grid-template-columns:
-            1fr 1fr;
+            repeat(2,minmax(0,1fr));
     }
 
-    .globe-panel{
-
-        grid-column:
-            1 / -1;
-
-        order:-1;
+    .device-grid {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
     }
 
-    .bottom-grid{
-
+    .three-column {
         grid-template-columns:
-            1fr 1fr;
+            repeat(2,minmax(0,1fr));
     }
 }
 
-@media(max-width:850px){
 
-    .sidebar{
+@media(max-width:750px) {
 
-        width:200px;
+    .sidebar {
+        position: relative;
+
+        width: 100%;
+
+        min-height: auto;
     }
 
-    .main{
-
-        margin-left:200px;
-
-        width:calc(100% - 200px);
-
-        padding:20px;
+    .layout {
+        display: block;
     }
 
-    .metrics{
+    .main {
+        margin-left: 0;
+
+        width: 100%;
+
+        padding: 18px;
+    }
+
+    .sidebar-status {
+        display: none;
+    }
+
+    .navigation {
+        display: grid;
 
         grid-template-columns:
             repeat(2,1fr);
     }
 
-    .command-center{
-
-        grid-template-columns:1fr;
+    .two-column,
+    .three-column {
+        grid-template-columns: 1fr;
     }
 
-    .globe-panel{
-
-        grid-column:auto;
+    .command-core {
+        min-height: 350px;
     }
 
-    .bottom-grid{
-
-        grid-template-columns:1fr;
-    }
-}
-
-@media(max-width:650px){
-
-    .sidebar{
-
-        position:relative;
-
-        width:100%;
-
-        min-height:auto;
+    .cyber-orb {
+        width: 135px;
+        height: 135px;
     }
 
-    .layout{
-
-        display:block;
+    .orbit-a {
+        width: 240px;
     }
 
-    .main{
-
-        margin-left:0;
-
-        width:100%;
-
-        padding:15px;
+    .orbit-b {
+        width: 210px;
+        height: 210px;
     }
 
-    .navigation{
-
-        display:grid;
-
-        grid-template-columns:
-            repeat(2,1fr);
+    .orbit-c {
+        width: 290px;
     }
 
-    .sidebar-status{
+    .core-label {
+        font-size: 7px;
 
-        display:none;
-    }
-
-    .metrics{
-
-        grid-template-columns:1fr;
-    }
-
-    .detail-grid{
-
-        grid-template-columns:
-            1fr;
+        letter-spacing: 1.5px;
     }
 }
 
 
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
+@media(max-width:500px) {
 
-@media(prefers-reduced-motion:reduce){
+    .metrics,
+    .device-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .live-status {
+        display: none;
+    }
+
+    .main {
+        padding: 14px;
+    }
+}
+
+
+@media(prefers-reduced-motion:reduce) {
 
     *,
     *::before,
-    *::after{
+    *::after {
+        animation: none !important;
 
-        animation-duration:.01ms !important;
-
-        animation-iteration-count:1 !important;
-
-        scroll-behavior:auto !important;
+        scroll-behavior: auto !important;
     }
 }
-
 </style>
 </head>
 
@@ -2139,9 +2031,9 @@ td{
 <div class="layout">
 
 
-<!-- ======================================================
+<!-- =====================================================
      SIDEBAR
-====================================================== -->
+===================================================== -->
 
 <aside class="sidebar">
 
@@ -2152,7 +2044,7 @@ td{
         </div>
 
         <div class="brand-sub">
-            CYBER DEFENSE COMMAND CENTER
+            CYBER DEFENSE PLATFORM
         </div>
 
     </div>
@@ -2160,8 +2052,9 @@ td{
 
     <nav class="navigation">
 
-        <button class="nav-button active"
-                data-page="dashboardPage">
+        <button
+            class="nav-item active"
+            data-page="dashboardPage">
 
             <span class="nav-icon">◆</span>
             Dashboard
@@ -2169,8 +2062,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="threatsPage">
+        <button
+            class="nav-item"
+            data-page="threatsPage">
 
             <span class="nav-icon">⚠</span>
             Threats
@@ -2178,8 +2072,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="endpointsPage">
+        <button
+            class="nav-item"
+            data-page="endpointsPage">
 
             <span class="nav-icon">▣</span>
             Endpoints
@@ -2187,8 +2082,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="cloudPage">
+        <button
+            class="nav-item"
+            data-page="cloudPage">
 
             <span class="nav-icon">☁</span>
             Cloud
@@ -2196,8 +2092,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="networkPage">
+        <button
+            class="nav-item"
+            data-page="networkPage">
 
             <span class="nav-icon">⌁</span>
             Network
@@ -2205,8 +2102,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="iotPage">
+        <button
+            class="nav-item"
+            data-page="iotPage">
 
             <span class="nav-icon">◉</span>
             IoT / Sensors
@@ -2214,8 +2112,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="aiPage">
+        <button
+            class="nav-item"
+            data-page="aiPage">
 
             <span class="nav-icon">✦</span>
             AI Intelligence
@@ -2223,8 +2122,9 @@ td{
         </button>
 
 
-        <button class="nav-button"
-                data-page="reportsPage">
+        <button
+            class="nav-item"
+            data-page="reportsPage">
 
             <span class="nav-icon">▤</span>
             Reports
@@ -2246,120 +2146,514 @@ td{
 
 
 
-<!-- ======================================================
+<!-- =====================================================
      MAIN
-====================================================== -->
+===================================================== -->
 
 <main class="main">
 
 
-    <div class="topbar">
+<!-- =====================================================
+     TOPBAR
+===================================================== -->
 
-        <div class="page-title">
+<div class="topbar">
 
-            <h1 id="pageTitle">
-                Security Command Center
-            </h1>
+    <div class="page-title">
 
-            <p id="pageSubtitle">
-                IRONMIND AI • DETECT • ANALYZE • PREDICT • PROTECT
-            </p>
+        <h1 id="pageTitle">
+            Security Command Center
+        </h1>
 
-        </div>
-
-
-        <div class="live-status">
-            ● LIVE SYSTEM
-        </div>
+        <p id="pageSubtitle">
+            IRONMIND AI • DETECT • ANALYZE • PREDICT • PROTECT
+        </p>
 
     </div>
 
 
+    <div class="live-status">
+        ● LIVE SYSTEM
+    </div>
 
-<!-- ======================================================
+</div>
+
+
+
+<!-- =====================================================
      DASHBOARD
-====================================================== -->
+===================================================== -->
 
-<section id="dashboardPage"
-         class="page active">
-
-
-    <!-- METRICS -->
-
-    <div class="metrics">
+<section
+    id="dashboardPage"
+    class="page active">
 
 
-        <div class="metric"
-             data-factor="risk">
+<!-- =====================================================
+     EXISTING DATA METRICS
+===================================================== -->
 
-            <div class="metric-label">
-                OVERALL RISK
+<div class="metrics">
+
+
+    <div class="metric">
+
+        <div class="metric-label">
+            OVERALL RISK
+        </div>
+
+        <div
+            id="risk"
+            class="metric-value">
+            —
+        </div>
+
+        <div class="metric-sub">
+            RISK STATUS
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-label">
+            AI RISK INDEX
+        </div>
+
+        <div
+            id="aiRisk"
+            class="metric-value">
+            —
+        </div>
+
+        <div class="metric-sub">
+            AI ANALYSIS
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-label">
+            THREATS DETECTED
+        </div>
+
+        <div
+            id="threats"
+            class="metric-value">
+            —
+        </div>
+
+        <div class="metric-sub">
+            MONITORING
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-label">
+            BLOCKED EVENTS
+        </div>
+
+        <div
+            id="blocked"
+            class="metric-value">
+            —
+        </div>
+
+        <div class="metric-sub">
+            PROTECTED
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     3D SECURITY CORE
+     VISUAL ONLY
+===================================================== -->
+
+<div class="command-core">
+
+
+    <div class="core-title">
+
+        <strong>
+            GLOBAL THREAT INTELLIGENCE
+        </strong>
+
+        <span>
+            SECURITY TELEMETRY VISUALIZATION
+        </span>
+
+    </div>
+
+
+    <div class="core-live">
+        ● LIVE VISUAL
+    </div>
+
+
+    <div class="orbit orbit-a"></div>
+
+    <div class="orbit orbit-b"></div>
+
+    <div class="orbit orbit-c"></div>
+
+
+    <div class="core-node node-1"></div>
+
+    <div class="core-node red node-2"></div>
+
+    <div class="core-node node-3"></div>
+
+    <div class="core-node red node-4"></div>
+
+
+    <div class="cyber-orb">
+
+        <div class="core-symbol">
+            ◆
+        </div>
+
+    </div>
+
+
+    <div class="core-label">
+        IRONMIND AI • SECURITY INTELLIGENCE CORE
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     MAIN MODULES
+===================================================== -->
+
+<div class="three-column">
+
+
+    <div
+        class="module-card"
+        data-page-link="endpointsPage">
+
+        <div class="module-icon">
+            ▣
+        </div>
+
+        <h3>
+            Endpoint Defense
+        </h3>
+
+        <p>
+            Monitor connected endpoints,
+            endpoint health and security activity.
+        </p>
+
+        <div class="module-value">
+            <span id="endpoints">
+                —
+            </span>
+        </div>
+
+    </div>
+
+
+    <div
+        class="module-card"
+        data-page-link="threatsPage">
+
+        <div class="module-icon">
+            ⚠
+        </div>
+
+        <h3>
+            Threat Intelligence
+        </h3>
+
+        <p>
+            Review detected security events
+            and threat severity information.
+        </p>
+
+        <div class="module-value">
+            <span id="critical">
+                —
+            </span>
+        </div>
+
+    </div>
+
+
+    <div
+        class="module-card"
+        data-page-link="aiPage">
+
+        <div class="module-icon">
+            ✦
+        </div>
+
+        <h3>
+            AI Intelligence
+        </h3>
+
+        <p>
+            Analyze security telemetry and
+            provide intelligence-oriented insights.
+        </p>
+
+        <div class="module-value">
+            <span id="aiEngine">
+                —
+            </span>
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     USB REAL IMPLEMENTATION
+===================================================== -->
+
+<div class="usb-card">
+
+    <div class="usb-header">
+
+        <div class="usb-heading">
+
+            <div class="usb-icon">
+                ⎋
             </div>
 
-            <div id="risk"
-                 class="metric-value">
-                24
-            </div>
+            <div>
 
-            <div class="metric-sub">
-                LOW RISK • CLICK FOR ANALYSIS
+                <h2>
+                    USB Threat Intelligence
+                </h2>
+
+                <p>
+                    Physical removable-media security telemetry
+                </p>
+
             </div>
 
         </div>
 
 
-        <div class="metric"
-             data-factor="ai">
+        <div
+            id="usbBadge"
+            class="usb-badge">
 
-            <div class="metric-label">
-                AI RISK INDEX
+            WAITING
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="usbWaiting"
+        class="waiting">
+
+        Waiting for USB security telemetry...
+
+    </div>
+
+
+    <div
+        id="usbContent"
+        style="display:none;">
+
+
+        <div class="device-grid">
+
+
+            <div class="device-box">
+
+                <div class="device-label">
+                    Device
+                </div>
+
+                <div
+                    id="usbDevice"
+                    class="device-value">
+                    —
+                </div>
+
             </div>
 
-            <div id="aiRisk"
-                 class="metric-value">
-                18
+
+            <div class="device-box">
+
+                <div class="device-label">
+                    Drive
+                </div>
+
+                <div
+                    id="usbDrive"
+                    class="device-value">
+                    —
+                </div>
+
             </div>
 
-            <div class="metric-sub">
-                AI ANALYSIS • CLICK
+
+            <div class="device-box">
+
+                <div class="device-label">
+                    Files Scanned
+                </div>
+
+                <div
+                    id="usbFiles"
+                    class="device-value">
+                    —
+                </div>
+
             </div>
+
+
+            <div class="device-box">
+
+                <div class="device-label">
+                    Suspicious
+                </div>
+
+                <div
+                    id="usbSuspicious"
+                    class="device-value">
+                    —
+                </div>
+
+            </div>
+
 
         </div>
 
 
-        <div class="metric"
-             data-factor="threats">
-<div class="metric-label">
-                THREATS DETECTED
+        <div class="risk-box">
+
+            <div>
+
+                <div class="risk-label">
+                    USB SECURITY ASSESSMENT
+                </div>
+
+                <div
+                    id="usbMessage"
+                    class="risk-message">
+                    —
+                </div>
+
             </div>
 
-            <div id="threats"
-                 class="metric-value">
-                0
-            </div>
 
-            <div class="metric-sub">
-                MONITORING • CLICK
+            <div
+                id="usbRisk"
+                class="risk-value">
+                —
             </div>
 
         </div>
 
+    </div>
 
-        <div class="metric"
-             data-factor="blocked">
+</div>
 
-            <div class="metric-label">
-                BLOCKED EVENTS
+
+
+<!-- =====================================================
+     SYSTEM OVERVIEW
+===================================================== -->
+
+<div class="two-column">
+
+
+    <div class="card">
+
+        <h2 class="card-title">
+            System Security
+        </h2>
+
+        <div class="card-subtitle">
+            Current telemetry state
+        </div>
+
+
+        <div class="status-list">
+
+
+            <div class="status-row">
+
+                <span>
+                    Cyber Defense
+                </span>
+
+                <span
+                    id="cyberStatus"
+                    class="muted">
+                    —
+                </span>
+
             </div>
 
-            <div id="blocked"
-                 class="metric-value">
-                24
+
+            <div class="status-row">
+
+                <span>
+                    AI Engine
+                </span>
+
+                <span
+                    id="aiStatus"
+                    class="muted">
+                    —
+                </span>
+
             </div>
 
-            <div class="metric-sub">
-                PROTECTED • CLICK
+
+            <div class="status-row">
+
+                <span>
+                    Network
+                </span>
+
+                <span
+                    id="networkStatus"
+                    class="muted">
+                    —
+                </span>
+
             </div>
+
+
+            <div class="status-row">
+
+                <span>
+                    IoT / Machine
+                </span>
+
+                <span
+                    id="iotStatus"
+                    class="muted">
+                    —
+                </span>
+
+            </div>
+
 
         </div>
 
@@ -2367,224 +2661,322 @@ td{
 
 
 
-    <!-- ==================================================
-         3D COMMAND CENTER
-    =================================================== -->
+    <div class="card">
 
-    <div class="command-center">
+        <h2 class="card-title">
+            Incident Status
+        </h2>
+
+        <div class="card-subtitle">
+            Current system incident state
+        </div>
 
 
-        <!-- LEFT FACTORS -->
-
-        <div>
+        <div class="status-list">
 
 
-            <div class="holo-panel factor-card"
-                 data-factor="endpoint">
+            <div class="status-row">
 
-                <div class="factor-icon">
-                    ◈
+                <span>
+                    Current Incident
+                </span>
+
+                <span
+                    id="incident"
+                    class="muted">
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="status-row">
+
+                <span>
+                    Overall Status
+                </span>
+
+                <span
+                    id="systemStatus"
+                    class="muted">
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="status-row">
+
+                <span>
+                    Last Update
+                </span>
+
+                <span
+                    id="lastUpdate"
+                    class="muted">
+                    —
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     THREATS PAGE
+===================================================== -->
+
+<section
+    id="threatsPage"
+    class="page">
+
+    <div class="card">
+
+        <h2 class="card-title">
+            Threat Intelligence
+        </h2>
+
+        <div class="card-subtitle">
+            Existing security telemetry
+        </div>
+
+
+        <div class="three-column">
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ⚠
                 </div>
 
-                <div class="factor-name">
-                    Endpoint Defense
-                </div>
+                <h3>
+                    Total Threats
+                </h3>
 
-                <div class="factor-description">
-                    Monitor connected endpoints,
-                    endpoint health and suspicious
-                    activity.
-                </div>
-
-                <div class="factor-status">
-                    ● MONITORING
+                <div
+                    id="threatsPageTotal"
+                    class="module-value">
+                    —
                 </div>
 
             </div>
 
 
-            <div class="holo-panel factor-card"
-                 data-factor="usb">
+            <div class="module-card">
 
-                <div class="factor-icon">
+                <div class="module-icon">
+                    !
+                </div>
+
+                <h3>
+                    Critical
+                </h3>
+
+                <div
+                    id="threatsPageCritical"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ◇
+                </div>
+
+                <h3>
+                    High
+                </h3>
+
+                <div
+                    id="threatsPageHigh"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ENDPOINTS PAGE
+===================================================== -->
+
+<section
+    id="endpointsPage"
+    class="page">
+
+    <div class="card">
+
+        <h2 class="card-title">
+            Endpoint Defense
+        </h2>
+
+        <div class="card-subtitle">
+            Endpoint security telemetry
+        </div>
+
+
+        <div class="three-column">
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
                     ▣
                 </div>
 
-                <div class="factor-name">
-                    USB Threat Intelligence
-                </div>
-
-                <div class="factor-description">
-                    Physical removable-media
-                    detection, metadata inspection
-                    and heuristic file analysis.
-                </div>
-
-                <div class="factor-status">
-                    ● REAL-WORLD MODULE
-                </div>
-
-            </div>
-
-
-            <div class="holo-panel factor-card"
-                 data-factor="network">
-
-                <div class="factor-icon">
-                    ⌁
-                </div>
-
-                <div class="factor-name">
-                    Network Defense
-                </div>
-
-                <div class="factor-description">
-                    Visualize network assets,
-                    connections and potential
-                    abnormal activity.
-                </div>
-
-                <div class="factor-status">
-                    ● MONITORING
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- CENTRAL 3D CORE -->
-
-        <div class="holo-panel globe-panel">
-
-            <div class="panel-title">
-
                 <h3>
-                    GLOBAL THREAT INTELLIGENCE
+                    Endpoints
                 </h3>
 
-                <span>
-                    ● LIVE
-                </span>
-
-            </div>
-
-
-            <div class="globe">
-
-                <div class="ring ring-one"></div>
-
-                <div class="ring ring-two"></div>
-
-                <div class="ring ring-three"></div>
-
-
-                <div class="globe-core">
-
-                    <div class="globe-grid"></div>
-
-                    <div class="globe-shield">
-                        ◆
-                    </div>
-
-                </div>
-
-
-                <span class="threat-node node-a"></span>
-                <span class="threat-node node-b"></span>
-                <span class="threat-node node-c"></span>
-                <span class="threat-node node-d"></span>
-
-            </div>
-
-
-            <div style="
-                text-align:center;
-                margin-top:10px;
-                color:#6e8799;
-                font-size:9px;
-                letter-spacing:1px;
-            ">
-
-                IRONMIND SECURITY CORE
-
-            </div>
-
-        </div>
-
-
-
-        <!-- RIGHT FACTORS -->
-
-        <div>
-
-
-            <div class="holo-panel factor-card"
-                 data-factor="ai">
-
-                <div class="factor-icon">
-                    ✦
-                </div>
-
-                <div class="factor-name">
-                    AI Intelligence
-                </div>
-
-                <div class="factor-description">
-                    Behavioral analysis, anomaly
-                    detection and predictive risk
-                    intelligence.
-                </div>
-
-                <div class="factor-status">
-                    ● AI ENGINE ACTIVE
+                <div
+                    id="endpointCount"
+                    class="module-value">
+                    —
                 </div>
 
             </div>
 
 
-            <div class="holo-panel factor-card"
-                 data-factor="iot">
+            <div class="module-card">
 
-                <div class="factor-icon">
+                <div class="module-icon">
                     ◉
                 </div>
 
-                <div class="factor-name">
-                    IoT / Machine Defense
-                </div>
+                <h3>
+                    CPU
+                </h3>
 
-                <div class="factor-description">
-                    Monitor machine telemetry such
-                    as temperature, vibration and RPM.
-                </div>
-
-                <div class="factor-status">
-                    ● SENSOR MONITORING
+                <div
+                    id="cpu"
+                    class="module-value">
+                    —
                 </div>
 
             </div>
 
 
-            <div class="holo-panel factor-card"
-                 data-factor="cloud">
+            <div class="module-card">
 
-                <div class="factor-icon">
+                <div class="module-icon">
+                    ▤
+                </div>
+
+                <h3>
+                    Memory
+                </h3>
+
+                <div
+                    id="memory"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CLOUD PAGE
+===================================================== -->
+
+<section
+    id="cloudPage"
+    class="page">
+
+    <div class="card">
+
+        <h2 class="card-title">
+            Cloud Security
+        </h2>
+
+        <div class="card-subtitle">
+            Existing cloud telemetry
+        </div>
+
+
+        <div class="three-column">
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
                     ☁
                 </div>
 
-                <div class="factor-name">
-                    Cloud Security
+                <h3>
+                    Cloud Resources
+                </h3>
+
+                <div
+                    id="cloudResources"
+                    class="module-value">
+                    —
                 </div>
 
-                <div class="factor-description">
-                    Monitor cloud resources and
-                    security posture.
+            </div>
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ◆
                 </div>
 
-                <div class="factor-status">
-                    ● CLOUD MONITORING
+                <h3>
+                    Cloud Status
+                </h3>
+
+                <div
+                    id="cloudStatus"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ◇
+                </div>
+
+                <h3>
+                    Protection
+                </h3>
+
+                <div
+                    id="cloudProtection"
+                    class="module-value">
+                    —
                 </div>
 
             </div>
@@ -2593,344 +2985,262 @@ td{
 
     </div>
 
+</section>
 
 
-    <!-- ==================================================
-         BOTTOM VISUALIZATION
-    =================================================== -->
 
-    <div class="bottom-grid">
+<!-- =====================================================
+     NETWORK PAGE
+===================================================== -->
 
+<section
+    id="networkPage"
+    class="page">
 
-        <!-- NETWORK -->
+    <div class="card">
 
-        <div class="holo-panel">
+        <h2 class="card-title">
+            Network Defense
+        </h2>
 
-            <div class="panel-title">
-
-                <h3>
-                    3D NETWORK TOPOLOGY
-                </h3>
-
-                <span>
-                    LIVE
-                </span>
-
-            </div>
-
-
-            <div class="network-visual">
-
-                <div class="network-line line1"></div>
-                <div class="network-line line2"></div>
-                <div class="network-line line3"></div>
-                <div class="network-line line4"></div>
-
-
-                <div class="network-core">
-                    CORE
-                </div>
-
-
-                <div class="network-node n1">
-                    PC
-                </div>
-
-                <div class="network-node n2">
-                    WEB
-                </div>
-
-                <div class="network-node n3">
-                    IoT
-                </div>
-
-                <div class="network-node n4">
-                    USB
-                </div>
-
-            </div>
-
+        <div class="card-subtitle">
+            Network telemetry
         </div>
 
 
+        <div class="three-column">
 
-        <!-- AI -->
 
-        <div class="holo-panel">
+            <div class="module-card">
 
-            <div class="panel-title">
+                <div class="module-icon">
+                    ⌁
+                </div>
 
                 <h3>
-                    AI DEFENSE CORE
+                    Network Devices
                 </h3>
 
-                <span>
-                    ACTIVE
-                </span>
+                <div
+                    id="networkDevices"
+                    class="module-value">
+                    —
+                </div>
 
             </div>
 
 
-            <div class="ai-core">
+            <div class="module-card">
 
-                <div class="ai-orbit"></div>
+                <div class="module-icon">
+                    ⇅
+                </div>
 
-                <div class="ai-circle">
+                <h3>
+                    Traffic
+                </h3>
+
+                <div
+                    id="networkTraffic"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ◈
+                </div>
+
+                <h3>
+                    Network State
+                </h3>
+
+                <div
+                    id="networkState"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     IOT PAGE
+===================================================== -->
+
+<section
+    id="iotPage"
+    class="page">
+
+    <div class="card">
+
+        <h2 class="card-title">
+            IoT / Machine Defense
+        </h2>
+
+        <div class="card-subtitle">
+            Machine and sensor telemetry
+        </div>
+
+
+        <div class="three-column">
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ◉
+                </div>
+
+                <h3>
+                    Temperature
+                </h3>
+
+                <div
+                    id="machineTemperature"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ≋
+                </div>
+
+                <h3>
+                    Vibration
+                </h3>
+
+                <div
+                    id="machineVibration"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
+                    ◌
+                </div>
+
+                <h3>
+                    RPM
+                </h3>
+
+                <div
+                    id="machineRPM"
+                    class="module-value">
+                    —
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     AI PAGE
+===================================================== -->
+
+<section
+    id="aiPage"
+    class="page">
+
+    <div class="card">
+
+        <h2 class="card-title">
+            AI Intelligence
+        </h2>
+
+        <div class="card-subtitle">
+            Existing AI telemetry and analysis state
+        </div>
+
+
+        <div class="three-column">
+
+
+            <div class="module-card">
+
+                <div class="module-icon">
                     ✦
                 </div>
 
-            </div>
-
-        </div>
-
-
-
-        <!-- RESOURCES -->
-
-        <div class="holo-panel">
-
-            <div class="panel-title">
                 <h3>
-                    SYSTEM RESOURCES
+                    AI Risk Index
                 </h3>
 
-                <span>
-                    LIVE
-                </span>
-
-            </div>
-
-
-            <div class="resource-list">
-
-
-                <div class="resource">
-
-                    <div id="cpuRing"
-                         class="resource-ring">
-
-                        32%
-
-                    </div>
-
-                    <small>
-                        CPU
-                    </small>
-
-                </div>
-
-
-                <div class="resource">
-
-                    <div id="memoryRing"
-                         class="resource-ring">
-
-                        46%
-
-                    </div>
-
-                    <small>
-                        MEMORY
-                    </small>
-
-                </div>
-
-
-                <div class="resource">
-
-                    <div id="networkRing"
-                         class="resource-ring">
-
-                        38%
-
-                    </div>
-
-                    <small>
-                        NETWORK
-                    </small>
-
+                <div
+                    id="aiPageRisk"
+                    class="module-value">
+                    —
                 </div>
 
             </div>
 
-        </div>
 
-    </div>
+            <div class="module-card">
 
-
-
-    <!-- ==================================================
-         ACTIONS
-    =================================================== -->
-
-    <div class="holo-panel"
-         style="margin-top:18px;">
-
-        <div class="panel-title">
-
-            <h3>
-                SECURITY SIMULATION CONTROL
-            </h3>
-
-            <span>
-                PROTOTYPE
-            </span>
-
-        </div>
-
-
-        <div class="action-row">
-
-            <button class="action-button"
-                    onclick="runCyberTest()">
-
-                RUN CYBER TEST
-
-            </button>
-
-
-            <button class="action-button"
-                    onclick="runMachineTest()">
-
-                RUN MACHINE TEST
-
-            </button>
-
-
-            <button class="action-button"
-                    onclick="resetSystem()">
-
-                RESET SIMULATION
-
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ======================================================
-     THREATS PAGE
-====================================================== -->
-
-<section id="threatsPage"
-         class="page">
-
-    <div class="holo-panel">
-
-        <div class="panel-title">
-
-            <h3>
-                THREAT INTELLIGENCE CENTER
-            </h3>
-
-            <span>
-                LIVE ANALYSIS
-            </span>
-
-        </div>
-
-
-        <div class="command-center"
-             style="grid-template-columns:1fr 1fr;">
-
-            <div class="holo-panel">
+                <div class="module-icon">
+                    ◇
+                </div>
 
                 <h3>
-                    Active Threat Analysis
+                    AI Engine
                 </h3>
 
-                <p class="factor-description">
-                    IronMind evaluates security
-                    events using risk indicators,
-                    threat severity and source
-                    telemetry.
-                </p>
-
-                <div class="detail-grid"
-                     style="margin-top:20px;">
-
-                    <div class="detail-box">
-
-                        <label>
-                            Critical
-                        </label>
-
-                        <strong id="critical">
-                            0
-                        </strong>
-
-                    </div>
-
-                    <div class="detail-box">
-
-                        <label>
-                            High
-                        </label>
-
-                        <strong id="high">
-                            0
-                        </strong>
-
-                    </div>
-
-                    <div class="detail-box">
-
-                        <label>
-                            Medium
-                        </label>
-
-                        <strong id="medium">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div
+                    id="aiPageEngine"
+                    class="module-value">
+                    —
                 </div>
 
             </div>
 
 
-            <div class="holo-panel">
+            <div class="module-card">
 
-                <div class="panel-title">
-
-                    <h3>
-                        Threat Lifecycle
-                    </h3>
-
-                    <span>
-                        IRONMIND
-                    </span>
-
+                <div class="module-icon">
+                    ◎
                 </div>
 
-                <p class="factor-description">
+                <h3>
+                    Processing
+                </h3>
 
-                    DETECT
-
-                    →
-
-                    ANALYZE
-
-                    →
-
-                    PREDICT
-
-                    →
-
-                    PROTECT
-
-                    →
-
-                    RECOVER
-
-                </p>
+                <div
+                    id="aiProcessing"
+                    class="module-value">
+                    —
+                </div>
 
             </div>
+
 
         </div>
 
@@ -2940,364 +3250,22 @@ td{
 
 
 
-<!-- ======================================================
-     ENDPOINT PAGE
-====================================================== -->
-
-<section id="endpointsPage"
-         class="page">
-
-    <div class="holo-panel">
-
-        <div class="panel-title">
-
-            <h3>
-                ENDPOINT DEFENSE
-            </h3>
-
-            <span>
-                MONITORING
-            </span>
-
-        </div>
-
-        <div class="detail-grid">
-
-            <div class="detail-box">
-
-                <label>
-                    Endpoints
-                </label>
-
-                <strong id="endpointCount">
-                    0
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Protected
-                </label>
-
-                <strong class="low">
-                    ACTIVE
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Endpoint Risk
-                </label>
-
-                <strong id="endpointRisk">
-                    LOW
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ======================================================
-     CLOUD PAGE
-====================================================== -->
-
-<section id="cloudPage"
-         class="page">
-
-    <div class="holo-panel">
-
-        <div class="panel-title">
-
-            <h3>
-                CLOUD SECURITY
-            </h3>
-
-            <span>
-                MONITORING
-            </span>
-
-        </div>
-
-        <div class="detail-grid">
-
-            <div class="detail-box">
-
-                <label>
-                    Cloud Resources
-                </label>
-
-                <strong>
-                    ACTIVE
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Security Posture
-                </label>
-
-                <strong class="low">
-                    STABLE
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Cloud Alerts
-                </label>
-
-                <strong>
-                    0
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ======================================================
-     NETWORK PAGE
-====================================================== -->
-
-<section id="networkPage"
-         class="page">
-
-    <div class="holo-panel">
-
-        <div class="panel-title">
-
-            <h3>
-                NETWORK DEFENSE CENTER
-            </h3>
-
-            <span>
-                LIVE
-            </span>
-
-        </div>
-
-
-        <div class="network-visual"
-             style="height:400px;">
-
-            <div class="network-line line1"></div>
-            <div class="network-line line2"></div>
-            <div class="network-line line3"></div>
-            <div class="network-line line4"></div>
-
-            <div class="network-core">
-                IRONMIND
-            </div>
-
-            <div class="network-node n1">
-                PC-01
-            </div>
-
-            <div class="network-node n2">
-                SERVER
-            </div>
-
-            <div class="network-node n3">
-                IoT
-            </div>
-
-            <div class="network-node n4">
-                CLOUD
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ======================================================
-     IOT PAGE
-====================================================== -->
-
-<section id="iotPage"
-         class="page">
-
-    <div class="holo-panel">
-
-        <div class="panel-title">
-
-            <h3>
-                IoT / MACHINE TELEMETRY
-            </h3>
-
-            <span>
-                SENSOR MONITORING
-            </span>
-
-        </div>
-
-
-        <div class="detail-grid">
-
-            <div class="detail-box">
-
-                <label>
-                    Temperature
-                </label>
-
-                <strong id="temperature">
-                    42.5°C
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Vibration
-                </label>
-
-                <strong id="vibration">
-                    1.2 mm/s
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    RPM
-                </label>
-                <strong id="rpm">
-                    1498
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ======================================================
-     AI PAGE
-====================================================== -->
-
-<section id="aiPage"
-         class="page">
-
-    <div class="holo-panel">
-
-        <div class="panel-title">
-
-            <h3>
-                AI INTELLIGENCE CENTER
-            </h3>
-
-            <span>
-                ACTIVE
-            </span>
-
-        </div>
-
-
-        <div class="ai-core"
-             style="height:330px;">
-
-            <div class="ai-orbit"></div>
-
-            <div class="ai-circle">
-                AI
-            </div>
-
-        </div>
-
-
-        <div class="detail-grid">
-
-            <div class="detail-box">
-
-                <label>
-                    Behavior Analysis
-                </label>
-
-                <strong>
-                    94%
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Anomaly Detection
-                </label>
-
-                <strong>
-                    88%
-                </strong>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-                    Threat Intelligence
-                </label>
-
-                <strong>
-                    92%
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ======================================================
+<!-- =====================================================
      REPORTS PAGE
-====================================================== -->
+===================================================== -->
 
-<section id="reportsPage"
-         class="page">
+<section
+    id="reportsPage"
+    class="page">
 
-    <div class="holo-panel">
+    <div class="card report-card">
 
-        <div class="panel-title">
+        <h2 class="card-title">
+            Security Reports
+        </h2>
 
-            <h3>
-                SECURITY REPORTS
-            </h3>
-
-            <span>
-                IRONMIND INTELLIGENCE
-            </span>
-
+        <div class="card-subtitle">
+            Current security state
         </div>
 
 
@@ -3310,19 +3278,15 @@ td{
                     <tr>
 
                         <th>
-                            EVENT
+                            Metric
                         </th>
 
                         <th>
-                            SOURCE
+                            Current State
                         </th>
 
                         <th>
-                            SEVERITY
-                        </th>
-
-                        <th>
-                            STATUS
+                            Status
                         </th>
 
                     </tr>
@@ -3335,21 +3299,15 @@ td{
                     <tr>
 
                         <td>
-                            USB Monitoring
+                            Overall Risk
                         </td>
 
-                        <td>
-                            Endpoint
+                        <td id="reportRisk">
+                            —
                         </td>
 
-                        <td>
-                            <span class="severity low">
-                                LOW
-                            </span>
-                        </td>
-
-                        <td>
-                            Monitoring
+                        <td class="secure">
+                            Existing Data
                         </td>
 
                     </tr>
@@ -3358,21 +3316,15 @@ td{
                     <tr>
 
                         <td>
-                            Network Analysis
+                            AI Risk
                         </td>
 
-                        <td>
-                            Network
+                        <td id="reportAIRisk">
+                            —
                         </td>
 
-                        <td>
-                            <span class="severity low">
-                                LOW
-                            </span>
-                        </td>
-
-                        <td>
-                            Active
+                        <td class="secure">
+                            Existing Data
                         </td>
 
                     </tr>
@@ -3381,21 +3333,32 @@ td{
                     <tr>
 
                         <td>
-                            AI Analysis
+                            Threats
                         </td>
 
-                        <td>
-                            AI Engine
+                        <td id="reportThreats">
+                            —
                         </td>
 
-                        <td>
-                            <span class="severity low">
-                                LOW
-                            </span>
+                        <td class="secure">
+                            Existing Data
                         </td>
 
+                    </tr>
+
+
+                    <tr>
+
                         <td>
-                            Active
+                            Blocked Events
+                        </td>
+
+                        <td id="reportBlocked">
+                            —
+                        </td>
+
+                        <td class="secure">
+                            Existing Data
                         </td>
 
                     </tr>
@@ -3417,507 +3380,214 @@ td{
 
 
 
-<!-- ======================================================
-     DETAIL OVERLAY
-====================================================== -->
-
-<div id="detailOverlay"
-     class="detail-overlay">
-
-    <div class="detail-window">
-
-        <div class="detail-header">
-
-            <h2 id="detailTitle">
-                Security Analysis
-            </h2>
-
-            <button
-                class="close-detail"
-                id="closeDetail">
-
-                ×
-
-            </button>
-
-        </div>
-
-
-        <div id="detailContent">
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
 <script>
+/*
+=========================================================
+IRONMIND AI DASHBOARD
+REAL DATA ONLY
 
-/* =========================================================
-   PAGE NAVIGATION
-========================================================= */
+This script does NOT generate simulation values.
 
-const navButtons =
-    document.querySelectorAll(".nav-button");
+It only:
+1. Reads existing /api/status
+2. Reads existing /api/usb-status
+3. Displays values returned by Flask
+4. Handles visual page navigation
+=========================================================
+*/
 
-const pages =
-    document.querySelectorAll(".page");
+(function () {
 
-const pageTitle =
-    document.getElementById("pageTitle");
-
-const pageSubtitle =
-    document.getElementById("pageSubtitle");
-
-
-const pageInfo = {
-
-    dashboardPage: [
-        "Security Command Center",
-        "IRONMIND AI • DETECT • ANALYZE • PREDICT • PROTECT"
-    ],
-
-    threatsPage: [
-        "Threat Intelligence",
-        "ACTIVE THREAT ANALYSIS & SECURITY EVENTS"
-    ],
-
-    endpointsPage: [
-        "Endpoint Defense",
-        "ENDPOINT MONITORING & SECURITY POSTURE"
-    ],
-
-    cloudPage: [
-        "Cloud Security",
-        "CLOUD INFRASTRUCTURE MONITORING"
-    ],
-
-    networkPage: [
-        "Network Defense",
-        "NETWORK TOPOLOGY & TRAFFIC INTELLIGENCE"
-    ],
-
-    iotPage: [
-        "IoT / Machine Defense",
-        "SENSOR TELEMETRY & MACHINE ANOMALY MONITORING"
-    ],
-
-    aiPage: [
-        "AI Intelligence",
-        "BEHAVIORAL ANALYSIS & PREDICTIVE SECURITY"
-    ],
-
-    reportsPage: [
-        "Security Reports",
-        "IRONMIND AI SECURITY INTELLIGENCE"
-    ]
-
-};
+    "use strict";
 
 
-navButtons.forEach(function(button){
+    /* =====================================================
+       HELPERS
+    ===================================================== */
 
-    button.addEventListener(
-        "click",
-        function(){
-
-            const pageId =
-                button.dataset.page;
-
-            navButtons.forEach(function(item){
-
-                item.classList.remove(
-                    "active"
-                );
-
-            });
-
-            button.classList.add(
-                "active"
-            );
+    function el(id) {
+        return document.getElementById(id);
+    }
 
 
-            pages.forEach(function(page){
+    function setText(id, value) {
 
-                page.classList.remove(
-                    "active"
-                );
+        const node = el(id);
 
-            });
-
-
-            const page =
-                document.getElementById(
-                    pageId
-                );
-
-            if(page){
-
-                page.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            if(pageInfo[pageId]){
-
-                pageTitle.textContent =
-                    pageInfo[pageId][0];
-
-                pageSubtitle.textContent =
-                    pageInfo[pageId][1];
-
-            }
-
+        if (!node) {
+            return;
         }
-    );
 
-});
+        if (
+            value === undefined ||
+            value === null ||
+            value === ""
+        ) {
+            node.textContent = "—";
+        }
+        else {
+            node.textContent = value;
+        }
+    }
 
 
-/* =========================================================
-   DETAIL DATA
-========================================================= */
+    function value(data, key) {
 
-const factorData = {
+        if (!data) {
+            return "—";
+        }
 
-    risk: {
+        if (
+            data[key] === undefined ||
+            data[key] === null
+        ) {
+            return "—";
+        }
 
-        title:
-            "Overall Risk Intelligence",
+        return data[key];
+    }
 
-        boxes: [
 
-            ["Current Risk","24"],
+    /* =====================================================
+       PAGE NAVIGATION
+    ===================================================== */
 
-            ["Risk Level","LOW"],
+    const navItems =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
-            ["Trend","STABLE"],
 
-            ["Threat Surface","MONITORED"],
+    const pages =
+        document.querySelectorAll(
+            ".page"
+        );
 
-            ["AI Correlation","ACTIVE"],
 
-            ["Response","READY"]
+    const titles = {
 
+        dashboardPage: [
+            "Security Command Center",
+            "IRONMIND AI • DETECT • ANALYZE • PREDICT • PROTECT"
         ],
 
-        description:
-            "IronMind AI combines security telemetry and risk indicators to provide a consolidated security posture. In this prototype, the risk value is simulated and is intended to demonstrate how multiple security signals can be represented in a unified command center."
-
-    },
-
-
-    ai: {
-
-        title:
-            "AI Intelligence Engine",
-
-        boxes: [
-
-            ["AI Risk Index","18"],
-
-            ["Behavior Analysis","94%"],
-
-            ["Anomaly Detection","88%"],
-
-            ["Threat Intelligence","92%"],
-
-            ["Response Engine","87%"],
-
-            ["AI Processing","72%"]
-
+        threatsPage: [
+            "Threat Intelligence",
+            "SECURITY EVENT ANALYSIS"
         ],
 
-        description:
-            "The AI layer is designed as the analytical intelligence component of IronMind AI. The current dashboard demonstrates the interface and workflow; the wider prototype represents future AI-based anomaly detection, behavioral analysis and predictive risk scoring."
-
-    },
-
-
-    threats: {
-
-        title:
-            "Active Threat Intelligence",
-
-        boxes: [
-
-            ["Critical","0"],
-
-            ["High","0"],
-
-            ["Medium","0"],
-
-            ["Low","0"],
-
-            ["Blocked","24"],
-
-            ["Status","MONITORING"]
-
-        ],
-
-        description:
-            "Threat intelligence consolidates detected security events, classifies their severity and provides a common view for investigation and response."
-
-    },
-
-
-    blocked: {
-
-        title:
-            "Protected / Blocked Events",
-
-        boxes: [
-
-            ["Blocked Today","24"],
-
-            ["Response","ACTIVE"],
-
-            ["Protection","ENABLED"],
-
-            ["Risk Reduction","MONITORED"],
-
-            ["Incidents","0"],
-
-            ["Status","PROTECTED"]
-
-        ],
-
-        description:
-            "This section represents the response layer of the IronMind architecture. The current dashboard is a prototype visualization rather than a production blocking engine."
-
-    },
-
-
-    endpoint: {
-
-        title:
+        endpointsPage: [
             "Endpoint Defense",
-
-        boxes: [
-
-            ["Endpoints","24"],
-
-            ["Protected","24"],
-
-            ["Risk","LOW"],
-
-            ["Monitoring","ACTIVE"],
-
-            ["Alerts","0"],
-
-            ["Status","SECURE"]
-
+            "ENDPOINT SECURITY TELEMETRY"
         ],
 
-        description:
-            "Endpoint defense is designed to provide visibility into connected computers and endpoint security signals."
-
-    },
-
-
-    usb: {
-
-        title:
-            "USB Threat Intelligence",
-
-        boxes: [
-
-            ["Module","ACTIVE"],
-
-            ["Detection","REAL"],
-
-            ["Inspection","HEURISTIC"],
-
-            ["Cloud API","CONNECTED"],
-
-            ["Risk","LOW"],
-
-            ["Status","MONITORING"]
-
-        ],
-
-        description:
-            "This is the current real-world IronMind implementation. A local Windows USB agent detects removable-drive insertion, collects device metadata, scans files using heuristic indicators and sends the result to the Flask backend. The USB front page displays the actual scan result."
-
-    },
-
-
-    network: {
-
-        title:
-            "Network Defense",
-
-        boxes: [
-
-            ["Network Devices","MONITORED"],
-
-            ["Traffic","ACTIVE"],
-
-            ["Connections","ANALYZING"],
-
-            ["Anomalies","0"],
-
-            ["Risk","LOW"],
-
-            ["Status","MONITORING"]
-
-        ],
-
-        description:
-            "The network module represents IronMind's planned ability to unify network telemetry, device relationships and abnormal-traffic indicators into the same security command center."
-
-    },
-
-
-    iot: {
-
-        title:
-            "IoT / Machine Intelligence",
-
-        boxes: [
-
-            ["Temperature","42.5°C"],
-
-            ["Vibration","1.2 mm/s"],
-
-            ["RPM","1498"],
-
-            ["Machine Risk","LOW"],
-
-            ["Sensors","ACTIVE"],
-
-            ["Status","MONITORING"]
-
-        ],
-
-        description:
-            "The IoT/OT layer is designed to combine machine telemetry with security monitoring. Abnormal temperature, vibration or operating conditions can become signals for anomaly analysis."
-
-    },
-
-
-    cloud: {
-
-        title:
+        cloudPage: [
             "Cloud Security",
-
-        boxes: [
-
-            ["Resources","ACTIVE"],
-
-            ["Cloud Risk","LOW"],
-
-            ["Alerts","0"],
-
-            ["Monitoring","ACTIVE"],
-
-            ["Posture","STABLE"],
-
-            ["Status","SECURE"]
-
+            "CLOUD INFRASTRUCTURE TELEMETRY"
         ],
 
-        description:
-            "Cloud security represents the planned expansion of IronMind into cloud-resource monitoring and security posture analysis."
+        networkPage: [
+            "Network Defense",
+            "NETWORK SECURITY TELEMETRY"
+        ],
+
+        iotPage: [
+            "IoT / Machine Defense",
+            "MACHINE AND SENSOR TELEMETRY"
+        ],
+
+        aiPage: [
+            "AI Intelligence",
+            "AI-ASSISTED SECURITY ANALYSIS"
+        ],
+
+        reportsPage: [
+            "Security Reports",
+            "CURRENT SECURITY TELEMETRY"
+        ]
+
+    };
+
+
+    function openPage(pageId) {
+
+        pages.forEach(function (page) {
+
+            page.classList.remove(
+                "active"
+            );
+
+        });
+
+
+        navItems.forEach(function (item) {
+
+            item.classList.remove(
+                "active"
+            );
+
+        });
+
+
+        const page =
+            document.getElementById(
+                pageId
+            );
+
+
+        if (page) {
+
+            page.classList.add(
+                "active"
+            );
+
+        }
+
+
+        navItems.forEach(function (item) {
+
+            if (
+                item.dataset.page === pageId
+            ) {
+
+                item.classList.add(
+                    "active"
+                );
+
+            }
+
+        });
+
+
+        const title =
+            titles[pageId];
+
+
+        if (title) {
+
+            setText(
+                "pageTitle",
+                title[0]
+            );
+
+            setText(
+                "pageSubtitle",
+                title[1]
+            );
+
+        }
 
     }
 
-};
 
+    navItems.forEach(function (item) {
 
-/* =========================================================
-   FACTOR CLICK SYSTEM
-========================================================= */
-
-const overlay =
-    document.getElementById(
-        "detailOverlay"
-    );
-
-const detailTitle =
-    document.getElementById(
-        "detailTitle"
-    );
-
-const detailContent =
-    document.getElementById(
-        "detailContent"
-    );
-
-
-function openFactor(factor){
-
-    const data =
-        factorData[factor];
-
-    if(!data){
-        return;
-    }
-
-
-    detailTitle.textContent =
-        data.title;
-
-
-    let html =
-        '<div class="detail-grid">';
-
-
-    data.boxes.forEach(function(item){
-
-        html +=
-            '<div class="detail-box">' +
-
-            '<label>' +
-            item[0] +
-            '</label>' +
-
-            '<strong>' +
-            item[1] +
-            '</strong>' +
-
-            '</div>';
-
-    });
-
-
-    html +=
-        '</div>' +
-
-        '<div class="detail-description">' +
-
-        data.description +
-
-        '</div>';
-
-
-    detailContent.innerHTML =
-        html;
-
-
-    overlay.classList.add(
-        "active"
-    );
-
-}
-
-
-document
-    .querySelectorAll(
-        "[data-factor]"
-    )
-    .forEach(function(element){
-
-        element.addEventListener(
+        item.addEventListener(
             "click",
-            function(){
+            function () {
 
-                openFactor(
-                    element.dataset.factor
+                openPage(
+                    item.dataset.page
                 );
 
             }
@@ -3926,456 +3596,600 @@ document
     });
 
 
-document
-    .getElementById(
-        "closeDetail"
-    )
-    .addEventListener(
-        "click",
-        function(){
+    document
+        .querySelectorAll(
+            "[data-page-link]"
+        )
+        .forEach(function (card) {
+
+            card.addEventListener(
+                "click",
+                function () {
+
+                    openPage(
+                        card.dataset.pageLink
+                    );
 
-            overlay.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-
-overlay.addEventListener(
-    "click",
-    function(event){
-
-        if(
-            event.target === overlay
-        ){
-
-            overlay.classList.remove(
-                "active"
-            );
-
-        }
-
-    }
-);
-
-
-document.addEventListener(
-    "keydown",
-    function(event){
-
-        if(
-            event.key === "Escape"
-        ){
-
-            overlay.classList.remove(
-                "active"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   IRONMIND API
-========================================================= */
-
-function setText(id,value){
-
-    const element =
-        document.getElementById(id);
-
-    if(element){
-
-        element.textContent =
-            value;
-
-    }
-
-}
-
-
-function updateDashboard(data){
-
-    if(!data){
-        return;
-    }
-
-
-    setText(
-        "risk",
-        data.risk ?? 24
-    );
-
-    setText(
-        "aiRisk",
-        data.ai_risk ?? 18
-    );
-
-    setText(
-        "threats",
-        data.threats ?? 0
-    );
-
-    setText(
-        "blocked",
-        data.blocked ?? 24
-    );
-
-
-    setText(
-        "critical",
-        data.critical ?? 0
-    );
-
-    setText(
-        "high",
-        data.high ?? 0
-    );
-
-    setText(
-        "medium",
-        data.medium ?? 0
-    );
-
-
-    setText(
-        "endpointCount",
-        data.endpoints ?? 24
-    );
-
-
-    setText(
-        "temperature",
-        data.machine_temperature
-            ? data.machine_temperature + "°C"
-            : "42.5°C"
-    );
-
-
-    setText(
-        "vibration",
-        data.vibration
-            ? data.vibration + " mm/s"
-            : "1.2 mm/s"
-    );
-
-
-    setText(
-        "rpm",
-        data.rpm ?? 1498
-    );
-
-
-    setText(
-        "cpuRing",
-        data.cpu
-            ? data.cpu + "%"
-            : "32%"
-    );
-
-
-    setText(
-        "memoryRing",
-        data.memory
-            ? data.memory + "%"
-            : "46%"
-    );
-
-
-    setText(
-        "networkRing",
-        data.network_traffic
-            ? data.network_traffic + "%"
-            : "38%"
-    );
-
-}
-
-
-/* =========================================================
-   FETCH STATUS
-========================================================= */
-
-function getStatus(){
-
-    fetch(
-        "/api/status?t=" +
-        Date.now(),
-        {
-            cache:"no-store"
-        }
-    )
-
-    .then(function(response){
-
-        if(!response.ok){
-
-            throw new Error(
-                "Status request failed"
-            );
-
-        }
-
-        return response.json();
-
-    })
-
-    .then(function(data){
-
-        updateDashboard(data);
-
-    })
-
-    .catch(function(error){
-
-        console.log(
-            "IronMind status unavailable:",
-            error
-        );
-
-    });
-
-}
-
-
-getStatus();
-
-
-setInterval(
-    getStatus,
-    5000
-);
-
-
-/* =========================================================
-   USB STATUS
-========================================================= */
-
-function getUSBStatus(){
-
-    fetch(
-        "/api/usb-status?t=" +
-        Date.now(),
-        {
-            cache:"no-store"
-        }
-    )
-
-    .then(function(response){
-
-        if(!response.ok){
-
-            throw new Error(
-                "USB status failed"
-            );
-
-        }
-
-        return response.json();
-
-    })
-
-    .then(function(data){
-
-        console.log(
-            "USB status:",
-            data
-        );
-
-    })
-
-    .catch(function(error){
-
-        console.log(
-            "USB status unavailable:",
-            error
-        );
-
-    });
-
-}
-
-
-getUSBStatus();
-
-
-setInterval(
-    getUSBStatus,
-    2000
-);
-
-
-/* =========================================================
-   SIMULATION CONTROLS
-========================================================= */
-
-function runCyberTest(){
-
-    fetch(
-        "/api/cyber-test",
-        {
-            method:"POST"
-        }
-    )
-    .then(function(response){
-
-        return response.json();
-
-    })
-    .then(function(data){
-
-        updateDashboard(data);
-
-        alert(
-            "Cyber security simulation completed."
-        );
-
-    })
-    .catch(function(error){
-
-        console.log(error);
-
-    });
-
-}
-
-
-function runMachineTest(){
-
-    fetch(
-        "/api/machine-test",
-        {
-            method:"POST"
-        }
-    )
-    .then(function(response){
-
-        return response.json();
-
-    })
-    .then(function(data){
-
-        updateDashboard(data);
-
-        alert(
-            "Machine security simulation completed."
-        );
-
-    })
-    .catch(function(error){
-
-        console.log(error);
-
-    });
-
-}
-
-
-function resetSystem(){
-
-    fetch(
-        "/api/reset",
-        {
-            method:"POST"
-        }
-    )
-    .then(function(response){
-
-        return response.json();
-
-    })
-    .then(function(data){
-
-        updateDashboard(data);
-
-        alert(
-            "IronMind simulation reset."
-        );
-
-    })
-    .catch(function(error){
-
-        console.log(error);
-
-    });
-
-}
-
-
-/* =========================================================
-   3D TILT EFFECT
-========================================================= */
-
-document
-    .querySelectorAll(
-        ".holo-panel,.metric"
-    )
-    .forEach(function(card){
-
-        card.addEventListener(
-            "mousemove",
-            function(event){
-
-                if(
-                    window.innerWidth < 850
-                ){
-                    return;
                 }
+            );
+
+        });
 
 
-                const rect =
-                    card.getBoundingClientRect();
+
+    /* =====================================================
+       UPDATE DASHBOARD FROM REAL API DATA
+    ===================================================== */
+
+    function updateDashboard(data) {
+
+        if (!data) {
+            return;
+        }
 
 
-                const x =
-                    event.clientX -
-                    rect.left;
+        /*
+        Existing system values.
+        Nothing is generated here.
+        */
 
 
-                const y =
-                    event.clientY -
-                    rect.top;
-
-
-                const rotateY =
-                    ((x / rect.width) -
-                    .5) * 5;
-
-
-                const rotateX =
-                    ((y / rect.height) -
-                    .5) * -5;
-
-
-                card.style.transform =
-                    "perspective(900px)" +
-                    " rotateX(" +
-                    rotateX +
-                    "deg)" +
-                    " rotateY(" +
-                    rotateY +
-                    "deg)" +
-                    " translateZ(12px)";
-
-            }
+        setText(
+            "risk",
+            value(data, "risk")
         );
 
 
-        card.addEventListener(
-            "mouseleave",
-            function(){
-
-                card.style.transform =
-                    "";
-
-            }
+        setText(
+            "aiRisk",
+            value(data, "ai_risk")
         );
 
-    });
 
+        setText(
+            "threats",
+            value(data, "threats")
+        );
+
+
+        setText(
+            "blocked",
+            value(data, "blocked")
+        );
+
+
+        setText(
+            "endpoints",
+            value(data, "endpoints")
+        );
+
+
+        setText(
+            "critical",
+            value(data, "critical")
+        );
+
+
+        setText(
+            "aiEngine",
+            value(data, "ai_engine")
+        );
+
+
+        setText(
+            "cyberStatus",
+            value(data, "endpoint")
+        );
+
+
+        setText(
+            "aiStatus",
+            value(data, "ai_engine")
+        );
+
+
+        setText(
+            "networkStatus",
+            value(data, "network")
+        );
+
+
+        setText(
+            "iotStatus",
+            value(data, "iot_ot")
+        );
+
+
+        setText(
+            "incident",
+            value(data, "incident")
+        );
+
+
+        setText(
+            "systemStatus",
+            value(data, "status")
+        );
+
+
+        setText(
+            "lastUpdate",
+            value(data, "last_update")
+        );
+
+
+        /*
+        Threat page
+        */
+
+
+        setText(
+            "threatsPageTotal",
+            value(data, "threats")
+        );
+
+
+        setText(
+            "threatsPageCritical",
+            value(data, "critical")
+        );
+
+
+        setText(
+            "threatsPageHigh",
+            value(data, "high")
+        );
+
+
+        /*
+        Endpoint page
+        */
+
+
+        setText(
+            "endpointCount",
+            value(data, "endpoints")
+        );
+
+
+        setText(
+            "cpu",
+            value(data, "cpu")
+        );
+
+
+        setText(
+            "memory",
+            value(data, "memory")
+        );
+
+
+        /*
+        Cloud page
+        */
+
+
+        setText(
+            "cloudResources",
+            value(data, "cloud")
+        );
+
+
+        setText(
+            "cloudStatus",
+            value(data, "cloud")
+        );
+
+
+        setText(
+            "cloudProtection",
+            value(data, "status")
+        );
+
+
+        /*
+        Network page
+        */
+
+
+        setText(
+            "networkDevices",
+            value(data, "network_devices")
+        );
+
+
+        setText(
+            "networkTraffic",
+            value(data, "network_traffic")
+        );
+
+
+        setText(
+            "networkState",
+            value(data, "network")
+        );
+
+
+        /*
+        IoT page
+        */
+
+
+        setText(
+            "machineTemperature",
+            value(data, "machine_temperature")
+        );
+
+
+        setText(
+            "machineVibration",
+            value(data, "vibration")
+        );
+
+
+        setText(
+            "machineRPM",
+            value(data, "rpm")
+        );
+
+
+        /*
+        AI page
+        */
+
+
+        setText(
+"aiPageRisk",
+            value(data, "ai_risk")
+        );
+
+
+        setText(
+            "aiPageEngine",
+            value(data, "ai_engine")
+        );
+
+
+        setText(
+            "aiProcessing",
+            value(data, "ai_processing")
+        );
+
+
+        /*
+        Reports
+        */
+
+
+        setText(
+            "reportRisk",
+            value(data, "risk")
+        );
+
+
+        setText(
+            "reportAIRisk",
+            value(data, "ai_risk")
+        );
+
+
+        setText(
+            "reportThreats",
+            value(data, "threats")
+        );
+
+
+        setText(
+            "reportBlocked",
+            value(data, "blocked")
+        );
+
+    }
+
+
+
+    /* =====================================================
+       GET EXISTING SYSTEM STATUS
+    ===================================================== */
+
+    function checkSystemStatus() {
+
+        fetch(
+            "/api/status",
+            {
+                cache: "no-store"
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "System status request failed"
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(function (data) {
+
+            updateDashboard(
+                data
+            );
+
+        })
+
+        .catch(function (error) {
+
+            console.log(
+                "System status unavailable:",
+                error
+            );
+
+        });
+
+    }
+
+
+
+    /* =====================================================
+       USB STATUS
+    ===================================================== */
+
+    function updateUSB(data) {
+
+        if (!data) {
+            return;
+        }
+
+
+        const connected =
+            data.connected === true;
+
+
+        const badge =
+            el("usbBadge");
+
+
+        const waiting =
+            el("usbWaiting");
+
+
+        const content =
+            el("usbContent");
+
+
+        if (!connected) {
+
+            if (badge) {
+
+                badge.textContent =
+                    "WAITING";
+
+                badge.className =
+                    "usb-badge";
+
+            }
+
+
+            if (waiting) {
+
+                waiting.style.display =
+                    "block";
+
+            }
+
+
+            if (content) {
+
+                content.style.display =
+                    "none";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (waiting) {
+
+            waiting.style.display =
+                "none";
+
+        }
+
+
+        if (content) {
+
+            content.style.display =
+                "block";
+
+        }
+
+
+        const device =
+            data.device || {};
+
+
+        const scan =
+            data.scan || {};
+
+
+        setText(
+            "usbDevice",
+            device.label ||
+            device.drive ||
+            "USB Device"
+        );
+
+
+        setText(
+            "usbDrive",
+            device.drive
+                ? device.drive + ":"
+                : "—"
+        );
+
+
+        setText(
+            "usbFiles",
+            scan.files_scanned
+        );
+
+
+        setText(
+            "usbSuspicious",
+            scan.suspicious_count
+        );
+
+
+        setText(
+            "usbMessage",
+            scan.message
+        );
+
+
+        setText(
+            "usbRisk",
+            scan.risk
+        );
+
+
+        if (!badge) {
+            return;
+        }
+
+
+        const risk =
+            String(
+                scan.risk || ""
+            ).toUpperCase();
+
+
+        if (risk === "HIGH") {
+
+            badge.textContent =
+                "HIGH RISK";
+
+            badge.className =
+                "usb-badge danger";
+
+        }
+        else if (
+            risk === "MEDIUM"
+        ) {
+
+            badge.textContent =
+                "MEDIUM RISK";
+
+            badge.className =
+                "usb-badge warning";
+
+        }
+        else if (
+            risk === "LOW"
+        ) {
+
+            badge.textContent =
+                "CONNECTED";
+
+            badge.className =
+                "usb-badge connected";
+
+        }
+        else {
+
+            badge.textContent =
+                data.status ||
+                "CONNECTED";
+
+            badge.className =
+                "usb-badge connected";
+
+        }
+
+    }
+
+
+
+    function checkUSBStatus() {
+
+        fetch(
+            "/api/usb-status?t=" +
+            Date.now(),
+            {
+                cache: "no-store"
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "USB status request failed"
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(function (data) {
+
+            updateUSB(
+                data
+            );
+
+        })
+
+        .catch(function (error) {
+
+            console.log(
+                "USB status unavailable:",
+                error
+            );
+
+        });
+
+    }
+
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    checkSystemStatus();
+
+    checkUSBStatus();
+
+
+    /*
+    Refresh existing backend information.
+    This does NOT generate any data.
+    */
+
+    setInterval(
+        checkSystemStatus,
+        5000
+    );
+
+
+    setInterval(
+        checkUSBStatus,
+        2000
+    );
+
+
+})();
 </script>
 
 </body>
