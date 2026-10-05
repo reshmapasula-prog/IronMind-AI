@@ -1578,7 +1578,7 @@ with state_lock:
         investigation_records.clear()
 
         network_events.clear()
-    endpoint_events.clear()
+        endpoint_events.clear()
 
         usb_state[
             "connected"
