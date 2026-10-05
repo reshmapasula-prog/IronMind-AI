@@ -3,7 +3,6 @@ from datetime import datetime
 import random
 import threading
 import hashlib
-import os
 import uuid
 
 
@@ -11,7 +10,7 @@ import uuid
 # IRONMIND AI
 # Autonomous AI Cyber Defense Platform
 #
-# USB + Endpoint + Network + Investigation
+# USB + Endpoint + Network + IoT/OT + Investigation
 # ============================================================
 
 app = Flask(
@@ -20,6 +19,8 @@ app = Flask(
     template_folder="templates"
 )
 
+# RLock prevents nested-lock problems when one protected
+# function calls another protected function.
 state_lock = threading.RLock()
 
 
@@ -120,7 +121,6 @@ system_state = {
 # ============================================================
 
 usb_state = {
-
     "connected": False,
     "status": "WAITING",
     "device": None,
@@ -131,14 +131,6 @@ usb_state = {
 
 # ============================================================
 # THREAT DATABASE
-# ============================================================
-#
-# In production this would be stored in a database.
-# For the current prototype it stays in memory.
-#
-# IMPORTANT:
-# These records remain available for investigation even
-# after the threat has been blocked.
 # ============================================================
 
 threat_events = []
@@ -317,7 +309,8 @@ def add_threat_event(
 
         "timestamp": timestamp,
 
-        "investigation_status": "READY FOR INVESTIGATION"
+        "investigation_status":
+            "READY FOR INVESTIGATION"
     }
 
     investigation_records.insert(
@@ -340,6 +333,7 @@ def update_threat_counters():
     low = 0
 
     for threat in threat_events:
+
         severity = threat.get(
             "severity",
             ""
@@ -408,7 +402,6 @@ def process_usb_threat(
         )
 
         system_state["incident"] = (
-
             f"CRITICAL USB THREAT BLOCKED: "
             f"{filename}"
         )
@@ -582,7 +575,7 @@ def generate_live_data():
                 85
             )
 
-            system_state["ai_risk"] =random.randint(
+            system_state["ai_risk"] = random.randint(
                 60,
                 90
             )
@@ -706,7 +699,7 @@ def usb_event():
     ) or {}
 
     # ========================================================
-    # NEW FORMAT
+    # NEW USB FORMAT
     # ========================================================
 
     if "connected" in data:
@@ -717,9 +710,10 @@ def usb_event():
                 False
             )
         )
+
         status = data.get(
-          "status",
-          "UNKNOWN"
+            "status",
+            "UNKNOWN"
         )
 
         device = data.get(
@@ -815,7 +809,7 @@ def usb_event():
                         "invoice.exe"
                     )
 
-                    threat = process_usb_threat(
+                    process_usb_threat(
                         filename
                     )
 
@@ -868,6 +862,10 @@ def usb_event():
                 system_state
             )
 
+            usb_response = dict(
+                usb_state
+            )
+
         return jsonify({
 
             "success": True,
@@ -879,9 +877,8 @@ def usb_event():
                 response_data,
 
             "usb":
-                usb_state
+                usb_response
         })
-
 
     # ========================================================
     # OLD USB FORMAT
@@ -936,7 +933,6 @@ def usb_event():
             system_state[
                 "usb_connected"
             ] = True
-
             system_state[
                 "usb_drive"
             ] = drive
@@ -972,7 +968,6 @@ def usb_event():
                 system_state["ai_risk"],
                 28
             )
-
 
         elif event == "removed":
 
@@ -1022,7 +1017,6 @@ def usb_event():
                 "USB device removed"
             )
 
-
         else:
 
             system_state[
@@ -1057,6 +1051,10 @@ def usb_event():
             system_state
         )
 
+        usb_response = dict(
+            usb_state
+        )
+
     return jsonify({
 
         "success": True,
@@ -1068,14 +1066,12 @@ def usb_event():
             response_data,
 
         "usb":
-            usb_state
+            usb_response
     })
 
 
 # ============================================================
 # DEMO USB THREAT
-#
-# This is the button you can use during the hackathon.
 # ============================================================
 
 @app.route(
@@ -1503,7 +1499,8 @@ def reset_system():
     global demo_mode
 
     demo_mode = "normal"
-with state_lock:
+
+    with state_lock:
 
         system_state[
             "risk"
@@ -1567,6 +1564,18 @@ with state_lock:
             "usb_event"
         ] = "NO USB EVENT"
 
+        system_state[
+            "usb_connected"
+        ] = False
+
+        system_state[
+            "usb_drive"
+        ] = ""
+
+        system_state[
+            "usb_time"
+        ] = ""
+
         # ----------------------------------------------------
         # Clear active demo records
         # ----------------------------------------------------
@@ -1578,6 +1587,7 @@ with state_lock:
         investigation_records.clear()
 
         network_events.clear()
+
         endpoint_events.clear()
 
         usb_state[
@@ -1594,6 +1604,10 @@ with state_lock:
 
         usb_state[
             "scan"
+        ] = None
+
+        usb_state[
+            "last_update"
         ] = None
 
         update_threat_counters()
