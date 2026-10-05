@@ -20,7 +20,7 @@ app = Flask(
     template_folder="templates"
 )
 
-state_lock = threading.Lock()
+state_lock = threading.RLock()
 
 
 # ============================================================
@@ -718,8 +718,8 @@ def usb_event():
             )
         )
         status = data.get(
-            "status",
-            "UNKNOWN"
+          "status",
+          "UNKNOWN"
         )
 
         device = data.get(
