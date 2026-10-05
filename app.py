@@ -8,9 +8,9 @@ import uuid
 
 # ============================================================
 # IRONMIND AI
-# AUTONOMOUS AI CYBER DEFENSE PLATFORM
+# Autonomous AI Cyber Defense Platform
 #
-# USB + ENDPOINT + NETWORK + IoT/OT + INVESTIGATION
+# USB + Endpoint + Network + IoT/OT + Investigation
 # ============================================================
 
 app = Flask(
@@ -19,6 +19,8 @@ app = Flask(
     template_folder="templates"
 )
 
+# RLock prevents nested-lock problems when one protected
+# function calls another protected function.
 state_lock = threading.RLock()
 
 
@@ -28,24 +30,29 @@ state_lock = threading.RLock()
 
 system_state = {
 
+    # --------------------------------------------------------
+    # General
+    # --------------------------------------------------------
+
     "risk": 18,
     "ai_risk": 16,
-
     "status": "PROTECTED",
-
-    "incident":
-        "No active security incident",
-
+    "incident": "No active security incident",
     "ai_engine": "ACTIVE",
 
+    # --------------------------------------------------------
+    # Security modules
+    # --------------------------------------------------------
+
     "endpoint": "SECURE",
-
     "network": "MONITORING",
-
     "iot_ot": "MONITORING",
 
-    "threats": 0,
+    # --------------------------------------------------------
+    # Threat information
+    # --------------------------------------------------------
 
+    "threats": 0,
     "blocked": 0,
 
     "critical": 0,
@@ -53,51 +60,59 @@ system_state = {
     "medium": 0,
     "low": 0,
 
+    # --------------------------------------------------------
+    # Infrastructure
+    # --------------------------------------------------------
+
     "endpoints": 12,
-
     "cloud": 8,
-
     "network_devices": 18,
+
+    # --------------------------------------------------------
+    # AI
+    # --------------------------------------------------------
 
     "ai_processing": 72,
 
+    # --------------------------------------------------------
+    # Endpoint telemetry
+    # --------------------------------------------------------
+
     "cpu": 32,
-
     "memory": 46,
-
     "network_traffic": 38,
+    "usb_activity": "NO USB EVENT",
 
-    "usb_activity":
-        "NO USB EVENT",
+    # --------------------------------------------------------
+    # Machine / IoT
+    # --------------------------------------------------------
 
-    "machine_temperature":
-        42.5,
+    "machine_temperature": 42.5,
+    "machine_vibration": 1.2,
+    "machine_rpm": 1498,
 
-    "machine_vibration":
-        1.2,
+    # --------------------------------------------------------
+    # USB
+    # --------------------------------------------------------
 
-    "machine_rpm":
-        1498,
+    "usb_connected": False,
+    "usb_drive": "",
+    "usb_event": "NO USB EVENT",
+    "usb_time": "",
 
-    "usb_connected":
-        False,
+    # --------------------------------------------------------
+    # Event system
+    # --------------------------------------------------------
 
-    "usb_drive":
-        "",
+    "events": 0,
 
-    "usb_event":
-        "NO USB EVENT",
+    # --------------------------------------------------------
+    # Last update
+    # --------------------------------------------------------
 
-    "usb_time":
-        "",
-
-    "events":
-        0,
-
-    "last_update":
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+    "last_update": datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 }
 
 
@@ -106,35 +121,45 @@ system_state = {
 # ============================================================
 
 usb_state = {
-
-    "connected":
-        False,
-
-    "status":
-        "WAITING",
-
-    "device":
-        None,
-
-    "scan":
-        None,
-
-    "last_update":
-        None
+    "connected": False,
+    "status": "WAITING",
+    "device": None,
+    "scan": None,
+    "last_update": None
 }
 
 
 # ============================================================
-# DATABASES
+# THREAT DATABASE
 # ============================================================
 
 threat_events = []
 
+
+# ============================================================
+# QUARANTINE DATABASE
+# ============================================================
+
 quarantine_files = []
+
+
+# ============================================================
+# INVESTIGATION DATABASE
+# ============================================================
 
 investigation_records = []
 
+
+# ============================================================
+# NETWORK EVENTS
+# ============================================================
+
 network_events = []
+
+
+# ============================================================
+# ENDPOINT EVENTS
+# ============================================================
 
 endpoint_events = []
 
@@ -160,7 +185,7 @@ def update_timestamp():
 
 
 # ============================================================
-# HASH
+# HASH GENERATOR
 # ============================================================
 
 def generate_hash(filename):
@@ -170,13 +195,11 @@ def generate_hash(filename):
         datetime.now().isoformat()
     ).encode()
 
-    return hashlib.sha256(
-        value
-    ).hexdigest()
+    return hashlib.sha256(value).hexdigest()
 
 
 # ============================================================
-# ADD THREAT
+# ADD THREAT EVENT
 # ============================================================
 
 def add_threat_event(
@@ -188,55 +211,39 @@ def add_threat_event(
     reason="Suspicious behavior detected"
 ):
 
-    event_id = str(
-        uuid.uuid4()
-    )[:8]
+    event_id = str(uuid.uuid4())[:8]
 
     timestamp = datetime.now().strftime(
         "%Y-%m-%d %H:%M:%S"
     )
 
-    file_hash = generate_hash(
-        filename
-    )
+    file_hash = generate_hash(filename)
 
     threat = {
 
-        "id":
-            event_id,
+        "id": event_id,
 
-        "timestamp":
-            timestamp,
+        "timestamp": timestamp,
 
-        "filename":
-            filename,
+        "filename": filename,
 
-        "source":
-            source,
+        "source": source,
 
-        "threat_type":
-            threat_type,
+        "threat_type": threat_type,
 
-        "risk_score":
-            risk_score,
+        "risk_score": risk_score,
 
-        "severity":
-            severity,
+        "severity": severity,
 
-        "reason":
-            reason,
+        "reason": reason,
 
-        "action":
-            "BLOCKED",
+        "action": "BLOCKED",
 
-        "status":
-            "QUARANTINED",
+        "status": "QUARANTINED",
 
-        "sha256":
-            file_hash,
+        "sha256": file_hash,
 
-        "investigation_status":
-            "AVAILABLE"
+        "investigation_status": "AVAILABLE"
     }
 
     threat_events.insert(
@@ -245,37 +252,28 @@ def add_threat_event(
     )
 
     # --------------------------------------------------------
-    # QUARANTINE
+    # QUARANTINE RECORD
     # --------------------------------------------------------
 
     quarantine_record = {
 
-        "id":
-            event_id,
+        "id": event_id,
 
-        "filename":
-            filename,
+        "filename": filename,
 
-        "source":
-            source,
+        "source": source,
 
-        "sha256":
-            file_hash,
+        "sha256": file_hash,
 
-        "risk_score":
-            risk_score,
+        "risk_score": risk_score,
 
-        "severity":
-            severity,
+        "severity": severity,
 
-        "status":
-            "QUARANTINED",
+        "status": "QUARANTINED",
 
-        "blocked":
-            True,
+        "blocked": True,
 
-        "timestamp":
-            timestamp
+        "timestamp": timestamp
     }
 
     quarantine_files.insert(
@@ -284,43 +282,32 @@ def add_threat_event(
     )
 
     # --------------------------------------------------------
-    # INVESTIGATION
+    # INVESTIGATION RECORD
     # --------------------------------------------------------
 
     investigation_record = {
 
-        "id":
-            event_id,
+        "id": event_id,
 
-        "filename":
-            filename,
+        "filename": filename,
 
-        "threat_type":
-            threat_type,
+        "threat_type": threat_type,
 
-        "severity":
-            severity,
+        "severity": severity,
 
-        "risk_score":
-            risk_score,
+        "risk_score": risk_score,
 
-        "source":
-            source,
+        "source": source,
 
-        "reason":
-            reason,
+        "reason": reason,
 
-        "sha256":
-            file_hash,
+        "sha256": file_hash,
 
-        "action":
-            "BLOCKED",
+        "action": "BLOCKED",
 
-        "status":
-            "QUARANTINED",
+        "status": "QUARANTINED",
 
-        "timestamp":
-            timestamp,
+        "timestamp": timestamp,
 
         "investigation_status":
             "READY FOR INVESTIGATION"
@@ -335,7 +322,7 @@ def add_threat_event(
 
 
 # ============================================================
-# UPDATE COUNTERS
+# UPDATE THREAT COUNTERS
 # ============================================================
 
 def update_threat_counters():
@@ -353,35 +340,28 @@ def update_threat_counters():
         ).upper()
 
         if severity == "CRITICAL":
-
             critical += 1
 
         elif severity == "HIGH":
-
             high += 1
 
         elif severity == "MEDIUM":
-
             medium += 1
 
         elif severity == "LOW":
-
             low += 1
 
     system_state["critical"] = critical
-
     system_state["high"] = high
-
     system_state["medium"] = medium
-
     system_state["low"] = low
 
-    system_state["threats"] = (
-        len(threat_events)
+    system_state["threats"] = len(
+        threat_events
     )
 
-    system_state["blocked"] = (
-        len(quarantine_files)
+    system_state["blocked"] = len(
+        quarantine_files
     )
 
 
@@ -390,79 +370,39 @@ def update_threat_counters():
 # ============================================================
 
 def process_usb_threat(
-    filename="invoice.exe",
-    risk_score=95,
-    severity="CRITICAL",
-    reason=None
+    filename="invoice.exe"
 ):
 
-    global demo_mode
-
     with state_lock:
-
-        # IMPORTANT:
-        # Keep dashboard in threat mode.
-        demo_mode = "cyber"
-
-        if risk_score >= 90:
-
-            severity = "CRITICAL"
-
-        elif risk_score >= 70:
-
-            severity = "HIGH"
-
-        else:
-
-            severity = "MEDIUM"
-
-        if not reason:
-
-            reason = (
-                "High-risk executable or script "
-                "detected on removable media"
-            )
 
         threat = add_threat_event(
 
             filename=filename,
 
-            threat_type=
-                "HIGH-RISK USB FILE",
+            threat_type="SUSPICIOUS EXECUTABLE",
 
-            risk_score=
-                risk_score,
+            risk_score=94,
 
-            severity=
-                severity,
+            severity="CRITICAL",
 
-            source=
-                "USB DRIVE",
+            source="USB DRIVE",
 
-            reason=
-                reason
+            reason=(
+                "Executable detected from removable media "
+                "with high-risk characteristics"
+            )
         )
 
-        # ----------------------------------------------------
-        # SECURITY STATE
-        # ----------------------------------------------------
+        system_state["risk"] = 96
 
-        system_state["risk"] = max(
-            90,
-            risk_score
-        )
-
-        system_state["ai_risk"] = max(
-            90,
-            risk_score
-        )
+        system_state["ai_risk"] = 94
 
         system_state["status"] = (
             "THREAT BLOCKED"
         )
 
         system_state["incident"] = (
-            f"{severity} USB THREAT BLOCKED: "
+            f"CRITICAL USB THREAT BLOCKED: "
             f"{filename}"
         )
 
@@ -492,7 +432,7 @@ def process_usb_threat(
 
 
 # ============================================================
-# LIVE DATA
+# NORMAL LIVE DATA
 # ============================================================
 
 def generate_live_data():
@@ -501,50 +441,9 @@ def generate_live_data():
 
     with state_lock:
 
-        # ----------------------------------------------------
-        # DO NOT RESET AN ACTIVE THREAT
-        # ----------------------------------------------------
-
-        if len(threat_events) > 0:
-
-            latest = threat_events[0]
-
-            system_state["risk"] = max(
-                system_state["risk"],
-                latest["risk_score"]
-            )
-
-            system_state["ai_risk"] = max(
-                system_state["ai_risk"],
-                latest["risk_score"]
-            )
-
-            system_state["status"] = (
-                "THREAT BLOCKED"
-            )
-
-            system_state["incident"] = (
-                f'{latest["severity"]} USB THREAT BLOCKED: '
-                f'{latest["filename"]}'
-            )
-
-            system_state["endpoint"] = (
-                "THREAT BLOCKED"
-            )
-
-            system_state["usb_activity"] = (
-                "THREAT BLOCKED"
-            )
-
-            update_threat_counters()
-
-            update_timestamp()
-
-            return
-
-        # ----------------------------------------------------
+        # ====================================================
         # NORMAL
-        # ----------------------------------------------------
+        # ====================================================
 
         if demo_mode == "normal":
 
@@ -556,14 +455,6 @@ def generate_live_data():
             system_state["ai_risk"] = random.randint(
                 8,
                 25
-            )
-
-            system_state["status"] = (
-                "PROTECTED"
-            )
-
-            system_state["incident"] = (
-                "No active security incident"
             )
 
             system_state["endpoint"] = (
@@ -614,24 +505,32 @@ def generate_live_data():
                 1550
             )
 
+            system_state["status"] = (
+                "PROTECTED"
+            )
+
+            system_state["incident"] = (
+                "No active security incident"
+            )
+
             system_state["usb_activity"] = (
                 "NO USB EVENT"
             )
 
-        # ----------------------------------------------------
-        # CYBER
-        # ----------------------------------------------------
+        # ====================================================
+        # CYBER TEST
+        # ====================================================
 
         elif demo_mode == "cyber":
 
             system_state["risk"] = random.randint(
-                80,
-                96
+                75,
+                95
             )
 
             system_state["ai_risk"] = random.randint(
-                82,
-                98
+                78,
+                97
             )
 
             system_state["endpoint"] = (
@@ -665,9 +564,9 @@ def generate_live_data():
                 95
             )
 
-        # ----------------------------------------------------
-        # MACHINE
-        # ----------------------------------------------------
+        # ====================================================
+        # MACHINE TEST
+        # ====================================================
 
         elif demo_mode == "machine":
 
@@ -691,8 +590,8 @@ def generate_live_data():
 
             system_state["machine_vibration"] = round(
                 random.uniform(
-                    4,
-                    7
+                    4.0,
+                    7.0
                 ),
                 1
             )
@@ -700,6 +599,14 @@ def generate_live_data():
             system_state["machine_rpm"] = random.randint(
                 1050,
                 1250
+            )
+
+            system_state["endpoint"] = (
+                "SECURE"
+            )
+
+            system_state["network"] = (
+                "MONITORING"
             )
 
             system_state["iot_ot"] = (
@@ -754,9 +661,11 @@ def api_status():
 
     with state_lock:
 
-        return jsonify(
-            dict(system_state)
+        data = dict(
+            system_state
         )
+
+    return jsonify(data)
 
 
 # ============================================================
@@ -768,9 +677,11 @@ def usb_status():
 
     with state_lock:
 
-        return jsonify(
-            dict(usb_state)
+        data = dict(
+            usb_state
         )
+
+    return jsonify(data)
 
 
 # ============================================================
@@ -787,24 +698,200 @@ def usb_event():
         silent=True
     ) or {}
 
-    connected = bool(
-        data.get(
-            "connected",
-            False
+    # ========================================================
+    # NEW USB FORMAT
+    # ========================================================
+
+    if "connected" in data:
+
+        connected = bool(
+            data.get(
+                "connected",
+                False
+            )
         )
+
+        status = data.get(
+            "status",
+            "UNKNOWN"
+        )
+
+        device = data.get(
+            "device"
+        )
+
+        scan = data.get(
+            "scan"
+        )
+
+        timestamp = data.get(
+            "timestamp",
+            datetime.now().isoformat()
+        )
+
+        with state_lock:
+
+            usb_state["connected"] = (
+                connected
+            )
+
+            usb_state["status"] = (
+                status
+            )
+
+            usb_state["device"] = (
+                device
+            )
+
+            usb_state["scan"] = (
+                scan
+            )
+
+            usb_state["last_update"] = (
+                timestamp
+            )
+
+            system_state[
+                "usb_connected"
+            ] = connected
+
+            if device:
+
+                system_state[
+                    "usb_drive"
+                ] = device.get(
+                    "drive",
+                    ""
+                )
+
+            system_state[
+                "usb_time"
+            ] = timestamp
+
+            if connected:
+
+                system_state[
+                    "usb_event"
+                ] = (
+                    "USB DEVICE DETECTED"
+                )
+
+                system_state[
+                    "usb_activity"
+                ] = (
+                    "USB DEVICE CONNECTED"
+                )
+
+                # --------------------------------------------
+                # SUSPICIOUS FILE DETECTION
+                # --------------------------------------------
+
+                suspicious_count = 0
+
+                if scan:
+
+                    suspicious_count = int(
+                        scan.get(
+                            "suspicious_count",
+                            0
+                        )
+                    )
+
+                if suspicious_count > 0:
+
+                    filename = (
+                        scan.get(
+                            "filename",
+                            "invoice.exe"
+                        )
+                        if scan
+                        else
+                        "invoice.exe"
+                    )
+
+                    process_usb_threat(
+                        filename
+                    )
+
+                else:
+
+                    system_state[
+                        "risk"
+                    ] = max(
+                        system_state["risk"],
+                        25
+                    )
+
+                    system_state[
+                        "incident"
+                    ] = (
+                        "USB device detected"
+                    )
+
+            else:
+
+                system_state[
+                    "usb_drive"
+                ] = ""
+
+                system_state[
+                    "usb_event"
+                ] = (
+                    "USB DEVICE REMOVED"
+                )
+
+                system_state[
+                    "usb_activity"
+                ] = (
+                    "USB DEVICE REMOVED"
+                )
+
+                system_state[
+                    "incident"
+                ] = (
+                    "USB device removed"
+                )
+
+            system_state[
+                "events"
+            ] += 1
+
+            update_timestamp()
+
+            response_data = dict(
+                system_state
+            )
+
+            usb_response = dict(
+                usb_state
+            )
+
+        return jsonify({
+
+            "success": True,
+
+            "message":
+                "USB scan event received",
+
+            "data":
+                response_data,
+
+            "usb":
+                usb_response
+        })
+
+    # ========================================================
+    # OLD USB FORMAT
+    # ========================================================
+
+    event = data.get(
+        "event",
+        "unknown"
     )
 
-    status = data.get(
-        "status",
-        "UNKNOWN"
-    )
-
-    device = data.get(
-        "device"
-    )
-
-    scan = data.get(
-        "scan"
+    drive = data.get(
+        "drive",
+        "Unknown USB"
     )
 
     timestamp = data.get(
@@ -814,190 +901,173 @@ def usb_event():
 
     with state_lock:
 
-        usb_state["connected"] = (
-            connected
-        )
+        if event == "connected":
 
-        usb_state["status"] = (
-            status
-        )
+            usb_state[
+                "connected"
+            ] = True
 
-        usb_state["device"] = (
-            device
-        )
+            usb_state[
+                "status"
+            ] = "CONNECTED"
 
-        usb_state["scan"] = (
-            scan
-        )
+            usb_state[
+                "device"
+            ] = {
 
-        usb_state["last_update"] = (
-            timestamp
-        )
+                "drive":
+                    drive,
 
-        system_state["usb_connected"] = (
-            connected
-        )
+                "label":
+                    "USB DEVICE"
+            }
 
-        system_state["usb_time"] = (
-            timestamp
-        )
+            usb_state[
+                "scan"
+            ] = None
 
-        if device:
+            usb_state[
+                "last_update"
+            ] = timestamp
 
-            system_state["usb_drive"] = (
-                device.get(
-                    "drive",
-                    ""
-                )
-            )
+            system_state[
+                "usb_connected"
+            ] = True
+            system_state[
+                "usb_drive"
+            ] = drive
 
-        # ====================================================
-        # USB CONNECTED
-        # ====================================================
-
-        if connected:
-
-            system_state["usb_event"] = (
+            system_state[
+                "usb_event"
+            ] = (
                 "USB DEVICE DETECTED"
             )
 
-            system_state["usb_activity"] = (
+            system_state[
+                "usb_activity"
+            ] = (
                 "USB DEVICE CONNECTED"
             )
 
-            suspicious_count = 0
+            system_state[
+                "incident"
+            ] = (
+                f"USB device detected on {drive}"
+            )
 
-            if scan:
+            system_state[
+                "risk"
+            ] = max(
+                system_state["risk"],
+                32
+            )
 
-                try:
+            system_state[
+                "ai_risk"
+            ] = max(
+                system_state["ai_risk"],
+                28
+            )
 
-                    suspicious_count = int(
-                        scan.get(
-                            "suspicious_count",
-                            0
-                        )
-                    )
+        elif event == "removed":
 
-                except Exception:
+            usb_state[
+                "connected"
+            ] = False
 
-                    suspicious_count = 0
+            usb_state[
+                "status"
+            ] = "REMOVED"
 
-            # =================================================
-            # THREAT FOUND
-            # =================================================
+            usb_state[
+                "device"
+            ] = None
 
-            if suspicious_count > 0:
+            usb_state[
+                "scan"
+            ] = None
 
-                filename = (
-                    scan.get(
-                        "filename",
-                        "HIGH_RISK_FILE"
-                    )
-                )
+            usb_state[
+                "last_update"
+            ] = timestamp
 
-                risk_score = int(
-                    scan.get(
-                        "risk_score",
-                        95
-                    )
-                )
+            system_state[
+                "usb_connected"
+            ] = False
 
-                severity = (
-                    scan.get(
-                        "severity",
-                        "CRITICAL"
-                    )
-                )
+            system_state[
+                "usb_drive"
+            ] = ""
 
-                reason = (
-                    scan.get(
-                        "reason",
-                        "High-risk file detected on USB"
-                    )
-                )
+            system_state[
+                "usb_event"
+            ] = (
+                "USB DEVICE REMOVED"
+            )
 
-                # ------------------------------------------------
-                # PROCESS REAL USB THREAT
-                # ------------------------------------------------
+            system_state[
+                "usb_activity"
+            ] = (
+                "USB DEVICE REMOVED"
+            )
 
-                process_usb_threat(
-
-                    filename=
-                        filename,
-
-                    risk_score=
-                        risk_score,
-
-                    severity=
-                        severity,
-
-                    reason=
-                        reason
-                )
-
-            else:
-
-                # Safe USB
-                system_state["risk"] = max(
-                    system_state["risk"],
-                    25
-                )
-
-                system_state["incident"] = (
-                    "USB device scanned - no high-risk file detected"
-                )
-
-        # ====================================================
-        # USB REMOVED
-        # ====================================================
+            system_state[
+                "incident"
+            ] = (
+                "USB device removed"
+            )
 
         else:
 
-            system_state["usb_connected"] = (
-                False
+            system_state[
+                "usb_event"
+            ] = (
+                "UNKNOWN USB EVENT"
             )
 
-            system_state["usb_drive"] = (
-                ""
+            system_state[
+                "usb_activity"
+            ] = (
+                "UNKNOWN USB EVENT"
             )
 
-            system_state["usb_event"] = (
-                "USB DEVICE REMOVED"
+            usb_state[
+                "status"
+            ] = (
+                "UNKNOWN EVENT"
             )
 
-            system_state["usb_activity"] = (
-                "USB DEVICE REMOVED"
-            )
+        system_state[
+            "usb_time"
+        ] = timestamp
 
-            # Do NOT delete investigation records.
-            # Evidence remains available.
-
-            if not threat_events:
-
-                system_state["incident"] = (
-                    "USB device removed"
-                )
-
-        system_state["events"] += 1
-
-        update_threat_counters()
+        system_state[
+            "events"
+        ] += 1
 
         update_timestamp()
 
-        return jsonify({
+        response_data = dict(
+            system_state
+        )
 
-            "success":
-                True,
+        usb_response = dict(
+            usb_state
+        )
 
-            "message":
-                "USB event received by IronMind AI",
+    return jsonify({
 
-            "data":
-                dict(system_state),
+        "success": True,
 
-            "usb":
-                dict(usb_state)
-        })
+        "message":
+            "USB event received by IronMind AI",
+
+        "data":
+            response_data,
+
+        "usb":
+            usb_response
+    })
 
 
 # ============================================================
@@ -1010,30 +1080,23 @@ def usb_event():
 )
 def usb_threat_test():
 
+    global demo_mode
+
+    demo_mode = "cyber"
+
     threat = process_usb_threat(
-
-        filename=
-            "invoice.exe",
-
-        risk_score=
-            95,
-
-        severity=
-            "CRITICAL",
-
-        reason=
-            "Executable test file detected on removable media"
+        "invoice.exe"
     )
 
     with state_lock:
+
         data = dict(
             system_state
         )
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "CRITICAL USB FILE BLOCKED AND QUARANTINED",
@@ -1047,7 +1110,7 @@ def usb_threat_test():
 
 
 # ============================================================
-# THREATS
+# GET THREAT EVENTS
 # ============================================================
 
 @app.route("/api/threats")
@@ -1057,8 +1120,7 @@ def get_threats():
 
         return jsonify({
 
-            "success":
-                True,
+            "success": True,
 
             "count":
                 len(threat_events),
@@ -1069,7 +1131,7 @@ def get_threats():
 
 
 # ============================================================
-# QUARANTINE
+# GET QUARANTINE
 # ============================================================
 
 @app.route("/api/quarantine")
@@ -1079,8 +1141,7 @@ def get_quarantine():
 
         return jsonify({
 
-            "success":
-                True,
+            "success": True,
 
             "count":
                 len(quarantine_files),
@@ -1091,7 +1152,7 @@ def get_quarantine():
 
 
 # ============================================================
-# INVESTIGATIONS
+# GET INVESTIGATION RECORDS
 # ============================================================
 
 @app.route("/api/investigations")
@@ -1101,8 +1162,7 @@ def get_investigations():
 
         return jsonify({
 
-            "success":
-                True,
+            "success": True,
 
             "count":
                 len(investigation_records),
@@ -1130,7 +1190,13 @@ def cyber_test():
 
     with state_lock:
 
-        system_state["events"] += 1
+        system_state[
+            "blocked"
+        ] += 1
+
+        system_state[
+            "events"
+        ] += 1
 
         data = dict(
             system_state
@@ -1138,8 +1204,7 @@ def cyber_test():
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "Cybersecurity test executed",
@@ -1170,7 +1235,9 @@ def machine_test():
 
     with state_lock:
 
-        system_state["events"] += 1
+        system_state[
+            "events"
+        ] += 1
 
         data = dict(
             system_state
@@ -1178,8 +1245,7 @@ def machine_test():
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "Machine anomaly test executed",
@@ -1239,31 +1305,41 @@ def network_test():
             network_event
         )
 
-        system_state["network"] = (
+        system_state[
+            "network"
+        ] = (
             "THREAT BLOCKED"
             if risk >= 70
             else "ANALYZING"
         )
 
-        system_state["network_traffic"] = (
-            risk
-        )
+        system_state[
+            "network_traffic"
+        ] = risk
 
-        system_state["events"] += 1
+        system_state[
+            "events"
+        ] += 1
 
         if risk >= 70:
 
-            system_state["risk"] = max(
+            system_state[
+                "risk"
+            ] = max(
                 system_state["risk"],
                 risk
             )
 
-            system_state["ai_risk"] = max(
+            system_state[
+                "ai_risk"
+            ] = max(
                 system_state["ai_risk"],
                 risk
             )
 
-            system_state["incident"] = (
+            system_state[
+                "incident"
+            ] = (
                 "Suspicious network traffic blocked"
             )
 
@@ -1275,8 +1351,7 @@ def network_test():
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "Network security analysis executed",
@@ -1339,37 +1414,51 @@ def endpoint_test():
             endpoint_event
         )
 
-        system_state["endpoint"] = (
+        system_state[
+            "endpoint"
+        ] = (
             "THREAT BLOCKED"
             if risk >= 70
             else "THREAT DETECTED"
         )
 
-        system_state["cpu"] = random.randint(
+        system_state[
+            "cpu"
+        ] = random.randint(
             55,
             90
         )
 
-        system_state["memory"] = random.randint(
+        system_state[
+            "memory"
+        ] = random.randint(
             55,
             90
         )
 
-        system_state["events"] += 1
+        system_state[
+            "events"
+        ] += 1
 
         if risk >= 70:
 
-            system_state["risk"] = max(
+            system_state[
+                "risk"
+            ] = max(
                 system_state["risk"],
                 risk
             )
 
-            system_state["ai_risk"] = max(
+            system_state[
+                "ai_risk"
+            ] = max(
                 system_state["ai_risk"],
                 risk
             )
 
-            system_state["incident"] = (
+            system_state[
+                "incident"
+            ] = (
                 "Suspicious endpoint behavior blocked"
             )
 
@@ -1381,8 +1470,7 @@ def endpoint_test():
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "Endpoint security analysis executed",
@@ -1414,60 +1502,82 @@ def reset_system():
 
     with state_lock:
 
-        system_state["risk"] = 18
+        system_state[
+            "risk"
+        ] = 18
 
-        system_state["ai_risk"] = 16
+        system_state[
+            "ai_risk"
+        ] = 16
 
-        system_state["status"] = (
-            "PROTECTED"
-        )
+        system_state[
+            "status"
+        ] = "PROTECTED"
 
-        system_state["incident"] = (
+        system_state[
+            "incident"
+        ] = (
             "No active security incident"
         )
 
-        system_state["endpoint"] = (
-            "SECURE"
-        )
+        system_state[
+            "endpoint"
+        ] = "SECURE"
 
-        system_state["network"] = (
-            "MONITORING"
-        )
+        system_state[
+            "network"
+        ] = "MONITORING"
 
-        system_state["iot_ot"] = (
-            "MONITORING"
-        )
+        system_state[
+            "iot_ot"
+        ] = "MONITORING"
 
-        system_state["cpu"] = 32
+        system_state[
+            "cpu"
+        ] = 32
 
-        system_state["memory"] = 46
+        system_state[
+            "memory"
+        ] = 46
 
-        system_state["network_traffic"] = 38
+        system_state[
+            "network_traffic"
+        ] = 38
 
-        system_state["machine_temperature"] = 42.5
+        system_state[
+            "machine_temperature"
+        ] = 42.5
 
-        system_state["machine_vibration"] = 1.2
+        system_state[
+            "machine_vibration"
+        ] = 1.2
 
-        system_state["machine_rpm"] = 1498
+        system_state[
+            "machine_rpm"
+        ] = 1498
 
-        system_state["usb_activity"] = (
-            "NO USB EVENT"
-        )
+        system_state[
+            "usb_activity"
+        ] = "NO USB EVENT"
 
-        system_state["usb_event"] = (
-            "NO USB EVENT"
-        )
+        system_state[
+            "usb_event"
+        ] = "NO USB EVENT"
 
-        system_state["usb_connected"] = (
-            False
-        )
+        system_state[
+            "usb_connected"
+        ] = False
 
-        system_state["usb_drive"] = ""
+        system_state[
+            "usb_drive"
+        ] = ""
 
-        system_state["usb_time"] = ""
+        system_state[
+            "usb_time"
+        ] = ""
 
         # ----------------------------------------------------
-        # Clear demo data
+        # Clear active demo records
         # ----------------------------------------------------
 
         threat_events.clear()
@@ -1480,21 +1590,31 @@ def reset_system():
 
         endpoint_events.clear()
 
-        usb_state["connected"] = False
+        usb_state[
+            "connected"
+        ] = False
 
-        usb_state["status"] = (
-            "WAITING"
-        )
+        usb_state[
+            "status"
+        ] = "WAITING"
 
-        usb_state["device"] = None
+        usb_state[
+            "device"
+        ] = None
 
-        usb_state["scan"] = None
+        usb_state[
+            "scan"
+        ] = None
 
-        usb_state["last_update"] = None
-
-        system_state["events"] = 0
+        usb_state[
+            "last_update"
+        ] = None
 
         update_threat_counters()
+
+        system_state[
+            "events"
+        ] = 0
 
         update_timestamp()
 
@@ -1504,8 +1624,7 @@ def reset_system():
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "IronMind AI system reset",
@@ -1519,7 +1638,7 @@ def reset_system():
 
 
 # ============================================================
-# HEALTH
+# HEALTH CHECK
 # ============================================================
 
 @app.route("/health")
