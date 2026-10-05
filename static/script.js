@@ -1,20 +1,26 @@
 /* =========================================================
    IRONMIND AI
+   AUTONOMOUS CYBER DEFENSE
    LIVE SOC DASHBOARD
 ========================================================= */
 
 
 /* =========================================================
-   GLOBAL CHART DATA
+   GLOBAL DATA
 ========================================================= */
 
 let chartValues = [
     25, 35, 30, 45, 40, 55, 48, 65
 ];
 
+let threatTimer = null;
+let endpointTimer = null;
+let networkTimer = null;
+let cloudTimer = null;
+
 
 /* =========================================================
-   SET TEXT SAFELY
+   SAFE TEXT UPDATE
 ========================================================= */
 
 function setText(id, value) {
@@ -25,7 +31,6 @@ function setText(id, value) {
     if (element) {
         element.textContent = value;
     }
-
 }
 
 
@@ -65,17 +70,20 @@ async function getStatus() {
             "Live status error:",
             error
         );
-
     }
-
 }
 
 
 /* =========================================================
-   UPDATE ALL DASHBOARD VALUES
+   UPDATE DASHBOARD
 ========================================================= */
 
 function updateDashboard(data) {
+
+    if (!data) {
+        return;
+    }
+
 
     /* -----------------------------------------------------
        MAIN METRICS
@@ -145,9 +153,7 @@ function updateDashboard(data) {
 
             riskLabel.textContent =
                 "LOW RISK";
-
         }
-
     }
 
 
@@ -180,20 +186,29 @@ function updateDashboard(data) {
        SYSTEM COUNTS
     ----------------------------------------------------- */
 
-    setText(
-        "endpoints",
-        data.endpoints.toLocaleString()
-    );
+    if (typeof data.endpoints === "number") {
 
-    setText(
-        "cloud",
-        data.cloud.toLocaleString()
-    );
+        setText(
+            "endpoints",
+            data.endpoints.toLocaleString()
+        );
+    }
 
-    setText(
-        "networkDevices",
-        data.network_devices.toLocaleString()
-    );
+    if (typeof data.cloud === "number") {
+
+        setText(
+            "cloud",
+            data.cloud.toLocaleString()
+        );
+    }
+
+    if (typeof data.network_devices === "number") {
+
+        setText(
+            "networkDevices",
+            data.network_devices.toLocaleString()
+        );
+    }
 
 
     /* -----------------------------------------------------
@@ -210,7 +225,6 @@ function updateDashboard(data) {
         data.ai_processing + "%"
     );
 
-
     const aiProgress =
         document.getElementById(
             "aiProgress"
@@ -220,11 +234,8 @@ function updateDashboard(data) {
 
         aiProgress.style.width =
             data.ai_processing + "%";
-
     }
-
-
-    /* -----------------------------------------------------
+   /* -----------------------------------------------------
        INCIDENT
     ----------------------------------------------------- */
 
@@ -283,10 +294,13 @@ function updateDashboard(data) {
        ENDPOINT MODULE
     ----------------------------------------------------- */
 
-    setText(
-        "endpointModuleValue",
-        data.endpoints.toLocaleString()
-    );
+    if (typeof data.endpoints === "number") {
+
+        setText(
+            "endpointModuleValue",
+            data.endpoints.toLocaleString()
+        );
+    }
 
     setText(
         "endpointThreats",
@@ -313,10 +327,13 @@ function updateDashboard(data) {
        CLOUD
     ----------------------------------------------------- */
 
-    setText(
-        "cloudModuleValue",
-        data.cloud.toLocaleString()
-    );
+    if (typeof data.cloud === "number") {
+
+        setText(
+            "cloudModuleValue",
+            data.cloud.toLocaleString()
+        );
+    }
 
     setText(
         "cloudRisk",
@@ -328,10 +345,13 @@ function updateDashboard(data) {
        NETWORK
     ----------------------------------------------------- */
 
-    setText(
-        "networkModuleValue",
-        data.network_devices.toLocaleString()
-    );
+    if (typeof data.network_devices === "number") {
+
+        setText(
+            "networkModuleValue",
+            data.network_devices.toLocaleString()
+        );
+    }
 
     setText(
         "networkThreats",
@@ -375,7 +395,7 @@ function updateDashboard(data) {
 
 
     /* -----------------------------------------------------
-       AI MODULE
+       AI
     ----------------------------------------------------- */
 
     setText(
@@ -408,30 +428,35 @@ function updateDashboard(data) {
        CHART
     ----------------------------------------------------- */
 
-    updateChart(data.risk);
+    updateChart(
+        data.risk
+    );
 
 
     /* -----------------------------------------------------
        ATTACK VECTORS
     ----------------------------------------------------- */
 
-    updateAttackVectors(data.risk);
-
+    updateAttackVectors(
+        data.risk
+    );
 }
 
 
 /* =========================================================
-   DYNAMIC THREAT CHART
+   THREAT CHART
 ========================================================= */
 
 function updateChart(risk) {
 
-    chartValues.push(risk);
+    chartValues.push(
+        risk
+    );
 
     if (chartValues.length > 8) {
+
         chartValues.shift();
     }
-
 
     const points = [];
 
@@ -440,8 +465,10 @@ function updateChart(risk) {
 
     const step =
         width /
-        (chartValues.length - 1);
-
+        Math.max(
+            chartValues.length - 1,
+            1
+        );
 
     chartValues.forEach(
         function(value, index) {
@@ -457,10 +484,8 @@ function updateChart(risk) {
             points.push(
                 x + "," + y
             );
-
         }
     );
-
 
     const chart =
         document.getElementById(
@@ -473,17 +498,17 @@ function updateChart(risk) {
             "points",
             points.join(" ")
         );
-
     }
-
 }
 
 
 /* =========================================================
-   DYNAMIC ATTACK VECTORS
+   ATTACK VECTORS
 ========================================================= */
 
-function updateAttackVectors(risk) {
+function updateAttackVectors(
+    risk
+) {
 
     const malware =
         Math.min(
@@ -509,7 +534,6 @@ function updateAttackVectors(risk) {
             20 + risk / 2
         );
 
-
     updateBar(
         "malwareBar",
         "malwareValue",
@@ -533,7 +557,6 @@ function updateAttackVectors(risk) {
         "unauthorizedValue",
         unauthorized
     );
-
 }
 
 
@@ -553,22 +576,17 @@ function updateBar(
             valueId
         );
 
-
     if (bar) {
 
         bar.style.width =
             value + "%";
-
     }
-
 
     if (text) {
 
         text.textContent =
             value.toFixed(1) + "%";
-
     }
-
 }
 
 
@@ -582,7 +600,6 @@ function setupNavigation() {
         document.querySelectorAll(
             ".nav-item"
         );
-
 
     navItems.forEach(
         function(button) {
@@ -600,14 +617,13 @@ function setupNavigation() {
                         return;
                     }
 
-                    showPage(page);
-
+                    showPage(
+                        page
+                    );
                 }
             );
-
         }
     );
-
 }
 
 
@@ -615,17 +631,14 @@ function setupNavigation() {
    SHOW PAGE
 ========================================================= */
 
-function showPage(pageName) {
-
-    /* -----------------------------------------------------
-       HIDE ALL PAGES
-    ----------------------------------------------------- */
+function showPage(
+    pageName
+) {
 
     const pages =
         document.querySelectorAll(
             ".page"
         );
-
 
     pages.forEach(
         function(page) {
@@ -633,39 +646,25 @@ function showPage(pageName) {
             page.classList.remove(
                 "active-page"
             );
-
         }
     );
-
-
-    /* -----------------------------------------------------
-       SHOW SELECTED PAGE
-    ----------------------------------------------------- */
 
     const selected =
         document.getElementById(
             pageName
         );
 
-
     if (selected) {
 
         selected.classList.add(
             "active-page"
         );
-
     }
-
-
-    /* -----------------------------------------------------
-       UPDATE SIDEBAR
-    ----------------------------------------------------- */
 
     const navItems =
         document.querySelectorAll(
             ".nav-item"
         );
-
 
     navItems.forEach(
         function(button) {
@@ -673,33 +672,27 @@ function showPage(pageName) {
             button.classList.remove(
                 "active"
             );
-
         }
     );
-
 
     const activeButton =
         document.querySelector(
             '.nav-item[data-page="' +
             pageName +
             '"]'
-        );
-
+           );
 
     if (activeButton) {
 
         activeButton.classList.add(
             "active"
         );
-
     }
-
 
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     });
-
 }
 
 
@@ -719,20 +712,20 @@ async function runCyberTest() {
                 }
             );
 
-
-        const data =
+        const result =
             await response.json();
 
+        const data =
+            result.data ||
+            result.state;
 
         updateDashboard(
-            data.state
+            data
         );
-
 
         showPage(
             "threats"
         );
-
 
     }
 
@@ -742,9 +735,58 @@ async function runCyberTest() {
             "Cyber test error:",
             error
         );
+    }
+}
+
+
+/* =========================================================
+   USB THREAT TEST
+========================================================= */
+
+async function runUSBThreatTest() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/usb-threat-test",
+                {
+                    method: "POST",
+                    cache: "no-store"
+                }
+            );
+
+        const result =
+            await response.json();
+
+        const data =
+            result.data ||
+            result.state;
+
+        updateDashboard(
+            data
+        );
+
+        showPage(
+            "threats"
+        );
+
+        loadThreats();
+
+        showSecurityNotification(
+            "CRITICAL THREAT BLOCKED",
+            "invoice.exe was blocked and quarantined."
+        );
 
     }
 
+    catch (error) {
+
+        console.error(
+            "USB threat test error:",
+            error
+        );
+    }
 }
 
 
@@ -764,20 +806,20 @@ async function runMachineTest() {
                 }
             );
 
-
-        const data =
+        const result =
             await response.json();
 
+        const data =
+            result.data ||
+            result.state;
 
         updateDashboard(
-            data.state
+            data
         );
-
 
         showPage(
             "iot"
         );
-
 
     }
 
@@ -787,9 +829,95 @@ async function runMachineTest() {
             "Machine test error:",
             error
         );
+    }
+}
+
+
+/* =========================================================
+   ENDPOINT TEST
+========================================================= */
+
+async function runEndpointTest() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/endpoint-test",
+                {
+                    method: "POST",
+                    cache: "no-store"
+                }
+            );
+
+        const result =
+            await response.json();
+
+        const data =
+            result.data ||
+            result.state;
+
+        updateDashboard(
+            data
+        );
+
+        showPage(
+            "endpoints"
+        );
 
     }
 
+    catch (error) {
+
+        console.error(
+            "Endpoint test error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   NETWORK TEST
+========================================================= */
+
+async function runNetworkTest() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/network-test",
+                {
+                    method: "POST",
+                    cache: "no-store"
+                }
+            );
+
+        const result =
+            await response.json();
+
+        const data =
+            result.data ||
+            result.state;
+
+        updateDashboard(
+            data
+        );
+
+        showPage(
+            "network"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Network test error:",
+            error
+        );
+    }
 }
 
 
@@ -805,24 +933,25 @@ async function resetSystem() {
             await fetch(
                 "/api/reset",
                 {
+                    method: "POST",
                     cache: "no-store"
                 }
             );
 
-
-        const data =
+        const result =
             await response.json();
 
+        const data =
+            result.data ||
+            result.state;
 
         updateDashboard(
-            data.state
+            data
         );
-
 
         showPage(
             "dashboard"
         );
-
 
     }
 
@@ -832,9 +961,293 @@ async function resetSystem() {
             "Reset error:",
             error
         );
+    }
+}
+
+
+/* =========================================================
+   LOAD THREATS
+========================================================= */
+
+async function loadThreats() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/threats",
+                {
+                    cache: "no-store"
+                }
+            );
+
+        const result =
+            await response.json();
+
+        renderThreatRecords(
+            result.threats || []
+        );
 
     }
 
+    catch (error) {
+
+        console.error(
+            "Threat loading error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   RENDER THREAT RECORDS
+========================================================= */
+
+function renderThreatRecords(
+    threats
+) {
+
+    const container =
+        document.getElementById(
+            "investigationThreats"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    if (!threats.length) {
+
+        container.innerHTML = `
+            <div class="empty-security-state">
+                NO BLOCKED THREATS
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        threats.map(
+            function(threat) {
+
+                return `
+                    <div class="im-threat-record">
+
+                        <div class="threat-record-top">
+
+                            <span class="severity critical">
+                                ${threat.severity}
+                            </span>
+
+                            <strong>
+                                ${escapeHTML(
+                                    threat.filename
+                                )}
+                            </strong>
+
+                            <span class="blocked-badge">
+                                BLOCKED
+                            </span>
+
+                        </div>
+
+                        <div class="threat-record-grid">
+
+                            <div>
+                                <small>RISK SCORE</small>
+                                <b>
+                                    ${threat.risk_score}/100
+                                </b>
+                            </div>
+
+                            <div>
+                                <small>THREAT</small>
+                                <b>
+                                    ${escapeHTML(
+                                        threat.threat_type
+                                    )}
+                                </b>
+                            </div>
+
+                            <div>
+                                <small>SOURCE</small>
+                                <b>
+                                    ${escapeHTML(
+                                        threat.source
+                                    )}
+                                </b>
+                            </div>
+
+                            <div>
+                                <small>STATUS</small>
+                                <b>
+                                    QUARANTINED
+                                </b>
+                            </div>
+
+                        </div>
+
+                        <div class="threat-reason">
+
+                            <span>WHY BLOCKED:</span>
+
+                            ${escapeHTML(
+                                threat.reason
+                            )}
+
+                        </div>
+
+                        <div class="threat-hash">
+
+                            SHA-256:
+                            ${escapeHTML(
+                                threat.sha256
+                            )}
+
+                        </div>
+
+                        <div class="threat-time">
+
+                            ${escapeHTML(
+                                threat.timestamp
+                            )}
+
+                        </div>
+
+                    </div>
+                `;
+            }
+        )
+        .join("");
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(
+    value
+) {
+
+    if (value === null ||
+        value === undefined) {
+
+        return "";
+    }
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+/* =========================================================
+   SECURITY NOTIFICATION
+========================================================= */
+
+function showSecurityNotification(
+    title,
+    message
+) {
+
+    let notification =
+        document.getElementById(
+            "ironmindSecurityNotification"
+        );
+
+    if (!notification) {
+
+        notification =
+            document.createElement(
+                "div"
+            );
+
+        notification.id =
+            "ironmindSecurityNotification";
+
+        notification.style.position =
+            "fixed";
+
+        notification.style.right =
+            "25px";
+
+        notification.style.bottom =
+            "25px";
+
+        notification.style.zIndex =
+            "99999";
+
+        notification.style.padding =
+            "18px 22px";
+
+        notification.style.border =
+            "1px solid rgba(255,80,80,.4)";
+
+        notification.style.background =
+            "rgba(20,10,20,.96)";
+
+        notification.style.borderRadius =
+            "12px";
+       notification.style.boxShadow =
+            "0 15px 40px rgba(0,0,0,.4)";
+
+        document.body.appendChild(
+            notification
+        );
+    }
+
+    notification.innerHTML = `
+
+        <div style="
+            color:#ff5b62;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:1px;
+            margin-bottom:5px;
+        ">
+            ${escapeHTML(title)}
+        </div>
+
+        <div style="
+            color:#ffffff;
+            font-size:13px;
+        ">
+            ${escapeHTML(message)}
+        </div>
+    `;
+
+    setTimeout(
+        function() {
+
+            if (notification) {
+
+                notification.remove();
+            }
+
+        },
+        5000
+    );
 }
 
 
@@ -850,6 +1263,7 @@ document.addEventListener(
 
         getStatus();
 
+        loadThreats();
     }
 );
 
@@ -864,1115 +1278,2001 @@ setInterval(
 
         getStatus();
 
+        loadThreats();
+
     },
     10000
 );
+
+
 /* =========================================================
-   IRONMIND AI - SIDEBAR PAGE NAVIGATION FIX
-   Fixes: Threats, Endpoints, Cloud
-   Keeps existing Dashboard / Network / IoT / AI / Reports
-   ========================================================= */
+   PROFESSIONAL THREAT PAGE FIX
+========================================================= */
 
 (function () {
 
-    const originalMainHTML = {};
-
     function getMainContainer() {
+
         return document.querySelector(
             ".main-content, .content-area, .dashboard-content, main"
         );
     }
 
+
     function getSidebar() {
+
         return document.querySelector(
             ".sidebar, aside, .side-nav, .navigation"
         );
     }
 
-    function getPageTitle(name, subtitle) {
+
+    function getPageTitle(
+        name,
+        subtitle
+    ) {
+
         return `
+
             <div class="page-header">
+
                 <div>
-                    <div class="section-label">IRONMIND AI • SECURITY OPERATIONS</div>
-                    <h1>${name}</h1>
-                    <p>${subtitle}</p>
+
+                    <div class="section-label">
+                        IRONMIND AI • SECURITY OPERATIONS
+                    </div>
+
+                    <h1>
+                        ${name}
+                    </h1>
+
+                    <p>
+                        ${subtitle}
+                    </p>
+
                 </div>
 
                 <div class="live-indicator">
+
                     <span class="live-dot"></span>
+
                     LIVE MONITORING
+
                 </div>
+
             </div>
+
         `;
     }
 
-    function statCard(title, value, status, extraClass = "") {
+
+    function statCard(
+        title,
+        value,
+        status
+    ) {
+
         return `
-            <div class="im-stat-card ${extraClass}">
-                <div class="im-stat-title">${title}</div>
-                <div class="im-stat-value">${value}</div>
-                <div class="im-stat-status">${status}</div>
+
+            <div class="im-stat-card">
+
+                <div class="im-stat-title">
+                    ${title}
+                </div>
+
+                <div class="im-stat-value">
+                    ${value}
+                </div>
+
+                <div class="im-stat-status">
+                    ${status}
+                </div>
+
             </div>
+
         `;
     }
 
-    /* ---------------------------------------------------------
-       THREATS PAGE
-       --------------------------------------------------------- */
+
+    /* =====================================================
+       THREATS
+    ===================================================== */
 
     function showThreats() {
 
-        const main = getMainContainer();
-        if (!main) return;
+        const main =
+            getMainContainer();
+
+        if (!main) {
+            return;
+        }
 
         main.innerHTML = `
+
             ${getPageTitle(
                 "Threat Intelligence",
-                "Real-time detection, analysis and response"
+                "Detection, autonomous response and investigation"
             )}
 
             <div class="im-stat-grid">
 
                 ${statCard(
                     "ACTIVE THREATS",
-                    `<span id="threatActive">4</span>`,
-                    "MONITORED"
+                    `<span id="threatActive">0</span>`,
+                    "LIVE MONITORING"
                 )}
 
                 ${statCard(
                     "CRITICAL",
-                    `<span id="threatCritical">1</span>`,
+                    `<span id="threatCritical">0</span>`,
                     "IMMEDIATE ATTENTION"
                 )}
 
                 ${statCard(
                     "HIGH RISK",
-                    `<span id="threatHigh">2</span>`,
+                    `<span id="threatHigh">0</span>`,
                     "UNDER ANALYSIS"
                 )}
 
                 ${statCard(
                     "BLOCKED",
-                    `<span id="threatBlocked">17</span>`,
+                    `<span id="threatBlocked">0</span>`,
                     "PROTECTION ACTIVE"
                 )}
 
             </div>
 
+
             <div class="im-two-column">
+
 
                 <div class="im-panel">
 
                     <div class="im-panel-header">
+
                         <div>
-                            <div class="section-label">LIVE SECURITY EVENTS</div>
-                            <h2>Active Threats</h2>
+
+                            <div class="section-label">
+                                AUTONOMOUS RESPONSE
+                            </div>
+
+                            <h2>
+                                Threat Response
+                            </h2>
+
                         </div>
 
-                        <span class="live-badge">LIVE</span>
+                        <span class="live-badge">
+                            AI ACTIVE
+                        </span>
+
                     </div>
 
-                    <div class="threat-list">
 
-                        <div class="threat-row">
-                            <span class="severity critical">CRITICAL</span>
-                            <div>
-                                <strong>Ransomware Detection</strong>
-                                <small>Endpoint / LAPTOP-01</small>
-                            </div>
-                            <span class="threat-live">LIVE</span>
+                    <div class="response-flow">
+
+                        <div>
+
+                            <span>01</span>
+
+                            Threat Detected
+
                         </div>
 
-                        <div class="threat-row">
-                            <span class="severity high">HIGH</span>
-                            <div>
-                                <strong>Unauthorized Access</strong>
-                                <small>Network / Gateway</small>
-                            </div>
-                            <span class="threat-live">LIVE</span>
+                        <div class="flow-arrow">
+                            →
                         </div>
 
-                        <div class="threat-row">
-                            <span class="severity high">HIGH</span>
-                            <div>
-                                <strong>USB Data Transfer</strong>
-                                <small>Confidential data movement</small>
-                            </div>
-                            <span class="threat-live">LIVE</span>
+                        <div>
+
+                            <span>02</span>
+
+                            AI Analyzed
+
                         </div>
 
-                        <div class="threat-row">
-                            <span class="severity medium">MEDIUM</span>
-                            <div>
-                                <strong>Suspicious Login</strong>
-                                <small>Unknown device</small>
-                            </div>
-                            <span class="threat-live">MONITORED</span>
+                        <div class="flow-arrow">
+                            →
                         </div>
+
+                        <div>
+
+                            <span>03</span>
+
+                            Risk Scored
+
+                        </div>
+
+                        <div class="flow-arrow">
+                            →
+                        </div>
+
+                        <div>
+
+                            <span>04</span>
+
+                            Blocked
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="protection-status">
+
+                        <span class="live-dot"></span>
+
+                        AUTONOMOUS PROTECTION ACTIVE
 
                     </div>
 
                 </div>
+
 
                 <div class="im-panel">
 
-                    <div class="section-label">THREAT ANALYSIS</div>
-                    <h2>Top Attack Vectors</h2>
-
-                    <div class="attack-item">
-                        <span>Malware</span>
-                        <div class="attack-bar">
-                            <i style="width:88%"></i>
-                        </div>
-                        <b>88%</b>
+                    <div class="section-label">
+                        DEMONSTRATION
                     </div>
 
-                    <div class="attack-item">
-                        <span>Phishing</span>
-                        <div class="attack-bar">
-                            <i style="width:74%"></i>
-                        </div>
-                        <b>74%</b>
-                    </div>
+                    <h2>
+                        USB Threat Simulation
+                    </h2>
 
-                    <div class="attack-item">
-                        <span>Exploits</span>
-                        <div class="attack-bar">
-                            <i style="width:61%"></i>
-                        </div>
-                        <b>61%</b>
-                    </div>
+                    <p style="
+                        opacity:.6;
+                        font-size:12px;
+                        line-height:1.7;
+                    ">
 
-                    <div class="attack-item">
-                        <span>Unauthorized</span>
-                        <div class="attack-bar">
-                            <i style="width:53%"></i>
-                        </div>
-                        <b>53%</b>
-                    </div>
+                        Simulate a critical executable
+                        arriving through removable media.
+
+                    </p>
+
+
+                    <button
+                        onclick="runUSBThreatTest()"
+                        style="
+                            width:100%;
+                            padding:14px;
+                            border:0;
+                            border-radius:8px;
+                            background:#d83d48;
+                            color:white;
+                            font-weight:800;
+                            cursor:pointer;
+                            margin-top:12px;
+                        "
+                    >
+
+                        SIMULATE HIGH-RISK USB FILE
+
+                    </button>
 
                 </div>
 
             </div>
 
-            <div class="im-panel threat-response-panel">
 
-                <div class="section-label">AI RESPONSE ENGINE</div>
-                <h2>Automated Protection</h2>
+            <div class="im-panel">
 
-                <div class="response-flow">
+                <div class="im-panel-header">
 
                     <div>
-                        <span>01</span>
-                        Threat detected
+
+                        <div class="section-label">
+                            FORENSICS
+                        </div>
+
+                        <h2>
+                            Blocked Threat Investigation
+                        </h2>
+
                     </div>
 
-                    <div class="flow-arrow">→</div>
-
-                    <div>
-                        <span>02</span>
-                        AI analyzed
-                    </div>
-
-                    <div class="flow-arrow">→</div>
-
-                    <div>
-                        <span>03</span>
-                        Risk scored
-                    </div>
-
-                    <div class="flow-arrow">→</div>
-
-                    <div>
-                        <span>04</span>
-                        Threat blocked
-                    </div>
+                    <span class="live-badge">
+                        RETAINED
+                    </span>
 
                 </div>
 
-                <div class="protection-status">
-                    <span class="live-dot"></span>
-                    AI PROTECTION ACTIVE
+
+                <div id="investigationThreats">
+
+                    Loading investigation records...
+
                 </div>
 
             </div>
+
         `;
+
+        loadThreats();
 
         startThreatUpdates();
     }
 
 
-    /* ---------------------------------------------------------
-       ENDPOINTS PAGE
-       --------------------------------------------------------- */
+    /* =====================================================
+       ENDPOINTS
+    ===================================================== */
 
     function showEndpoints() {
 
-        const main = getMainContainer();
-        if (!main) return;
+        const main =
+            getMainContainer();
+
+        if (!main) {
+            return;
+        }
 
         main.innerHTML = `
+
             ${getPageTitle(
                 "Endpoint Security",
-                "Continuous monitoring of laptops, systems and connected endpoints"
+                "Continuous monitoring and autonomous endpoint protection"
             )}
+
 
             <div class="im-stat-grid">
 
                 ${statCard(
                     "ENDPOINTS",
-                    `<span id="endpointCount">7,849</span>`,
-                    "SECURE"
+                    `<span id="endpointCount">12</span>`,
+                    "MONITORED"
                 )}
 
                 ${statCard(
                     "PROTECTED",
-                    `<span id="endpointProtected">7,821</span>`,
-                    "ACTIVE DEFENSE"
+                    `<span id="endpointProtected">12</span>`,
+                    "AI DEFENSE ACTIVE"
                 )}
 
                 ${statCard(
                     "AT RISK",
-                    `<span id="endpointRisk">28</span>`,
+                    `<span id="endpointRisk">0</span>`,
                     "UNDER ANALYSIS"
                 )}
 
                 ${statCard(
-                    "ISOLATED",
-                    `<span id="endpointIsolated">6</span>`,
+                    "BLOCKED",
+                    `<span id="endpointIsolated">0</span>`,
                     "AUTOMATED RESPONSE"
                 )}
 
             </div>
 
+
             <div class="im-two-column">
+
 
                 <div class="im-panel">
 
-                    <div class="im-panel-header">
-
-                        <div>
-                            <div class="section-label">LOCAL ENDPOINT</div>
-                            <h2>Laptop Security Monitor</h2>
-                        </div>
-
-                        <span class="live-badge">PROTECTED</span>
-
+                    <div class="section-label">
+                        LOCAL ENDPOINT
                     </div>
+
+                    <h2>
+                        Laptop Security Monitor
+                    </h2>
+
 
                     <div class="endpoint-details">
 
                         <div class="endpoint-detail">
-                            <span>Device</span>
-                            <strong>${navigator.platform || "Windows Endpoint"}</strong>
+
+                            <span>
+                                Platform
+                            </span>
+
+                            <strong>
+                                ${navigator.platform ||
+                                "Windows Endpoint"}
+                            </strong>
+
                         </div>
 
-                        <div class="endpoint-detail">
-                            <span>Browser</span>
-                            <strong>${navigator.userAgent.includes("Chrome")
-                                ? "Chrome"
-                                : "Web Browser"}</strong>
-                        </div>
 
                         <div class="endpoint-detail">
-                            <span>Connection</span>
-                            <strong class="online-text">ONLINE</strong>
+
+                            <span>
+                                Connection
+                            </span>
+
+                            <strong class="online-text">
+                                ONLINE
+                            </strong>
+
                         </div>
 
+
                         <div class="endpoint-detail">
-                            <span>AI Protection</span>
-                            <strong class="online-text">ACTIVE</strong>
+
+                            <span>
+                                AI Protection
+                            </span>
+
+                            <strong class="online-text">
+                                ACTIVE
+                            </strong>
+
+                        </div>
+
+
+                        <div class="endpoint-detail">
+
+                            <span>
+                                USB Protection
+                            </span>
+
+                            <strong class="online-text">
+                                ACTIVE
+                            </strong>
+
                         </div>
 
                     </div>
 
                 </div>
+
 
                 <div class="im-panel">
 
-                    <div class="section-label">REAL-TIME TELEMETRY</div>
-                    <h2>Endpoint Health</h2>
+                    <div class="section-label">
+                        REAL-TIME TELEMETRY
+                    </div>
+
+                    <h2>
+                        Endpoint Health
+                    </h2>
+
 
                     <div class="metric-line">
-                        <span>CPU Load</span>
-                        <b id="endpointCPU">42%</b>
+
+                        <span>
+                            CPU Load
+                        </span>
+
+                        <b id="endpointCPU">
+                            32%
+                        </b>
+
                     </div>
 
                     <div class="metric-track">
-                        <i id="cpuBar" style="width:42%"></i>
+
+                        <i
+                            id="cpuBar"
+                            style="width:32%"
+                        ></i>
+
                     </div>
 
+
                     <div class="metric-line">
-                        <span>Memory</span>
-                        <b id="endpointMemory">58%</b>
+
+                        <span>
+                            Memory
+                        </span>
+
+                        <b id="endpointMemory">
+                            46%
+                        </b>
+
                     </div>
 
                     <div class="metric-track">
-                        <i id="memoryBar" style="width:58%"></i>
+
+                        <i
+                            id="memoryBar"
+                            style="width:46%"
+                        ></i>
+
                     </div>
 
+
                     <div class="metric-line">
-                        <span>Security Score</span>
-                        <b id="endpointScore">94%</b>
+
+                        <span>
+                            AI Security Score
+                        </span>
+
+                        <b id="endpointScore">
+                            96%
+                        </b>
+
                     </div>
 
                     <div class="metric-track">
-                        <i id="scoreBar" style="width:94%"></i>
+
+                        <i
+                            id="scoreBar"
+                            style="width:96%"
+                        ></i>
+
                     </div>
 
                 </div>
 
             </div>
+
 
             <div class="im-panel">
 
-                <div class="section-label">ENDPOINT SECURITY EVENTS</div>
-                <h2>Recent Activity</h2>
-
-                <div class="endpoint-event">
-                    <span class="event-icon">✓</span>
-                    <div>
-                        <strong>System integrity verified</strong>
-                        <small>Just now</small>
-                    </div>
-                    <b class="secure-text">SECURE</b>
+                <div class="section-label">
+                    ENDPOINT SECURITY
                 </div>
 
-                <div class="endpoint-event">
-                    <span class="event-icon">✓</span>
+                <h2>
+                    Protection Pipeline
+                </h2>
+
+
+                <div class="response-flow">
+
                     <div>
-                        <strong>Suspicious process scan completed</strong>
-                        <small>2 minutes ago</small>
+
+                        <span>01</span>
+
+                        Monitor
+
                     </div>
-                    <b class="secure-text">CLEAR</b>
+
+                    <div class="flow-arrow">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>02</span>
+
+                        Detect
+
+                    </div>
+
+                    <div class="flow-arrow">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>03</span>
+
+                        Analyze
+
+                    </div>
+
+                    <div class="flow-arrow">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>04</span>
+
+                        Respond
+
+                    </div>
+
                 </div>
 
-                <div class="endpoint-event">
-                    <span class="event-icon">✓</span>
-                    <div>
-                        <strong>AI endpoint protection active</strong>
-                        <small>Continuous monitoring</small>
-                    </div>
-                    <b class="secure-text">ACTIVE</b>
-                </div>
+
+                <button
+                    onclick="runEndpointTest()"
+                    style="
+                        padding:12px 18px;
+                        border:1px solid rgba(80,150,255,.3);
+                        border-radius:8px;
+                        background:rgba(40,100,255,.1);
+                        color:white;
+                        cursor:pointer;
+                    "
+                >
+
+                    RUN ENDPOINT SECURITY TEST
+
+                </button>
 
             </div>
+
         `;
 
         startEndpointUpdates();
     }
 
 
-    /* ---------------------------------------------------------
-       CLOUD PAGE
-       --------------------------------------------------------- */
+    /* =====================================================
+       NETWORK
+    ===================================================== */
 
-    function showCloud() {
+    function showNetwork() {
 
-        const main = getMainContainer();
-        if (!main) return;
+        const main =
+            getMainContainer();
+
+        if (!main) {
+            return;
+        }
 
         main.innerHTML = `
+
             ${getPageTitle(
-                "Cloud Security",
-                "AI-powered monitoring of cloud infrastructure and services"
+                "Network Security",
+                "Continuous traffic analysis and autonomous network response"
             )}
+
 
             <div class="im-stat-grid">
 
                 ${statCard(
+                    "NETWORK DEVICES",
+                    `<span id="networkDeviceCount">18</span>`,
+                    "MONITORED"
+                )}
+
+                ${statCard(
+                    "TRAFFIC",
+                    `<span id="networkTrafficPage">38%</span>`,
+                    "ANALYZING"
+                )}
+
+                ${statCard(
+                    "THREATS",
+                    `<span id="networkThreatPage">0</span>`,
+                    "DETECTED"
+                )}
+
+                ${statCard(
+                    "AI ANALYSIS",
+                    `<span id="networkAIPage">72%</span>`,
+                    "ACTIVE"
+                )}
+
+            </div>
+
+
+            <div class="im-two-column">
+
+
+                <div class="im-panel">
+
+                    <div class="section-label">
+                        NETWORK TELEMETRY
+                    </div>
+
+                    <h2>
+                        Live Traffic Analysis
+                    </h2>
+
+
+                    <div class="metric-line">
+
+                        <span>
+                            Network Traffic
+                        </span>
+
+                        <b id="networkTrafficMeter">
+                            38%
+                        </b>
+
+                    </div>
+
+                    <div class="metric-track">
+
+                        <i
+                            id="networkTrafficBar"
+                            style="width:38%"
+                        ></i>
+
+                    </div>
+
+
+                    <div class="metric-line">
+
+                        <span>
+                            AI Analysis
+                        </span>
+
+                        <b id="networkAI">
+                            72%
+                        </b>
+
+                    </div>
+
+                    <div class="metric-track">
+
+                        <i
+                            id="networkAIBar"
+                            style="width:72%"
+                        ></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="im-panel">
+
+                    <div class="section-label">
+                        NETWORK RESPONSE
+                    </div>
+
+                    <h2>
+                        Autonomous Protection
+                    </h2>
+
+
+                    <div class="endpoint-detail">
+
+                        <span>
+                            Network Status
+                        </span>
+
+                        <strong
+                            id="networkPageStatus"
+                            class="online-text"
+                        >
+                            MONITORING
+                        </strong>
+
+                    </div>
+
+
+                    <br>
+
+
+                    <button
+                        onclick="runNetworkTest()"
+                        style="
+                            width:100%;
+                            padding:14px;
+                            border:0;
+                            border-radius:8px;
+                            background:#286cff;
+                            color:white;
+                            font-weight:800;
+                            cursor:pointer;
+                        "
+                    >
+
+                        RUN NETWORK SECURITY TEST
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="im-panel">
+
+                <div class="section-label">
+                    SECURITY MODEL
+                </div>
+
+                <h2>
+                    Network Defense Flow
+                </h2>
+
+
+                <div class="response-flow">
+
+                    <div>
+
+                        <span>01</span>
+
+                        Traffic
+
+                    </div>
+
+                    <div class="flow-arrow">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>02</span>
+
+                        Analyze
+
+                    </div>
+
+                    <div class="flow-arrow">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>03</span>
+
+                        Risk Score
+
+                    </div>
+
+                    <div class="flow-arrow">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>04</span>
+
+                        Block / Monitor
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+        startNetworkUpdates();
+    }
+
+
+    /* =====================================================
+       CLOUD
+    ===================================================== */
+
+    function showCloud() {
+
+        const main =
+            getMainContainer();
+
+        if (!main) {
+            return;
+        }
+
+        main.innerHTML = `
+
+            ${getPageTitle(
+                "Cloud Security",
+                "AI-powered cloud infrastructure monitoring"
+            )}
+            <div class="im-stat-grid">
+
+                ${statCard(
                     "CLOUD SYSTEMS",
-                    `<span id="cloudSystems">1,260</span>`,
+                    `<span id="cloudSystems">8</span>`,
                     "SECURE"
                 )}
 
                 ${statCard(
                     "PROTECTED",
-                    `<span id="cloudProtected">1,244</span>`,
+                    `<span id="cloudProtected">8</span>`,
                     "AI DEFENSE ACTIVE"
                 )}
 
                 ${statCard(
                     "CLOUD EVENTS",
-                    `<span id="cloudEvents">38</span>`,
+                    `<span id="cloudEvents">0</span>`,
                     "MONITORED"
                 )}
 
                 ${statCard(
                     "RISK SCORE",
-                    `<span id="cloudRisk">21</span>`,
+                    `<span id="cloudRisk">18</span>`,
                     "LOW RISK"
                 )}
 
             </div>
 
-            <div class="im-two-column">
-
-                <div class="im-panel">
-
-                    <div class="section-label">CLOUD INFRASTRUCTURE</div>
-                    <h2>Service Protection</h2>
-
-                    <div class="cloud-service">
-                        <span class="service-dot"></span>
-                        <div>
-                            <strong>Cloud Storage</strong>
-                            <small>Data protection active</small>
-                        </div>
-                        <b>SECURE</b>
-                    </div>
-
-                    <div class="cloud-service">
-                        <span class="service-dot"></span>
-                        <div>
-                            <strong>Application Services</strong>
-                            <small>Runtime monitoring active</small>
-                        </div>
-                        <b>SECURE</b>
-                    </div>
-
-                    <div class="cloud-service">
-                        <span class="service-dot"></span>
-                        <div>
-                            <strong>Identity & Access</strong>
-                            <small>Authentication monitoring</small>
-                        </div>
-                        <b>SECURE</b>
-                    </div>
-
-                    <div class="cloud-service">
-                        <span class="service-dot"></span>
-                        <div>
-                            <strong>Cloud Network</strong>
-                            <small>Traffic inspection active</small>
-                        </div>
-                        <b>PROTECTED</b>
-                    </div>
-
-                </div>
-
-                <div class="im-panel">
-
-                    <div class="section-label">CLOUD ACTIVITY</div>
-                    <h2>Security Monitoring</h2>
-
-                    <div class="cloud-chart">
-
-                        <div class="cloud-column" style="height:45%"></div>
-                        <div class="cloud-column" style="height:65%"></div>
-                        <div class="cloud-column" style="height:52%"></div>
-                        <div class="cloud-column" style="height:78%"></div>
-                        <div class="cloud-column" style="height:61%"></div>
-                        <div class="cloud-column" style="height:84%"></div>
-                        <div class="cloud-column" style="height:72%"></div>
-                        <div class="cloud-column" style="height:91%"></div>
-
-                    </div>
-
-                    <div class="cloud-chart-labels">
-                        <span>00</span>
-                        <span>04</span>
-                        <span>08</span>
-                        <span>12</span>
-                        <span>16</span>
-                        <span>20</span>
-                        <span>24</span>
-                    </div>
-
-                </div>
-
-            </div>
 
             <div class="im-panel">
 
-                <div class="section-label">CLOUD THREAT DETECTION</div>
-                <h2>Recent Cloud Events</h2>
-
-                <div class="cloud-event">
-                    <div>
-                        <strong>Authentication anomaly</strong>
-                        <small>Identity & Access • monitored</small>
-                    </div>
-                    <span class="severity medium">MEDIUM</span>
+                <div class="section-label">
+                    CLOUD SECURITY
                 </div>
 
-                <div class="cloud-event">
+                <h2>
+                    Infrastructure Protection
+                </h2>
+
+
+                <div class="cloud-service">
+
+                    <span class="service-dot"></span>
+
                     <div>
-                        <strong>Unusual data access</strong>
-                        <small>Cloud Storage • analyzed</small>
+
+                        <strong>
+                            Cloud Storage
+                        </strong>
+
+                        <small>
+                            Data protection active
+                        </small>
+
                     </div>
-                    <span class="severity low">LOW</span>
+
+                    <b>
+                        SECURE
+                    </b>
+
                 </div>
 
-                <div class="cloud-event">
+
+                <div class="cloud-service">
+
+                    <span class="service-dot"></span>
+
                     <div>
-                        <strong>Network traffic inspection</strong>
-                        <small>Cloud Network • normal</small>
+
+                        <strong>
+                            Application Services
+                        </strong>
+
+                        <small>
+                            Runtime monitoring
+                        </small>
+
                     </div>
-                    <span class="secure-text">SECURE</span>
+
+                    <b>
+                        SECURE
+                    </b>
+
+                </div>
+
+
+                <div class="cloud-service">
+
+                    <span class="service-dot"></span>
+
+                    <div>
+
+                        <strong>
+                            Identity & Access
+                        </strong>
+
+                        <small>
+                            Authentication monitoring
+                        </small>
+
+                    </div>
+
+                    <b>
+                        SECURE
+                    </b>
+
                 </div>
 
             </div>
+
         `;
 
         startCloudUpdates();
     }
 
 
-    /* ---------------------------------------------------------
-       LIVE THREAT VALUES
-       --------------------------------------------------------- */
-
-    let threatTimer = null;
+    /* =====================================================
+       THREAT LIVE UPDATE
+    ===================================================== */
 
     function startThreatUpdates() {
 
-        clearInterval(threatTimer);
+        clearInterval(
+            threatTimer
+        );
 
-        function update() {
+        async function update() {
 
-            const active = document.getElementById("threatActive");
+            try {
 
-            if (!active) {
-                clearInterval(threatTimer);
-                return;
+                const response =
+                    await fetch(
+                        "/api/status",
+                        {
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                const active =
+                    document.getElementById(
+                        "threatActive"
+                    );
+
+                if (!active) {
+
+                    clearInterval(
+                        threatTimer
+                    );
+                   return;
+                }
+
+                setText(
+                    "threatActive",
+                    data.threats
+                );
+
+                setText(
+                    "threatCritical",
+                    data.critical
+                );
+
+                setText(
+                    "threatHigh",
+                    data.high
+                );
+
+                setText(
+                    "threatBlocked",
+                    data.blocked
+                );
+
             }
 
-            document.getElementById("threatActive").textContent =
-                Math.floor(Math.random() * 4) + 2;
+            catch (error) {
 
-            document.getElementById("threatCritical").textContent =
-                Math.floor(Math.random() * 2) + 1;
-
-            document.getElementById("threatHigh").textContent =
-                Math.floor(Math.random() * 3) + 1;
-
-            document.getElementById("threatBlocked").textContent =
-                Math.floor(Math.random() * 8) + 14;
+                console.error(
+                    error
+                );
+            }
         }
 
         update();
-        threatTimer = setInterval(update, 10000);
+
+        threatTimer =
+            setInterval(
+                update,
+                10000
+            );
     }
 
 
-    /* ---------------------------------------------------------
-       LIVE ENDPOINT VALUES
-       --------------------------------------------------------- */
-
-    let endpointTimer = null;
+    /* =====================================================
+       ENDPOINT LIVE UPDATE
+    ===================================================== */
 
     function startEndpointUpdates() {
 
-        clearInterval(endpointTimer);
+        clearInterval(
+            endpointTimer
+        );
 
-        function update() {
+        async function update() {
 
-            const cpu = document.getElementById("endpointCPU");
+            const cpu =
+                document.getElementById(
+                    "endpointCPU"
+                );
 
             if (!cpu) {
-                clearInterval(endpointTimer);
+
+                clearInterval(
+                    endpointTimer
+                );
+
                 return;
             }
 
-            const cpuValue = Math.floor(Math.random() * 35) + 25;
-            const memoryValue = Math.floor(Math.random() * 25) + 45;
-            const scoreValue = Math.floor(Math.random() * 7) + 91;
+            try {
 
-            document.getElementById("endpointCPU").textContent =
-                cpuValue + "%";
+                const response =
+                    await fetch(
+                        "/api/status",
+                        {
+                            cache:
+                                "no-store"
+                        }
+                    );
 
-            document.getElementById("cpuBar").style.width =
-                cpuValue + "%";
+                const data =
+                    await response.json();
 
-            document.getElementById("endpointMemory").textContent =
-                memoryValue + "%";
+                setText(
+                    "endpointCPU",
+                    data.cpu + "%"
+                );
 
-            document.getElementById("memoryBar").style.width =
-                memoryValue + "%";
+                setText(
+                    "endpointMemory",
+                    data.memory + "%"
+                );
 
-            document.getElementById("endpointScore").textContent =
-                scoreValue + "%";
+                const cpuBar =
+                    document.getElementById(
+                        "cpuBar"
+                    );
 
-            document.getElementById("scoreBar").style.width =
-                scoreValue + "%";
+                const memoryBar =
+                    document.getElementById(
+                        "memoryBar"
+                    );
 
-            document.getElementById("endpointRisk").textContent =
-                Math.floor(Math.random() * 12) + 20;
+                if (cpuBar) {
+
+                    cpuBar.style.width =
+                        data.cpu + "%";
+                }
+
+                if (memoryBar) {
+
+                    memoryBar.style.width =
+                        data.memory + "%";
+                }
+
+                setText(
+                    "endpointRisk",
+                    data.threats
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    error
+                );
+            }
         }
 
         update();
-        endpointTimer = setInterval(update, 10000);
+
+        endpointTimer =
+            setInterval(
+                update,
+                10000
+            );
     }
 
 
-    /* ---------------------------------------------------------
-       LIVE CLOUD VALUES
-       --------------------------------------------------------- */
+    /* =====================================================
+       NETWORK LIVE UPDATE
+    ===================================================== */
 
-    let cloudTimer = null;
+    function startNetworkUpdates() {
+
+        clearInterval(
+            networkTimer
+        );
+
+        async function update() {
+
+            const traffic =
+                document.getElementById(
+                    "networkTrafficMeter"
+                );
+
+            if (!traffic) {
+
+                clearInterval(
+                    networkTimer
+                );
+
+                return;
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/status",
+                        {
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                setText(
+                    "networkDeviceCount",
+                    data.network_devices
+                );
+
+                setText(
+                    "networkTrafficPage",
+                    data.network_traffic + "%"
+                );
+
+                setText(
+                    "networkTrafficMeter",
+                    data.network_traffic + "%"
+                );
+
+                setText(
+                    "networkThreatPage",
+                    data.threats
+                );
+
+                setText(
+                    "networkAIPage",
+                    data.ai_processing + "%"
+                );
+
+                setText(
+                    "networkAI",
+                    data.ai_processing + "%"
+                );
+
+                const trafficBar =
+                    document.getElementById(
+                        "networkTrafficBar"
+                    );
+
+                const aiBar =
+                    document.getElementById(
+                        "networkAIBar"
+                    );
+
+                if (trafficBar) {
+
+                    trafficBar.style.width =
+                        data.network_traffic + "%";
+                }
+
+                if (aiBar) {
+
+                    aiBar.style.width =
+                        data.ai_processing + "%";
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    error
+                );
+            }
+        }
+
+        update();
+
+        networkTimer =
+            setInterval(
+                update,
+                10000
+            );
+    }
+
+
+    /* =====================================================
+       CLOUD LIVE UPDATE
+    ===================================================== */
 
     function startCloudUpdates() {
 
-        clearInterval(cloudTimer);
+        clearInterval(
+            cloudTimer
+        );
 
-        function update() {
+        async function update() {
 
-            const systems = document.getElementById("cloudSystems");
+            const systems =
+                document.getElementById(
+                    "cloudSystems"
+                );
 
             if (!systems) {
-                clearInterval(cloudTimer);
+
+                clearInterval(
+                    cloudTimer
+                );
+
                 return;
             }
 
-            const total = 1240 + Math.floor(Math.random() * 45);
-            const protectedSystems =
-                total - Math.floor(Math.random() * 20);
+            try {
 
-            document.getElementById("cloudSystems").textContent =
-                total.toLocaleString();
+                const response =
+                    await fetch(
+                        "/api/status",
+                        {
+                            cache:
+                                "no-store"
+                        }
+                    );
 
-            document.getElementById("cloudProtected").textContent =
-                protectedSystems.toLocaleString();
+                const data =
+                    await response.json();
 
-            document.getElementById("cloudEvents").textContent =
-                Math.floor(Math.random() * 25) + 25;
+                setText(
+                    "cloudSystems",
+                    data.cloud
+                );
 
-            document.getElementById("cloudRisk").textContent =
-                Math.floor(Math.random() * 15) + 12;
+                setText(
+                    "cloudProtected",
+                    data.cloud
+                );
+
+                setText(
+                    "cloudEvents",
+                    data.events
+                );
+
+                setText(
+                    "cloudRisk",
+                    data.risk
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    error
+                );
+            }
         }
 
         update();
-        cloudTimer = setInterval(update, 10000);
+
+        cloudTimer =
+            setInterval(
+                update,
+                10000
+            );
     }
 
 
-    /* ---------------------------------------------------------
-       SIDEBAR CLICK HANDLER
-       --------------------------------------------------------- */
+    /* =====================================================
+       SIDEBAR HANDLER
+    ===================================================== */
 
-    document.addEventListener("click", function (event) {
+    document.addEventListener(
+        "click",
+        function(event) {
 
-        const sidebar = getSidebar();
+            const sidebar =
+                getSidebar();
 
-        if (!sidebar || !sidebar.contains(event.target)) {
+            if (!sidebar ||
+                !sidebar.contains(
+                    event.target
+                )) {
+
+                return;
+            }
+
+            const item =
+                event.target.closest(
+                    "a, button, .nav-item, .menu-item, .sidebar-item"
+                );
+
+            if (!item ||
+                !sidebar.contains(item)) {
+
+                return;
+            }
+
+            const text =
+                item.textContent
+                    .trim()
+                    .replace(
+                        /\s+/g,
+                        " "
+                    )
+                    .toLowerCase();
+
+
+            if (
+                text.includes(
+                    "threat"
+                )
+            ) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                showThreats();
+
+                setActiveSidebar(
+                    item
+                );
+
+                return;
+            }
+
+
+            if (
+                text.includes(
+                    "endpoint"
+                )
+            ) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                showEndpoints();
+
+                setActiveSidebar(
+                    item
+                );
+
+                return;
+            }
+
+
+            if (
+                text === "cloud" ||
+                text.includes("cloud")
+            ) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                showCloud();
+
+                setActiveSidebar(
+                    item
+                );
+
+                return;
+            }
+
+
+            if (
+                text.includes(
+                    "network"
+                )
+            ) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                showNetwork();
+
+                setActiveSidebar(
+                    item
+);
+
+                return;
+            }
+
+        },
+        true
+    );
+
+
+    /* =====================================================
+       ACTIVE SIDEBAR
+    ===================================================== */
+
+    function setActiveSidebar(
+        activeItem
+    ) {
+
+        const sidebar =
+            getSidebar();
+
+        if (!sidebar) {
             return;
         }
-
-        const item = event.target.closest(
-            "a, button, .nav-item, .menu-item, .sidebar-item"
-        );
-
-        if (!item || !sidebar.contains(item)) {
-            return;
-        }
-
-        const text = item.textContent
-            .trim()
-            .replace(/\s+/g, " ")
-            .toLowerCase();
-
-        /*
-         * Only intercept the three pages that were blank.
-         * Other pages keep their existing behavior.
-         */
-
-        if (text.includes("threat")) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            showThreats();
-            setActiveSidebar(item);
-
-            return;
-        }
-
-        if (text.includes("endpoint")) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            showEndpoints();
-            setActiveSidebar(item);
-
-            return;
-        }
-
-        if (text === "cloud" || text.includes("cloud")) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            showCloud();
-            setActiveSidebar(item);
-
-            return;
-        }
-
-    }, true);
-
-
-    /* ---------------------------------------------------------
-       ACTIVE SIDEBAR ITEM
-       --------------------------------------------------------- */
-
-    function setActiveSidebar(activeItem) {
-
-        const sidebar = getSidebar();
-
-        if (!sidebar) return;
 
         sidebar.querySelectorAll(
             "a, button, .nav-item, .menu-item, .sidebar-item"
-        ).forEach(item => {
+        )
+        .forEach(
+            function(item) {
 
-            item.classList.remove(
-                "active",
-                "selected",
-                "current"
-            );
+                item.classList.remove(
+                    "active",
+                    "selected",
+                    "current"
+                );
+            }
+        );
 
-        });
+        activeItem.classList.add(
+            "active"
+        );
 
-        activeItem.classList.add("active");
-        activeItem.classList.add("selected");
+        activeItem.classList.add(
+            "selected"
+        );
     }
 
 
-    /* ---------------------------------------------------------
-       EXTRA PROFESSIONAL STYLES
-       --------------------------------------------------------- */
+    /* =====================================================
+       PROFESSIONAL STYLES
+    ===================================================== */
 
-    const style = document.createElement("style");
+    const style =
+        document.createElement(
+            "style"
+        );
 
     style.textContent = `
 
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            gap: 20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:28px;
+            gap:20px;
         }
 
         .page-header h1 {
-            margin: 5px 0;
-            font-size: 32px;
+            margin:5px 0;
+            font-size:32px;
         }
 
         .page-header p {
-            margin: 0;
-            opacity: .65;
+            margin:0;
+            opacity:.65;
         }
 
         .section-label {
-            color: #55aaff;
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            font-weight: 700;
+            color:#55aaff;
+            font-size:11px;
+            letter-spacing:1.5px;
+            font-weight:700;
         }
 
         .live-indicator {
-            font-size: 11px;
-            color: #48e6a1;
-            border: 1px solid rgba(72,230,161,.25);
-            padding: 10px 15px;
-            border-radius: 20px;
-            white-space: nowrap;
+            font-size:11px;
+            color:#48e6a1;
+            border:1px solid rgba(72,230,161,.25);
+            padding:10px 15px;
+            border-radius:20px;
+            white-space:nowrap;
         }
 
         .live-dot {
-            width: 7px;
-            height: 7px;
-            display: inline-block;
-            border-radius: 50%;
-            background: #48e6a1;
-            box-shadow: 0 0 10px #48e6a1;
-            margin-right: 6px;
+            width:7px;
+            height:7px;
+            display:inline-block;
+            border-radius:50%;
+            background:#48e6a1;
+            box-shadow:0 0 10px #48e6a1;
+            margin-right:6px;
         }
 
         .im-stat-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 18px;
+            display:grid;
+            grid-template-columns:
+                repeat(4,1fr);
+            gap:16px;
+            margin-bottom:18px;
         }
 
         .im-stat-card,
         .im-panel {
-            background: rgba(11, 19, 38, .78);
-            border: 1px solid rgba(100,150,220,.16);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 35px rgba(0,0,0,.16);
+
+            background:
+                rgba(11,19,38,.78);
+
+            border:
+                1px solid
+                rgba(100,150,220,.16);
+
+            border-radius:12px;
+
+            padding:20px;
+
+            box-shadow:
+                0 10px 35px
+                rgba(0,0,0,.16);
         }
 
         .im-stat-title {
-            font-size: 11px;
-            letter-spacing: 1.2px;
-            opacity: .6;
+            font-size:11px;
+            letter-spacing:1.2px;
+            opacity:.6;
         }
 
         .im-stat-value {
-            font-size: 30px;
-            font-weight: 700;
-            margin: 8px 0;
+            font-size:30px;
+            font-weight:700;
+            margin:8px 0;
         }
 
         .im-stat-status {
-            color: #45e0a0;
-            font-size: 11px;
-            font-weight: 700;
+            color:#45e0a0;
+            font-size:11px;
+            font-weight:700;
         }
 
         .im-two-column {
-            display: grid;
-            grid-template-columns: 1.35fr 1fr;
-            gap: 18px;
-            margin-bottom: 18px;
+
+            display:grid;
+
+            grid-template-columns:
+                1.35fr 1fr;
+
+            gap:18px;
+
+            margin-bottom:18px;
         }
 
         .im-panel h2 {
-            margin: 5px 0 20px;
-            font-size: 20px;
+
+            margin:
+                5px 0 20px;
+
+            font-size:20px;
         }
 
         .im-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+            display:flex;
+
+            justify-content:
+                space-between;
+
+            align-items:center;
         }
 
         .live-badge {
-            color: #48e6a1;
-            border: 1px solid rgba(72,230,161,.25);
-            padding: 5px 9px;
-            border-radius: 15px;
-            font-size: 9px;
-        }
 
-        .threat-row,
-        .endpoint-event,
-        .cloud-event,
-        .cloud-service {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255,255,255,.06);
-        }
+            color:#48e6a1;
 
-        .threat-row:last-child,
-        .endpoint-event:last-child,
-        .cloud-event:last-child,
-        .cloud-service:last-child {
-            border-bottom: 0;
-        }
+            border:
+                1px solid
+                rgba(72,230,161,.25);
 
-        .threat-row div,
-        .endpoint-event div,
-        .cloud-event div,
-        .cloud-service div {
-            flex: 1;
-        }
+            padding:5px 9px;
 
-        .threat-row small,
-        .endpoint-event small,
-        .cloud-event small,
-        .cloud-service small {
-            display: block;
-            opacity: .5;
-            margin-top: 4px;
-        }
+            border-radius:15px;
 
-        .severity {
-            min-width: 62px;
-            text-align: center;
-            font-size: 9px;
-            font-weight: 700;
-        }
-
-        .critical {
-            color: #ff5555;
-        }
-
-        .high {
-            color: #ff7777;
-        }
-
-        .medium {
-            color: #ffd166;
-        }
-
-        .low {
-            color: #55d6ff;
-        }
-
-        .threat-live {
-            font-size: 9px;
-            color: #48e6a1;
-        }
-
-        .attack-item {
-            display: grid;
-            grid-template-columns: 90px 1fr 40px;
-            align-items: center;
-            gap: 10px;
-            margin: 18px 0;
-            font-size: 11px;
-        }
-
-        .attack-item b {
-            text-align: right;
-            font-size: 10px;
-            opacity: .65;
-        }
-
-        .attack-bar,
-        .metric-track {
-            height: 7px;
-            border-radius: 10px;
-            background: rgba(255,255,255,.07);
-            overflow: hidden;
-        }
-
-        .attack-bar i {
-            display: block;
-            height: 100%;
-            background: #e94f55;
-            border-radius: inherit;
-        }
-
-        .metric-line {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 18px;
-            font-size: 12px;
-        }
-
-        .metric-track {
-            margin-top: 7px;
-        }
-
-        .metric-track i {
-            display: block;
-            height: 100%;
-            background: #348cff;
-            border-radius: inherit;
-            transition: width .8s ease;
+            font-size:9px;
         }
 
         .endpoint-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:15px;
         }
 
         .endpoint-detail {
-            padding: 15px;
-            background: rgba(255,255,255,.025);
-            border-radius: 8px;
+
+            padding:15px;
+
+            background:
+                rgba(255,255,255,.025);
+
+            border-radius:8px;
         }
 
         .endpoint-detail span {
-            display: block;
-            font-size: 10px;
-            opacity: .5;
-            margin-bottom: 6px;
+
+            display:block;
+
+            font-size:10px;
+
+            opacity:.5;
+
+            margin-bottom:6px;
         }
 
         .endpoint-detail strong {
-            font-size: 13px;
+
+            font-size:13px;
         }
 
         .online-text,
         .secure-text {
-            color: #48e6a1 !important;
+
+            color:#48e6a1 !important;
         }
 
-        .event-icon,
-        .service-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: #48e6a1;
-            box-shadow: 0 0 9px rgba(72,230,161,.7);
-            flex-shrink: 0;
+        .metric-line {
+
+            display:flex;
+
+            justify-content:
+                space-between;
+
+            margin-top:18px;
+
+            font-size:12px;
+        }
+
+        .metric-track {
+
+            height:7px;
+
+            border-radius:10px;
+
+            background:
+                rgba(255,255,255,.07);
+
+            overflow:hidden;
+
+            margin-top:7px;
+        }
+
+        .metric-track i {
+
+            display:block;
+
+            height:100%;
+
+            background:#348cff;
+
+            border-radius:inherit;
+
+            transition:
+                width .8s ease;
         }
 
         .response-flow {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin: 25px 0;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:
+                space-between;
+
+            gap:10px;
+
+            margin:25px 0;
         }
 
         .response-flow div:not(.flow-arrow) {
-            padding: 14px;
-            background: rgba(40,120,255,.08);
-            border: 1px solid rgba(80,150,255,.15);
-            border-radius: 8px;
-            font-size: 11px;
+
+            padding:14px;
+
+            background:
+                rgba(40,120,255,.08);
+
+            border:
+                1px solid
+                rgba(80,150,255,.15);
+
+            border-radius:8px;
+
+            font-size:11px;
         }
 
         .response-flow span {
-            display: block;
-            color: #55aaff;
-            font-size: 9px;
-            margin-bottom: 5px;
+
+            display:block;
+
+            color:#55aaff;
+
+            font-size:9px;
+
+            margin-bottom:5px;
         }
 
         .flow-arrow {
-            opacity: .4;
+
+            opacity:.4;
         }
 
         .protection-status {
-            color: #48e6a1;
-            font-size: 11px;
-            font-weight: 700;
+
+            color:#48e6a1;
+
+            font-size:11px;
+
+            font-weight:700;
         }
 
-        .cloud-chart {
-            height: 180px;
-            display: flex;
-            align-items: flex-end;
-            gap: 10px;
-            padding: 15px 5px;
+        .cloud-service {
+
+            display:flex;
+
+            align-items:center;
+
+            gap:15px;
+
+            padding:15px 0;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.06);
         }
 
-        .cloud-column {
-            flex: 1;
-            min-width: 8px;
-            background: linear-gradient(
-                to top,
-                #286cff,
-                rgba(40,108,255,.25)
-            );
-            border-radius: 5px 5px 0 0;
+        .cloud-service div {
+
+            flex:1;
         }
 
-        .cloud-chart-labels {
-            display: flex;
-            justify-content: space-between;
-            opacity: .4;
-            font-size: 9px;
+        .cloud-service small {
+
+            display:block;
+
+            opacity:.5;
+
+            margin-top:4px;
+        }
+
+        .service-dot {
+
+            width:9px;
+
+            height:9px;
+
+            border-radius:50%;
+
+            background:#48e6a1;
+
+            box-shadow:
+                0 0 9px
+                rgba(72,230,161,.7);
+        }
+
+        .im-threat-record {
+
+            padding:18px;
+
+            margin-top:12px;
+
+            border:
+                1px solid
+                rgba(255,80,80,.15);
+
+            border-radius:10px;
+
+            background:
+                rgba(255,50,60,.035);
+        }
+
+        .threat-record-top {
+
+            display:flex;
+
+            align-items:center;
+
+            gap:12px;
+
+            margin-bottom:18px;
+        }
+
+        .threat-record-top strong {
+
+            flex:1;
+
+            font-size:14px;
+        }
+
+        .blocked-badge {
+
+            color:#ff626b;
+
+            border:
+                1px solid
+                rgba(255,80,80,.3);
+
+            padding:5px 9px;
+
+            border-radius:12px;
+
+            font-size:9px;
+
+            font-weight:800;
+        }
+
+        .threat-record-grid {
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap:10px;
+        }
+
+        .threat-record-grid div {
+
+            padding:12px;
+
+            background:
+                rgba(255,255,255,.025);
+
+            border-radius:7px;
+        }
+
+        .threat-record-grid small {
+
+            display:block;
+
+            opacity:.45;
+
+            font-size:9px;
+
+            margin-bottom:5px;
+        }
+
+        .threat-record-grid b {
+
+            font-size:11px;
+        }
+
+        .threat-reason {
+
+            margin-top:14px;
+
+            padding:12px;
+
+            border-left:
+                2px solid
+                #ff5b62;
+
+            background:
+                rgba(255,80,80,.04);
+
+            font-size:11px;
+
+            line-height:1.6;
+        }
+
+        .threat-reason span {
+
+            color:#ff666d;
+
+            font-weight:800;
+        }
+
+        .threat-hash {
+
+            margin-top:12px;
+
+            font-family:
+                monospace;
+
+            font-size:9px;
+
+            opacity:.45;
+
+            word-break:break-all;
+        }
+
+        .threat-time {
+
+            margin-top:8px;
+
+            font-size:9px;
+
+            opacity:.4;
+        }
+        .empty-security-state {
+
+            padding:30px;
+
+            text-align:center;
+
+            opacity:.45;
+
+            font-size:11px;
+
+            letter-spacing:1px;
+        }
+
+        .critical {
+
+            color:#ff5555;
         }
 
         @media(max-width:900px) {
 
             .im-stat-grid {
-                grid-template-columns: repeat(2,1fr);
+
+                grid-template-columns:
+                    repeat(2,1fr);
             }
 
             .im-two-column {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
-            .page-header {
-                align-items: flex-start;
-                flex-direction: column;
+            .threat-record-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
             }
 
         }
@@ -1980,25 +3280,41 @@ setInterval(
         @media(max-width:600px) {
 
             .im-stat-grid {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
             .endpoint-details {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
             .response-flow {
-                flex-direction: column;
+
+                flex-direction:
+                    column;
             }
 
             .flow-arrow {
-                transform: rotate(90deg);
+
+                transform:
+                    rotate(90deg);
+            }
+
+            .threat-record-grid {
+
+                grid-template-columns:
+                    1fr;
             }
 
         }
 
     `;
 
-    document.head.appendChild(style);
+    document.head.appendChild(
+        style
+    );
 
 })();
