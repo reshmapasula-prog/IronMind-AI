@@ -690,3 +690,80 @@
                         <strong>TELEMETRY</strong>
                         <small>Endpoint / Network / USB</small>
                     </div>
+                    <div class="pipeline-arrow">→</div>
+
+                    <div class="pipeline-node">
+                        <span>02</span>
+                        <strong>FEATURE EXTRACTION</strong>
+                        <small>Behavioral features</small>
+                    </div>
+
+                    <div class="pipeline-arrow">→</div>
+
+                    <div class="pipeline-node active">
+                        <span>03</span>
+                        <strong>ML ANOMALY DETECTION</strong>
+                        <small>IsolationForest</small>
+                    </div>
+
+                    <div class="pipeline-arrow">→</div>
+
+                    <div class="pipeline-node">
+                        <span>04</span>
+                        <strong>RISK SCORE</strong>
+                        <small>0–100 anomaly score</small>
+                    </div>
+
+                    <div class="pipeline-arrow">→</div>
+
+                    <div class="pipeline-node">
+                        <span>05</span>
+                        <strong>AUTONOMOUS RESPONSE</strong>
+                        <small>Quarantine / Isolation</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- REPORTS -->
+
+        <section class="page" id="page-reports">
+
+            <div class="page-title">
+                <div>
+                    <div class="eyebrow">FORENSICS</div>
+                    <h2>Forensic Reports</h2>
+                </div>
+            </div>
+
+            <div
+                id="reportList"
+                class="report-list"
+            >
+                <div class="empty-state">
+                    No forensic reports generated.
+                </div>
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<div
+    id="notification"
+    class="notification"
+></div>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
