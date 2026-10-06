@@ -1,130 +1,75 @@
-"use strict";
+(() => {
+    "use strict";
 
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
+    // ============================================================
+    // HELPERS
+    // ============================================================
 
-function setText(id, value) {
-    const element = document.getElementById(id);
-
-    if (element) {
-        element.textContent = value;
-    }
-}
+    const $ = (id) => document.getElementById(id);
 
 
-function numberValue(value, fallback = 0) {
-    const number = Number(value);
+    function text(id, value) {
+        const element = $(id);
 
-    if (Number.isFinite(number)) {
-        return number;
-    }
-
-    return fallback;
-}
-
-
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-
-const navItems = document.querySelectorAll(
-    ".nav-item"
-);
-
-const pages = document.querySelectorAll(
-    ".page"
-);
-
-
-navItems.forEach((button) => {
-
-    button.addEventListener(
-        "click",
-        () => {
-
-            const pageName =
-                button.dataset.page;
-
-            navItems.forEach((item) => {
-                item.classList.remove("active");
-            });
-
-            button.classList.add("active");
-
-            pages.forEach((page) => {
-                page.classList.remove("active");
-            });
-
-            const target =
-                document.getElementById(
-                    `page-${pageName}`
-                );
-
-            if (target) {
-                target.classList.add("active");
-            }
-
-            const titleMap = {
-                dashboard:
-                    "Security Operations Center",
-
-                threats:
-                    "Detected Threats",
-
-                endpoints:
-                    "Protected Endpoints",
-
-                network:
-                    "Network Security",
-
-                iot:
-                    "IoT / Sensors",
-
-                ot:
-                    "Industrial / OT",
-
-                ai:
-                    "AI Intelligence",
-
-                reports:
-                    "Forensic Reports",
-            };
-
-            setText(
-                "pageTitle",
-                titleMap[pageName] ||
-                    "Security Operations Center"
-            );
+        if (element) {
+            element.textContent = value;
         }
-    );
-
-});
+    }
 
 
-/* ============================================================
-   STATUS
-   ============================================================ */
+    function number(value, fallback = 0) {
+        const parsed = Number(value);
 
-async function loadStatus() {
+        return Number.isFinite(parsed)
+            ? parsed
+            : fallback;
+    }
 
-    try {
+
+    function safe(value) {
+        return String(
+            value ?? ""
+        )
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+
+    function formatTime(value) {
+
+        if (!value) {
+            return "—";
+        }
+
+        try {
+            const date = new Date(value);
+
+            return date.toLocaleTimeString(
+                [],
+                {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                }
+            );
+
+        } catch {
+            return value;
+        }
+    }
+
+
+    async function getJSON(url, options = {}) {
 
         const response = await fetch(
-            "/api/status",
+            url,
             {
                 cache: "no-store",
+                ...options,
             }
         );
 
@@ -134,838 +79,1002 @@ async function loadStatus() {
             );
         }
 
-        const data =
-            await response.json();
+        return response.json();
+    }
 
-        updateDashboard(data);
 
-    } catch (error) {
+    // ============================================================
+    // FRONT PAGE USB
+    // ============================================================
 
-        console.error(
-            "Status error:",
-            error
+    function updateFrontPage(state) {
+
+        if (!state || !state.usb) {
+            return;
+        }
+
+        const usb = state.usb;
+
+        const connected = Boolean(
+            usb.connected
         );
-    }
-}
 
+        text(
+            "frontUsbStatus",
+            connected
+                ? usb.status || "CONNECTED"
+                : "NOT CONNECTED"
+        );
 
-/* ============================================================
-   DASHBOARD
-   ============================================================ */
+        text(
+            "frontUsbDevice",
+            connected
+                ? usb.device || "USB DEVICE"
+                : "—"
+        );
 
-function updateDashboard(data) {
+        text(
+            "frontUsbDrive",
+            connected
+                ? usb.drive || "—"
+                : "—"
+        );
 
-    if (!data) {
-        return;
-    }
-
-
-    /* --------------------------------------------------------
-       MAIN METRICS
-       -------------------------------------------------------- */
-
-    setText(
-        "risk",
-        numberValue(
-            data.risk,
-            0
-        )
-    );
-
-    setText(
-        "aiRisk",
-        numberValue(
-            data.ai_risk,
-            0
-        )
-    );
-
-    setText(
-        "threats",
-        numberValue(
-            data.threats,
-            0
-        )
-    );
-
-    setText(
-        "blocked",
-        numberValue(
-            data.blocked,
-            0
-        )
-    );
-
-
-    /* --------------------------------------------------------
-       SYSTEM
-       -------------------------------------------------------- */
-
-    setText(
-        "systemStatus",
-        data.status ||
-            "PROTECTED"
-    );
-
-
-    /* --------------------------------------------------------
-       MODULES
-       -------------------------------------------------------- */
-
-    const modules =
-        data.modules || {};
-
-    setText(
-        "endpointStatus",
-        modules.endpoint ||
-            "SECURE"
-    );
-
-    setText(
-        "networkStatus",
-        modules.network ||
-            "MONITORING"
-    );
-
-
-    setText(
-        "endpointPageStatus",
-        modules.endpoint ||
-            "SECURE"
-    );
-
-    setText(
-        "networkPageStatus",
-        modules.network ||
-            "MONITORING"
-    );
-
-
-    /* --------------------------------------------------------
-       ENDPOINT
-       -------------------------------------------------------- */
-
-    const endpoint =
-        data.endpoint || {};
-
-    setText(
-        "cpu",
-        `${numberValue(
-            endpoint.cpu,
-            0
-        )}%`
-    );
-
-    setText(
-        "memory",
-        `${numberValue(
-            endpoint.memory,
-            0
-        )}%`
-    );
-
-    setText(
-        "networkTraffic",
-        `${numberValue(
-            endpoint.network_traffic,
-            0
-        )}%`
-    );
-
-
-    /* --------------------------------------------------------
-       USB
-       -------------------------------------------------------- */
-
-    updateUSB(
-        data.usb || {}
-    );
-
-
-    /* --------------------------------------------------------
-       NETWORK
-       -------------------------------------------------------- */
-
-    updateNetwork(
-        data.network || {}
-    );
-
-
-    /* --------------------------------------------------------
-       WORKFLOW
-       -------------------------------------------------------- */
-
-    updateWorkflow(
-        data.workflow || {}
-    );
-}
-
-
-/* ============================================================
-   USB
-   ============================================================ */
-
-function updateUSB(usb) {
-
-    const score =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                numberValue(
-                    usb.anomaly_score,
-                    0
+        text(
+            "frontUsbFiles",
+            connected
+                ? number(
+                    usb.files_scanned
                 )
+                : 0
+        );
+
+        text(
+            "frontUsbScore",
+            `${number(
+                usb.anomaly_score
+            )}%`
+        );
+
+        const indicator = $(
+            "frontUsbIndicator"
+        );
+
+        if (indicator) {
+
+            indicator.classList.toggle(
+                "danger",
+                number(
+                    usb.anomaly_score
+                ) >= 70
+            );
+        }
+    }
+
+
+    // ============================================================
+    // DASHBOARD STATUS
+    // ============================================================
+
+    function updateDashboard(state) {
+
+        if (!state) {
+            return;
+        }
+
+        const risk = number(
+            state.risk
+        );
+
+        const aiRisk = number(
+            state.ai_risk
+        );
+
+        text(
+            "risk",
+            risk
+        );
+
+        text(
+            "aiRisk",
+            aiRisk
+        );
+
+        text(
+            "threats",
+            number(
+                state.threats
+            )
+        );
+
+        text(
+            "blocked",
+            number(
+                state.blocked
+            )
+        );
+
+        text(
+            "incidentScore",
+            risk
+        );
+
+        text(
+            "incidentText",
+            state.incident ||
+            "No active incident"
+        );
+
+        text(
+            "lastUpdate",
+            formatTime(
+                state.last_update
             )
         );
 
 
-    setText(
-        "usbStatus",
-        usb.status ||
-            "NOT CONNECTED"
-    );
+        const riskBar = $(
+            "riskBar"
+        );
 
-    setText(
-        "usbDevice",
-        usb.device ||
-            "WAITING"
-    );
-
-    setText(
-        "usbDrive",
-        usb.drive ||
-            "-"
-    );
-
-    setText(
-        "usbFilesystem",
-        usb.filesystem ||
-            "-"
-    );
-
-    setText(
-        "usbFiles",
-        numberValue(
-            usb.files_scanned,
-            0
-        )
-    );
+        if (riskBar) {
+            riskBar.style.width =
+                `${Math.min(
+                    100,
+                    Math.max(0, risk)
+                )}%`;
+        }
 
 
-    /* --------------------------------------------------------
-       THIS FIXES "None"
-       -------------------------------------------------------- */
+        const aiRiskBar = $(
+            "aiRiskBar"
+        );
 
-    setText(
-        "usbScore",
-        `${score}%`
-    );
-
-    setText(
-        "usbThreatClass",
-        usb.threat_class ||
-            "NONE"
-    );
-
-    setText(
-        "usbSeverity",
-        usb.severity ||
-            "LOW"
-    );
-
-    setText(
-        "usbAction",
-        usb.action ||
-            "MONITOR"
-    );
+        if (aiRiskBar) {
+            aiRiskBar.style.width =
+                `${Math.min(
+                    100,
+                    Math.max(0, aiRisk)
+                )}%`;
+        }
 
 
-    setText(
-        "usbPageScore",
-        `ANOMALY SCORE: ${score}%`
-    );
+        const modules =
+            state.modules || {};
 
 
-    const scoreBar =
-        document.getElementById(
+        text(
+            "endpointStatus",
+            modules.endpoint ||
+            "SECURE"
+        );
+
+        text(
+            "networkStatus",
+            modules.network ||
+            "MONITORING"
+        );
+
+        text(
+            "moduleEndpoint",
+            modules.endpoint ||
+            "SECURE"
+        );
+
+        text(
+            "moduleNetwork",
+            modules.network ||
+            "MONITORING"
+        );
+
+
+        updateStatusBadge(
+            "systemStatusBadge",
+            state.status
+        );
+
+        updateStatusBadge(
+            "endpointPageStatus",
+            modules.endpoint
+        );
+
+        updateStatusBadge(
+            "endpointUsbStatus",
+            state.usb?.status
+        );
+
+
+        updateUSB(
+            state.usb
+        );
+
+
+        updateWorkflow(
+            state.workflow,
+            state.usb
+        );
+
+
+        updateEndpointTelemetry(
+            state.endpoint_telemetry
+        );
+
+
+        updateFrontPage(
+            state
+        );
+    }
+
+
+    // ============================================================
+    // STATUS BADGES
+    // ============================================================
+
+    function updateStatusBadge(
+        id,
+        value
+    ) {
+
+        const element = $(id);
+
+        if (!element) {
+            return;
+        }
+
+        const status = String(
+            value || "UNKNOWN"
+        ).toUpperCase();
+
+        element.textContent = status;
+
+        element.classList.remove(
+            "safe",
+            "danger",
+            "warning"
+        );
+
+        if (
+            status.includes("BLOCK") ||
+            status.includes("THREAT") ||
+            status.includes("ISOLAT")
+        ) {
+
+            element.classList.add(
+                "danger"
+            );
+
+        } else if (
+            status.includes("WAIT") ||
+            status.includes("ANALYZ") ||
+            status.includes("DETECT")
+        ) {
+
+            element.classList.add(
+                "warning"
+            );
+
+        } else {
+
+            element.classList.add(
+                "safe"
+            );
+        }
+    }
+
+
+    // ============================================================
+    // USB
+    // ============================================================
+
+    function updateUSB(usb) {
+
+        if (!usb) {
+            return;
+        }
+
+        const connected = Boolean(
+            usb.connected
+        );
+
+        const score = number(
+            usb.anomaly_score
+        );
+
+
+        text(
+            "usbDevice",
+            connected
+                ? usb.device || "USB DEVICE"
+                : "NOT CONNECTED"
+        );
+
+        text(
+            "usbDrive",
+            connected
+                ? usb.drive || "—"
+                : "—"
+        );
+
+        text(
+            "usbFilesystem",
+            connected
+                ? usb.filesystem || "—"
+                : "—"
+        );
+
+        text(
+            "usbFiles",
+            connected
+                ? number(
+                    usb.files_scanned
+                )
+                : 0
+        );
+
+        text(
+            "usbScan",
+            connected
+                ? usb.scan || "SCANNING"
+                : "WAITING"
+        );
+
+        text(
+            "usbScore",
+            `${score}%`
+        );
+
+        text(
+            "usbThreatClass",
+            connected
+                ? usb.threat_class ||
+                    "NORMAL USB ACTIVITY"
+                : "NO ACTIVE USB THREAT"
+        );
+
+
+        const scoreBar = $(
             "usbScoreBar"
         );
 
-    if (scoreBar) {
-        scoreBar.style.width =
-            `${score}%`;
-    }
-}
+        if (scoreBar) {
+            scoreBar.style.width =
+                `${Math.min(
+                    100,
+                    Math.max(0, score)
+                )}%`;
+
+            scoreBar.style.background =
+                score >= 70
+                    ? "var(--red)"
+                    : score >= 40
+                        ? "var(--yellow)"
+                        : "var(--cyan)";
+        }
 
 
-/* ============================================================
-   WORKFLOW
-   ============================================================ */
-
-function updateWorkflow(workflow) {
-
-    if (!workflow) {
-        return;
-    }
-
-
-    updateStep(
-        "step-device",
-        workflow.device_detected
-    );
-
-    updateStep(
-        "step-anomaly",
-        workflow.anomaly_detected
-    );
-
-    updateStep(
-        "step-classified",
-        workflow.threat_classified
-    );
-
-    updateStep(
-        "step-quarantine",
-        workflow.device_quarantined
-    );
-
-    updateStep(
-        "step-report",
-        workflow.forensic_report_generated
-    );
-
-
-    const usbScore =
-        numberValue(
-            document
-                .getElementById(
-                    "usbScore"
-                )
-                ?.textContent
-                ?.replace("%", ""),
-            0
+        const badge = $(
+            "usbLiveBadge"
         );
 
-    setText(
-        "workflowScore",
-        `${usbScore}%`
-    );
+        if (badge) {
+
+            badge.innerHTML =
+                `<i></i>${safe(
+                    connected
+                        ? usb.status || "CONNECTED"
+                        : "WAITING"
+                )}`;
+
+            badge.style.color =
+                score >= 70
+                    ? "var(--red)"
+                    : connected
+                        ? "var(--green)"
+                        : "var(--yellow)";
+        }
 
 
-    setText(
-        "workflowClass",
-        document
-            .getElementById(
-                "usbThreatClass"
-            )
-            ?.textContent ||
-            "Waiting"
-    );
-
-
-    const completed =
-        Boolean(
-            workflow.forensic_report_generated
+        const endpointUsbName = $(
+            "endpointUsbName"
         );
 
-    setText(
-        "workflowStatus",
-        completed
-            ? "COMPLETE"
-            : workflow.device_detected
-                ? "ACTIVE"
-                : "STANDBY"
-    );
-}
+        if (endpointUsbName) {
+            endpointUsbName.textContent =
+                connected
+                    ? usb.device || "USB DEVICE"
+                    : "No USB connected";
+        }
 
 
-function updateStep(
-    id,
-    active
-) {
+        const pulse = $(
+            "usbPulse"
+        );
 
-    const element =
-        document.getElementById(id);
+        if (pulse) {
 
-    if (!element) {
-        return;
+            pulse.style.background =
+                score >= 70
+                    ? "rgba(255,85,116,0.12)"
+                    : connected
+                        ? "rgba(85,242,162,0.08)"
+                        : "rgba(85,229,255,0.05)";
+        }
     }
 
-    element.classList.toggle(
-        "complete",
-        Boolean(active)
-    );
 
-    element.classList.toggle(
-        "active",
-        Boolean(active)
-    );
-}
+    // ============================================================
+    // WORKFLOW
+    // ============================================================
 
+    function updateWorkflow(
+        workflow,
+        usb
+    ) {
 
-/* ============================================================
-   NETWORK
-   ============================================================ */
+        const state =
+            workflow || {};
 
-function updateNetwork(network) {
-
-    setText(
-        "networkScore",
-        numberValue(
-            network.anomaly_score,
-            0
-        )
-    );
-
-    setText(
-        "networkTrafficValue",
-        numberValue(
-            network.traffic,
-            0
-        )
-    );
-
-    setText(
-        "networkConnections",
-        numberValue(
-            network.connections,
-            0
-        )
-    );
-
-    setText(
-        "networkPageStatus",
-        network.status ||
-            "MONITORING"
-    );
-}
+        setWorkflowStep(
+            "workflowDevice",
+            Boolean(
+                state.device_detected
+            ),
+            usb?.connected
+                ? "USB device detected"
+                : "Waiting for telemetry"
+        );
 
 
-/* ============================================================
-   USB TEST
-   ============================================================ */
+        setWorkflowStep(
+            "workflowAnomaly",
+            Boolean(
+                state.anomaly_detected
+            ),
+            usb?.connected
+                ? `Score: ${number(
+                    usb?.anomaly_score
+                )}%`
+                : "ML analysis pending"
+        );
 
-async function runUSBTest() {
 
-    try {
+        setWorkflowStep(
+            "workflowClass",
+            Boolean(
+                state.threat_classified
+            ),
+            state.threat_classified
+                ? usb?.threat_class || "CLASSIFIED"
+                : "Classification pending"
+        );
 
-        const response =
-            await fetch(
-                "/api/usb-threat-test",
-                {
-                    method: "POST",
-                }
+
+        setWorkflowStep(
+            "workflowQuarantine",
+            Boolean(
+                state.device_quarantined
+            ),
+            state.device_quarantined
+                ? "Autonomous response complete"
+                : "Response pending"
+        );
+
+
+        setWorkflowStep(
+            "workflowReport",
+            Boolean(
+                state.forensic_report
+            ),
+            state.forensic_report
+                ? "Investigation available"
+                : "Investigation pending"
+        );
+    }
+
+
+    function setWorkflowStep(
+        id,
+        active,
+        subtitle
+    ) {
+
+        const element = $(id);
+
+        if (!element) {
+            return;
+        }
+
+        element.classList.toggle(
+            "active",
+            active
+        );
+
+        const span =
+            element.querySelector(
+                "span"
             );
 
-        const data =
-            await response.json();
+        if (span) {
+            span.textContent =
+                subtitle;
+        }
+    }
 
-        console.log(
-            "USB ML result:",
-            data
+
+    // ============================================================
+    // ENDPOINT TELEMETRY
+    // ============================================================
+
+    function updateEndpointTelemetry(
+        telemetry
+    ) {
+
+        if (!telemetry) {
+            return;
+        }
+
+        text(
+            "endpointCpu",
+            `${number(
+                telemetry.cpu
+            )}%`
         );
 
-        await loadStatus();
-        await loadThreats();
-        await loadReports();
-
-    } catch (error) {
-
-        console.error(
-            "USB test failed:",
-            error
+        text(
+            "endpointMemory",
+            `${number(
+                telemetry.memory
+            )}%`
         );
     }
-}
 
 
-/* ============================================================
-   NETWORK TEST
-   ============================================================ */
+    // ============================================================
+    // THREATS
+    // ============================================================
 
-async function runNetworkTest() {
+    async function loadThreats() {
 
-    try {
+        try {
 
-        const response =
-            await fetch(
-                "/api/network-test",
-                {
-                    method: "POST",
-                }
+            const data =
+                await getJSON(
+                    "/api/threats"
+                );
+
+            const threats =
+                data.threats || [];
+
+            text(
+                "navThreatCount",
+                threats.length
             );
 
-        const data =
-            await response.json();
-
-        console.log(
-            "Network ML result:",
-            data
-        );
-
-        await loadStatus();
-
-    } catch (error) {
-
-        console.error(
-            "Network test failed:",
-            error
-        );
-    }
-}
-
-
-/* ============================================================
-   ENDPOINT TEST
-   ============================================================ */
-
-async function runEndpointTest() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/endpoint-test",
-                {
-                    method: "POST",
-                }
+            const table = $(
+                "threatTable"
             );
 
-        const data =
-            await response.json();
-
-        console.log(
-            "Endpoint ML result:",
-            data
-        );
-
-        await loadStatus();
-
-    } catch (error) {
-
-        console.error(
-            "Endpoint test failed:",
-            error
-        );
-    }
-}
-
-
-/* ============================================================
-   RESET
-   ============================================================ */
-
-async function resetSystem() {
-
-    try {
-
-        await fetch(
-            "/api/reset",
-            {
-                method: "POST",
+            if (!table) {
+                return;
             }
-        );
 
-        await loadStatus();
-        await loadThreats();
-        await loadReports();
+            if (!threats.length) {
 
-    } catch (error) {
-
-        console.error(
-            "Reset failed:",
-            error
-        );
-    }
-}
-
-
-/* ============================================================
-   THREATS
-   ============================================================ */
-
-async function loadThreats() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/threats",
-                {
-                    cache: "no-store",
-                }
-            );
-
-        const data =
-            await response.json();
-
-        renderThreats(
-            data.threats || []
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Threat loading failed:",
-            error
-        );
-    }
-}
-
-
-function renderThreats(threats) {
-
-    const table =
-        document.getElementById(
-            "threatTable"
-        );
-
-    if (!table) {
-        return;
-    }
-
-    if (!threats.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    No threats detected.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    table.innerHTML =
-        threats.map(
-            (threat) => {
-
-                return `
+                table.innerHTML = `
                     <tr>
-                        <td>
-                            ${escapeHTML(
-                                threat.timestamp
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                threat.source
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                threat.threat_type
-                            )}
-                        </td>
-
-                        <td>
-                            ${numberValue(
-                                threat.anomaly_score ??
-                                threat.risk_score,
-                                0
-                            )}%
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                threat.severity
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                threat.action
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                threat.status
-                            )}
+                        <td colspan="6">
+                            NO THREATS DETECTED
                         </td>
                     </tr>
                 `;
+
+                return;
             }
-        ).join("");
-}
 
 
-/* ============================================================
-   REPORTS
-   ============================================================ */
+            table.innerHTML =
+                threats
+                    .map(
+                        (event) => {
 
-async function loadReports() {
+                            const severity =
+                                String(
+                                    event.severity ||
+                                    "LOW"
+                                ).toLowerCase();
 
-    try {
+                            return `
+                                <tr>
+                                    <td>
+                                        ${safe(
+                                            formatTime(
+                                                event.timestamp
+                                            )
+                                        )}
+                                    </td>
 
-        const response =
-            await fetch(
-                "/api/investigations",
-                {
-                    cache: "no-store",
+                                    <td>
+                                        ${safe(
+                                            event.source ||
+                                            "UNKNOWN"
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${safe(
+                                            event.threat_type ||
+                                            "UNKNOWN"
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${number(
+                                            event.anomaly_score ??
+                                            event.risk_score
+                                        )}%
+                                    </td>
+
+                                    <td class="severity-${severity}">
+                                        ${safe(
+                                            String(
+                                                event.severity ||
+                                                "LOW"
+                                            ).toUpperCase()
+                                        )}
+                                    </td>
+
+                                    <td class="action-blocked">
+                                        ${safe(
+                                            event.action ||
+                                            "BLOCKED"
+                                        )}
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    )
+                    .join("");
+
+        } catch (error) {
+
+            console.error(
+                "Threat loading error:",
+                error
+            );
+        }
+    }
+
+
+    // ============================================================
+    // INVESTIGATIONS
+    // ============================================================
+
+    async function loadInvestigations() {
+
+        try {
+
+            const data =
+                await getJSON(
+                    "/api/investigations"
+                );
+
+            const records =
+                data.investigations || [];
+
+            const container = $(
+                "investigationList"
+            );
+
+            if (!container) {
+                return;
+            }
+
+            if (!records.length) {
+
+                container.innerHTML = `
+                    <div class="empty-state">
+                        NO ACTIVE INVESTIGATIONS
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            container.innerHTML =
+                records
+                    .map(
+                        (record) => `
+                            <div class="investigation-card">
+
+                                <div>
+                                    <small>
+                                        ${safe(
+                                            formatTime(
+                                                record.timestamp
+                                            )
+                                        )}
+                                    </small>
+
+                                    <h3>
+                                        ${safe(
+                                            record.id
+                                        )}
+                                    </h3>
+                                </div>
+
+                                <div>
+                                    <small>
+                                        INVESTIGATION
+                                    </small>
+
+                                    <h3>
+                                        ${safe(
+                                            record.title ||
+                                            "USB ML INVESTIGATION"
+                                        )}
+                                    </h3>
+                                </div>
+
+                                <div>
+                                    <small>
+                                        STATUS
+                                    </small>
+
+                                    <h3>
+                                        ${safe(
+                                            record.status ||
+                                            "AVAILABLE"
+                                        )}
+                                    </h3>
+                                </div>
+
+                                <div
+                                    class="investigation-score"
+                                >
+                                    ${number(
+                                        record.anomaly_score
+                                    )}%
+                                </div>
+
+                            </div>
+                        `
+                    )
+                    .join("");
+
+        } catch (error) {
+
+            console.error(
+                "Investigation loading error:",
+                error
+            );
+        }
+    }
+
+
+    // ============================================================
+    // NAVIGATION
+    // ============================================================
+
+    function setupNavigation() {
+
+        const items =
+            document.querySelectorAll(
+                ".nav-item"
+            );
+
+        items.forEach(
+            (item) => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        const page =
+                            item.dataset.page;
+
+                        if (!page) {
+                            return;
+                        }
+
+                        showPage(
+                           page
+                        );
+                    }
+                );
+            }
+        );
+    }
+
+
+    function showPage(page) {
+
+        document
+            .querySelectorAll(
+                ".nav-item"
+            )
+            .forEach(
+                (item) => {
+
+                    item.classList.toggle(
+                        "active",
+                        item.dataset.page === page
+                    );
                 }
             );
 
-        const data =
-            await response.json();
 
-        renderReports(
-            data.investigations || []
+        document
+            .querySelectorAll(
+                ".page-view"
+            )
+            .forEach(
+                (view) => {
+
+                    view.classList.toggle(
+                        "active",
+                        view.id ===
+                        `page-${page}`
+                    );
+                }
+            );
+
+
+        const names = {
+            dashboard:
+                "DASHBOARD",
+
+            threats:
+                "THREATS",
+
+            endpoints:
+                "ENDPOINTS",
+
+            cloud:
+                "CLOUD",
+
+            network:
+                "NETWORK",
+
+            iot:
+                "IOT / SENSORS",
+
+            ot:
+                "INDUSTRIAL / OT",
+
+            ai:
+                "AI INTELLIGENCE",
+
+            investigations:
+                "INVESTIGATIONS",
+        };
+
+
+        text(
+            "pageTitle",
+            names[page] ||
+            page.toUpperCase()
         );
 
-    } catch (error) {
 
-        console.error(
-            "Report loading failed:",
-            error
+        const headings = {
+            dashboard:
+                "Autonomous Defense Dashboard",
+
+            threats:
+                "Detected Threats",
+
+            endpoints:
+                "Protected Endpoints",
+
+            cloud:
+                "Cloud Infrastructure",
+
+            network:
+                "Network Security",
+
+            iot:
+                "IoT / Sensors",
+
+            ot:
+                "Industrial / OT",
+
+            ai:
+                "AI Intelligence Core",
+
+            investigations:
+                "Security Investigations",
+        };
+
+
+        text(
+            "pageHeading",
+            headings[page] ||
+            "IronMind AI"
+        );
+
+
+        if (
+            page === "threats"
+        ) {
+            loadThreats();
+        }
+
+        if (
+            page === "investigations"
+        ) {
+            loadInvestigations();
+        }
+    }
+
+
+    // ============================================================
+    // POLLING
+    // ============================================================
+
+    async function refreshStatus() {
+
+        try {
+
+            const state =
+                await getJSON(
+                    "/api/status"
+                );
+
+            updateDashboard(
+                state
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Status error:",
+                error
+            );
+        }
+    }
+
+
+    async function refreshData() {
+
+        await refreshStatus();
+
+        await loadThreats();
+
+        await loadInvestigations();
+    }
+
+
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+
+    function init() {
+
+        setupNavigation();
+
+        refreshData();
+
+        setInterval(
+            refreshStatus,
+            2500
+        );
+
+        setInterval(
+            loadThreats,
+            5000
+        );
+
+        setInterval(
+            loadInvestigations,
+            5000
         );
     }
-}
 
 
-function renderReports(reports) {
-
-    const container =
-        document.getElementById(
-            "reportList"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    if (!reports.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                No forensic reports generated yet.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    container.innerHTML =
-        reports.map(
-            (report) => {
-
-                return `
-                    <div class="panel">
-
-                        <div class="panel-header">
-
-                            <div>
-                                <span class="eyebrow">
-                                    FORENSIC REPORT
-                                </span>
-
-                                <h3>
-                                    Incident #${escapeHTML(
-                                        report.id
-                                    )}
-                                </h3>
-                            </div>
-
-                            <span class="badge success">
-                                REPORT GENERATED
-                            </span>
-
-                        </div>
-
-                        <div class="telemetry-grid">
-
-                            <div>
-                                <label>
-                                    SOURCE
-                                </label>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        report.source
-                                    )}
-                                </strong>
-                            </div>
-
-                            <div>
-                                <label>
-                                    ANOMALY
-                                </label>
-
-                                <strong>
-                                    ${numberValue(
-                                        report.anomaly_score,
-                                        0
-                                    )}%
-                                </strong>
-                            </div>
-
-                            <div>
-                                <label>
-                                    THREAT
-                                </label>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        report.threat_class
-                                    )}
-                                </strong>
-                            </div>
-
-                            <div>
-                                <label>
-                                    STATUS
-                                </label>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        report.status
-                                    )}
-                                </strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-                `;
-            }
-        ).join("");
-}
-
-
-/* ============================================================
-   START
-   ============================================================ */
-
-async function startDashboard() {
-
-    await loadStatus();
-    await loadThreats();
-    await loadReports();
-
-    setInterval(
-        loadStatus,
-        3000
+    document.addEventListener(
+        "DOMContentLoaded",
+        init
     );
 
-    setInterval(
-        loadThreats,
-        5000
-    );
-
-    setInterval(
-        loadReports,
-        5000
-    );
-}
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    startDashboard
-);
+})();
