@@ -1,29 +1,27 @@
 # IronMind AI
 
-IronMind AI is an autonomous cyber-defense platform for endpoint and network security.
+## Autonomous AI Cyber Defense Platform
 
-## Architecture
+IronMind AI is a cybersecurity defense platform designed around an
+ML-driven detection and autonomous response workflow.
+
+## Security Architecture
 
 ```text
-DEVICE / NETWORK
-       |
-       v
+DEVICE / TRAFFIC
+        ↓
 FEATURE EXTRACTION
-       |
-       v
+        ↓
 ML ANOMALY DETECTION
-       |
-       v
+        ↓
 ANOMALY SCORE
-       |
-       v
+        ↓
 THREAT CLASSIFICATION
-       |
-       v
+        ↓
+RISK DECISION
+        ↓
 AUTONOMOUS RESPONSE
-       |
-       v
-QUARANTINE / ISOLATION DECISION
-       |
-       v
+        ↓
+QUARANTINE / ISOLATION
+        ↓
 FORENSIC REPORT
