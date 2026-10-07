@@ -2,137 +2,471 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>IronMind AI | Autonomous Cyber Defense</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='dashboard.css') }}"
+    >
 </head>
 
-<body class="landing-body">
+<body class="landing-page">
 
-    <div class="landing-grid"></div>
-    <div class="landing-scanline"></div>
+<div class="landing-bg">
+    <div class="grid-overlay"></div>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+</div>
 
-    <main class="landing-page">
+<header class="landing-nav">
 
-        <header class="landing-top">
-            <div class="brand-mark">
-                <div class="brand-symbol">IM</div>
+    <div class="brand">
+        <div class="brand-mark">
+            <span></span>
+        </div>
+
+        <div>
+            <div class="brand-name">IRONMIND</div>
+            <div class="brand-subtitle">AUTONOMOUS CYBER DEFENSE</div>
+        </div>
+    </div>
+
+    <div class="nav-status">
+        <span class="status-dot"></span>
+        AI ENGINE ACTIVE
+    </div>
+
+</header>
+
+
+<main class="landing-main">
+
+    <section class="hero">
+
+        <div class="hero-copy">
+
+            <div class="eyebrow">
+                <span></span>
+                NEXT-GENERATION SECURITY OPERATIONS
+            </div>
+
+            <h1>
+                Autonomous Defense
+                <strong>Against Cyber Threats.</strong>
+            </h1>
+
+            <p class="hero-description">
+                IronMind AI continuously analyzes endpoints,
+                removable media and network activity using
+                machine-learning anomaly detection and
+                autonomous response.
+            </p>
+
+            <div class="hero-actions">
+
+                <a
+                    href="/dashboard"
+                    class="primary-button"
+                >
+                    <span>OPEN SECURITY DASHBOARD</span>
+                    <b>→</b>
+                </a>
+
+                <a
+                    href="#security"
+                    class="secondary-button"
+                >
+                    EXPLORE DEFENSE SYSTEM
+                </a>
+
+            </div>
+
+            <div class="hero-proof">
+
                 <div>
-                    <strong>IRONMIND</strong>
-                    <span>AI CYBER DEFENSE</span>
-                </div>
-            </div>
-
-            <div class="landing-status">
-                <span class="status-dot"></span>
-                DEFENSE CORE ONLINE
-            </div>
-        </header>
-
-        <section class="landing-hero">
-
-            <div class="hero-copy">
-
-                <div class="eyebrow">
-                    AUTONOMOUS SECURITY OPERATIONS PLATFORM
+                    <strong>ML</strong>
+                    <span>ANOMALY DETECTION</span>
                 </div>
 
-                <h1>
-                    DEFEND.
-                    <span>DETECT.</span>
-                    RESPOND.
-                </h1>
-
-                <p class="hero-description">
-                    IronMind AI continuously analyzes endpoint and network
-                    telemetry using machine-learning anomaly detection,
-                    classifies threats, coordinates autonomous response,
-                    and generates forensic evidence.
-                </p>
-
-                <div class="hero-actions">
-                    <a href="/dashboard" class="enter-button">
-                        <span>ENTER IRONMIND</span>
-                        <b>→</b>
-                    </a>
+                <div>
+                    <strong>24/7</strong>
+                    <span>CONTINUOUS MONITORING</span>
                 </div>
 
-                <div class="hero-note">
-                    <span class="status-dot"></span>
-                    ML DEFENSE ENGINE READY
+                <div>
+                    <strong>AUTO</strong>
+                    <span>RESPONSE ENGINE</span>
                 </div>
 
             </div>
 
-            <div class="hero-core">
+        </div>
 
-                <div class="core-ring ring-one"></div>
-                <div class="core-ring ring-two"></div>
-                <div class="core-ring ring-three"></div>
 
-                <div class="core-orbit orbit-one"></div>
-                <div class="core-orbit orbit-two"></div>
+        <div class="hero-core">
 
-                <div class="core-shield">
+            <div class="core-orbit orbit-one"></div>
+            <div class="core-orbit orbit-two"></div>
+            <div class="core-orbit orbit-three"></div>
+
+            <div class="core-node">
+
+                <div class="core-ring"></div>
+
+                <div class="shield-icon">
                     <div class="shield-inner">
-                        <div class="shield-icon">◆</div>
-                        <strong>AI</strong>
-                        <span>DEFENSE CORE</span>
+                        <span>IM</span>
                     </div>
                 </div>
 
-                <div class="orbit-node node-one">ML</div>
-                <div class="orbit-node node-two">NET</div>
-                <div class="orbit-node node-three">EDR</div>
-                <div class="orbit-node node-four">USB</div>
+                <div class="core-label">
+                    <small>IRONMIND</small>
+                    <strong>AI CORE</strong>
+                </div>
 
             </div>
 
-        </section>
-
-        <section class="landing-capabilities">
-
-            <div class="capability-card">
-                <span class="capability-number">01</span>
-                <div class="capability-icon">◈</div>
-                <h3>ENDPOINT</h3>
-                <p>Continuous endpoint telemetry and ML anomaly detection.</p>
-                <span class="capability-status">ACTIVE</span>
+            <div class="floating-node node-top">
+                ML
             </div>
 
-            <div class="capability-card">
-                <span class="capability-number">02</span>
-                <div class="capability-icon">⌁</div>
-                <h3>NETWORK</h3>
-                <p>Network anomaly analysis and autonomous isolation workflow.</p>
-                <span class="capability-status">ACTIVE</span>
+            <div class="floating-node node-left">
+                EP
             </div>
 
-            <div class="capability-card">
-                <span class="capability-number">03</span>
-                <div class="capability-icon">◎</div>
-                <h3>IoT / SENSORS</h3>
-                <p>Connector-ready architecture for future sensor telemetry.</p>
-                <span class="capability-status waiting">WAITING</span>
+            <div class="floating-node node-right">
+                NW
             </div>
 
-            <div class="capability-card">
-                <span class="capability-number">04</span>
-                <div class="capability-icon">▣</div>
-                <h3>INDUSTRIAL / OT</h3>
-                <p>OT defense layer prepared for future industrial integration.</p>
-                <span class="capability-status waiting">WAITING</span>
+            <div class="floating-node node-bottom">
+                USB
             </div>
 
-        </section>
+        </div>
 
-        <footer class="landing-footer">
-            <span>IRONMIND AI</span>
-            <span>ML-DRIVEN AUTONOMOUS CYBER DEFENSE</span>
-            <span>v2.0</span>
-        </footer>
+    </section>
 
-    </main>
+
+    <section
+        id="security"
+        class="landing-security"
+    >
+
+        <div class="section-heading">
+            <div class="eyebrow">
+                <span></span>
+                SECURITY FABRIC
+            </div>
+
+            <h2>
+                One intelligence layer.
+                <strong>Every attack surface.</strong>
+            </h2>
+        </div>
+
+
+        <div class="security-grid">
+
+            <div class="security-card active-card">
+
+                <div class="security-icon">
+                    EP
+                </div>
+
+                <div>
+                    <span>01</span>
+                    <h3>Endpoint Defense</h3>
+                    <p>
+                        Windows endpoints and removable
+                        media monitored through the ML
+                        detection pipeline.
+                    </p>
+                </div>
+
+                <div class="card-state">
+                    <i></i>
+                    ACTIVE
+                </div>
+
+            </div>
+
+
+            <div class="security-card active-card">
+
+                <div class="security-icon">
+                    NW
+                </div>
+
+                <div>
+                    <span>02</span>
+                    <h3>Network Defense</h3>
+                    <p>
+                        Network anomalies are detected,
+                        classified and isolated.
+                    </p>
+                </div>
+
+                <div class="card-state">
+                    <i></i>
+                    MONITORING
+                </div>
+
+            </div>
+
+
+            <div class="security-card waiting-card">
+
+                <div class="security-icon">
+                    IoT
+                </div>
+
+                <div>
+                    <span>03</span>
+                    <h3>IoT / Sensors</h3>
+                    <p>
+                        Integration layer ready.
+                        No physical IoT hardware is connected.
+                    </p>
+                </div>
+
+                <div class="card-state waiting">
+                    <i></i>
+                    NOT CONNECTED
+                </div>
+
+            </div>
+
+
+            <div class="security-card waiting-card">
+
+                <div class="security-icon">
+                    OT
+                </div>
+
+                <div>
+                    <span>04</span>
+                    <h3>Industrial / OT</h3>
+                    <p>
+                        Industrial security connector
+                        waiting for OT integration.
+                    </p>
+                </div>
+
+                <div class="card-state waiting">
+                    <i></i>
+                    WAITING
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="landing-usb">
+
+        <div class="usb-visual">
+
+            <div class="usb-glow"></div>
+
+            <div class="usb-shield">
+                <div class="usb-symbol">
+                    USB
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="usb-copy">
+
+            <div class="eyebrow">
+                <span></span>
+                REMOVABLE MEDIA DEFENSE
+            </div>
+
+            <h2>
+                USB security starts
+                <strong>the moment media is connected.</strong>
+            </h2>
+
+            <p>
+                The Windows IronMind agent discovers removable
+                media, recursively scans the contents and sends
+                telemetry to the server-side ML engine.
+            </p>
+
+
+            <div class="live-usb-status">
+
+                <div class="live-status-header">
+                    <span>USB SECURITY STATUS</span>
+
+                    <div
+                        id="frontUsbIndicator"
+                        class="live-indicator"
+                    >
+                        <i></i>
+                        <b id="frontUsbStatus">
+                            NOT CONNECTED
+                        </b>
+                    </div>
+                </div>
+
+
+                <div class="usb-data-grid">
+
+                    <div>
+                        <small>DEVICE</small>
+                        <strong id="frontUsbDevice">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>DRIVE</small>
+                        <strong id="frontUsbDrive">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>FILES SCANNED</small>
+                        <strong id="frontUsbFiles">
+                            0
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>ML SCORE</small>
+                        <strong id="frontUsbScore">
+                            0%
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="landing-workflow">
+
+        <div class="section-heading centered">
+
+            <div class="eyebrow">
+                <span></span>
+                AUTONOMOUS RESPONSE PIPELINE
+            </div>
+
+            <h2>
+                Detect.
+                <strong>Understand. Respond.</strong>
+            </h2>
+
+        </div>
+
+
+        <div class="landing-flow">
+
+            <div class="landing-flow-step">
+                <div class="flow-number">01</div>
+                <strong>DEVICE DETECTED</strong>
+                <span>Telemetry received</span>
+            </div>
+
+            <div class="flow-line"></div>
+
+            <div class="landing-flow-step">
+                <div class="flow-number">02</div>
+                <strong>ML ANOMALY SCORE</strong>
+                <span>IsolationForest analysis</span>
+            </div>
+
+            <div class="flow-line"></div>
+
+            <div class="landing-flow-step">
+                <div class="flow-number">03</div>
+                <strong>THREAT CLASSIFIED</strong>
+                <span>Risk intelligence</span>
+            </div>
+
+            <div class="flow-line"></div>
+
+            <div class="landing-flow-step">
+                <div class="flow-number">04</div>
+                <strong>AUTONOMOUS RESPONSE</strong>
+                <span>Quarantine / isolate</span>
+            </div>
+
+            <div class="flow-line"></div>
+
+            <div class="landing-flow-step">
+                <div class="flow-number">05</div>
+                <strong>FORENSIC REPORT</strong>
+                <span>Investigation ready</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="landing-cta">
+
+        <div>
+
+            <span class="eyebrow">
+                <span></span>
+                IRONMIND SECURITY OPERATIONS CENTER
+            </span>
+
+            <h2>
+                Your infrastructure.
+                <strong>Under autonomous defense.</strong>
+            </h2>
+
+        </div>
+
+        <a
+            href="/dashboard"
+            class="primary-button"
+        >
+            ENTER SOC DASHBOARD
+            <b>→</b>
+        </a>
+
+    </section>
+
+</main>
+
+
+<footer class="landing-footer">
+
+    <div>
+        IRONMIND AI
+        <span>•</span>
+        AUTONOMOUS CYBER DEFENSE
+    </div>
+
+    <div>
+        ML ENGINE:
+        <strong>ISOLATION FOREST</strong>
+    </div>
+
+</footer>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>
