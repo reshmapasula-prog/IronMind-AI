@@ -1,26 +1,10 @@
-/* ============================================================
-   IRONMIND AI - SOC DASHBOARD
-============================================================ */
-
 "use strict";
 
 
-/* ============================================================
-   HELPERS
-============================================================ */
-
 const $ = (id) => document.getElementById(id);
 
-function safeNumber(value, fallback = 0) {
-    const number = Number(value);
-
-    return Number.isFinite(number)
-        ? number
-        : fallback;
-}
 
 function setText(id, value) {
-
     const element = $(id);
 
     if (element) {
@@ -28,962 +12,758 @@ function setText(id, value) {
     }
 }
 
-function clamp(value, min = 0, max = 100) {
-    return Math.max(min, Math.min(max, value));
+
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
 
-/* ============================================================
-   CLOCK
-============================================================ */
+function showNotification(message) {
+    const notification = $("notification");
 
-function updateClock() {
-
-    const element = $("systemClock");
-
-    if (!element) {
+    if (!notification) {
         return;
     }
 
-    const now = new Date();
+    notification.textContent = message;
+    notification.classList.add("show");
 
-    element.textContent =
-        now.toLocaleTimeString([], {
-            hour12: false
-        });
+    setTimeout(() => {
+        notification.classList.remove("show");
+    }, 4500);
 }
 
-setInterval(updateClock, 1000);
-updateClock();
+
+/* NAVIGATION */
+
+function showPage(pageName) {
+
+    document.querySelectorAll(".page").forEach((page) => {
+        page.classList.remove("active-page");
+    });
+
+    document.querySelectorAll(".nav-item").forEach((button) => {
+        button.classList.remove("active");
+    });
+
+    const page = $(`page-${pageName}`);
+
+    if (page) {
+        page.classList.add("active-page");
+    }
+
+    const navButton = document.querySelector(
+        `.nav-item[data-page="${pageName}"]`
+    );
+
+    if (navButton) {
+        navButton.classList.add("active");
+    }
+
+    if (pageName === "threats") {
+        loadThreats();
+    }
+
+    if (pageName === "reports") {
+        loadReports();
+    }
+}
 
 
-/* ============================================================
-   NAVIGATION
-============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
 
-function setupNavigation() {
-
-    const navItems =
-        document.querySelectorAll(".nav-item");
-
-    const sections =
-        document.querySelectorAll(".dashboard-section");
-
-    navItems.forEach((button) => {
+    document.querySelectorAll(".nav-item").forEach((button) => {
 
         button.addEventListener("click", () => {
-
-            const sectionName =
-                button.dataset.section;
-
-            navItems.forEach((item) => {
-                item.classList.remove("active");
-            });
-
-            button.classList.add("active");
-
-            sections.forEach((section) => {
-                section.classList.remove("active");
-            });
-
-            const target =
-                $(`section-${sectionName}`);
-
-            if (target) {
-                target.classList.add("active");
-            }
+            showPage(button.dataset.page);
         });
 
     });
+
+    updateDashboard();
+    loadThreats();
+    loadReports();
+
+    setInterval(updateDashboard, 2500);
+});
+
+
+/* STATUS */
+
+async function updateDashboard() {
+
+    try {
+
+        const response = await fetch("/api/status", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const state = await response.json();
+
+        renderState(state);
+
+    } catch (error) {
+
+        console.error(
+            "IronMind status update failed:",
+            error
+        );
+
+    }
 }
 
-setupNavigation();
+
+function renderState(state) {
+
+    setText("risk", `${state.risk}%`);
+    setText("aiRisk", `${state.ai_risk}%`);
+    setText("threats", state.threats);
+    setText("blocked", state.blocked);
+
+    setText(
+        "riskStatus",
+        state.status
+    );
+
+    setText(
+        "endpointStatus",
+        state.modules?.endpoint || "UNKNOWN"
+    );
+
+    setText(
+        "networkStatus",
+        state.modules?.network || "UNKNOWN"
+    );
+
+    setText(
+        "endpointModule",
+        state.modules?.endpoint || "UNKNOWN"
+    );
+
+    setText(
+        "networkModule",
+        state.modules?.network || "UNKNOWN"
+    );
 
 
-/* ============================================================
-   WORKFLOW
-============================================================ */
+    /* ENDPOINT */
 
-function resetWorkflow() {
+    const endpoint = state.endpoint_telemetry || {};
 
-    const ids = [
-        "workflowDetected",
-        "workflowAnomaly",
-        "workflowClassified",
-        "workflowQuarantine",
-        "workflowReport"
+    setText(
+        "cpu",
+        `${Math.round(endpoint.cpu ?? 0)}%`
+    );
+
+    setText(
+        "memory",
+        `${Math.round(endpoint.memory ?? 0)}%`
+    );
+
+    setText(
+        "endpointNetwork",
+        `${Math.round(endpoint.network_traffic ?? 0)}%`
+    );
+
+    setText(
+        "processCount",
+        Math.round(endpoint.process_count ?? 0)
+    );
+
+    setText(
+        "detailCpu",
+        `${Math.round(endpoint.cpu ?? 0)}%`
+    );
+
+    setText(
+        "detailMemory",
+        `${Math.round(endpoint.memory ?? 0)}%`
+    );
+
+    setText(
+        "detailNetwork",
+        `${Math.round(endpoint.network_traffic ?? 0)}%`
+    );
+
+    setText(
+        "detailProcesses",
+        Math.round(endpoint.process_count ?? 0)
+    );
+
+    setText(
+        "endpointDetailStatus",
+        state.modules?.endpoint || "UNKNOWN"
+    );
+
+
+    /* NETWORK */
+
+    const network = state.network_telemetry || {};
+
+    setText(
+        "trafficRate",
+        `${Math.round(network.traffic_rate ?? 0)}%`
+    );
+
+    setText(
+        "connectionCount",
+        Math.round(network.connection_count ?? 0)
+    );
+
+    setText(
+        "failedConnections",
+        Math.round(network.failed_connections ?? 0)
+    );
+
+    setText(
+        "destinations",
+        Math.round(network.unique_destinations ?? 0)
+    );
+
+    setText(
+        "detailTraffic",
+        `${Math.round(network.traffic_rate ?? 0)}%`
+    );
+
+    setText(
+        "detailConnections",
+        Math.round(network.connection_count ?? 0)
+    );
+
+    setText(
+        "detailFailed",
+        Math.round(network.failed_connections ?? 0)
+    );
+
+    setText(
+        "detailDestinations",
+        Math.round(network.unique_destinations ?? 0)
+    );
+
+    setText(
+        "networkDetailStatus",
+        state.modules?.network || "UNKNOWN"
+    );
+
+
+    /* USB */
+
+    const usb = state.usb || {};
+
+    setText(
+        "usbStatus",
+        usb.connected
+            ? usb.scan || "CONNECTED"
+            : "WAITING"
+    );
+
+    setText(
+        "usbDevice",
+        usb.device || "WAITING FOR USB AGENT"
+    );
+
+    setText(
+        "usbDrive",
+        usb.drive || "--"
+    );
+
+    setText(
+        "usbFiles",
+        usb.files_scanned ?? 0
+    );
+
+    setText(
+        "usbSuspicious",
+        usb.suspicious ?? 0
+    );
+
+
+    /* WORKFLOW */
+
+    renderWorkflow(
+        state.workflow || {},
+        state.risk
+    );
+}
+
+
+function renderWorkflow(workflow, fallbackScore) {
+
+    const steps = [
+        "stepDetected",
+        "stepAnomaly",
+        "stepClassified",
+        "stepResponse",
+        "stepReport"
     ];
 
-    ids.forEach((id) => {
-
+    steps.forEach((id) => {
         const element = $(id);
 
         if (element) {
             element.classList.remove("active");
         }
-
     });
 
-    setText(
-        "workflowDetectedText",
-        "Waiting"
-    );
 
-    setText(
-        "workflowAnomalyText",
-        "ML pending"
-    );
-
-    setText(
-        "workflowClassifiedText",
-        "Pending"
-    );
-
-    setText(
-        "workflowQuarantineText",
-        "Pending"
-    );
-
-    setText(
-        "workflowReportText",
-        "Pending"
-    );
-}
-
-
-function activateWorkflow(
-    connected,
-    anomalyScore,
-    threatClass,
-    action
-) {
-
-    resetWorkflow();
-
-    if (!connected) {
-        return;
+    if (workflow.device_detected) {
+        $("stepDetected")?.classList.add("active");
     }
 
-    const detected = $("workflowDetected");
-    const anomaly = $("workflowAnomaly");
-    const classified = $("workflowClassified");
-    const quarantine = $("workflowQuarantine");
-    const report = $("workflowReport");
-
-    detected?.classList.add("active");
-
-    setText(
-        "workflowDetectedText",
-        "Device telemetry received"
-    );
-
-    anomaly?.classList.add("active");
-
-    setText(
-        "workflowAnomalyText",
-        `${anomalyScore}% ML anomaly`
-    );
-
-    classified?.classList.add("active");
-
-    setText(
-        "workflowClassifiedText",
-        threatClass || "Analyzed"
-    );
-
-    if (
-        String(action).toUpperCase() === "QUARANTINE"
-    ) {
-
-        quarantine?.classList.add("active");
-
-        setText(
-            "workflowQuarantineText",
-            "Autonomous response"
-        );
-
-        report?.classList.add("active");
-
-        setText(
-            "workflowReportText",
-            "Forensic evidence available"
-        );
-
-    } else {
-
-        setText(
-            "workflowQuarantineText",
-            "No quarantine required"
-        );
-
-        setText(
-            "workflowReportText",
-            "Monitoring"
-        );
-    }
-}
-
-
-/* ============================================================
-   USB DISPLAY
-============================================================ */
-
-function updateUSB(usb, workflow) {
-
-    if (!usb) {
-        return;
+    if (workflow.anomaly_detected) {
+        $("stepAnomaly")?.classList.add("active");
     }
 
-    const connected =
-        Boolean(usb.connected);
+    if (workflow.threat_classified) {
+        $("stepClassified")?.classList.add("active");
+    }
+
+    if (workflow.response_executed) {
+        $("stepResponse")?.classList.add("active");
+    }
+
+    if (workflow.forensic_report) {
+        $("stepReport")?.classList.add("active");
+    }
+
 
     const score =
-        clamp(
-            safeNumber(
-                usb.anomaly_score,
-                0
-            )
-        );
-
-    const threatClass =
-        usb.threat_class ||
-        "WAITING FOR TELEMETRY";
-
-    const status =
-        usb.status ||
-        (connected
-            ? "SECURE"
-            : "NOT CONNECTED");
-
-    const action =
-        usb.action ||
-        "No active USB event";
+        workflow.anomaly_detected
+            ? `${fallbackScore}%`
+            : "--";
 
     setText(
-        "usbDevice",
-        usb.device ||
-        "USB REMOVABLE DEVICE"
-    );
-
-    setText(
-        "usbDrive",
-        connected
-            ? (
-                usb.drive ||
-                "USB CONNECTED"
-            )
-            : "NOT CONNECTED"
-    );
-
-    setText(
-        "usbScore",
+        "workflowScore",
         score
     );
 
-    const scoreBar =
-        $("usbScoreBar");
-
-    if (scoreBar) {
-        scoreBar.style.width =
-            `${score}%`;
-    }
-
     setText(
-        "usbThreatClass",
-        threatClass
-    );
-
-    setText(
-        "usbStatus",
-        status
-    );
-
-    setText(
-        "usbAction",
-        action
-    );
-
-    setText(
-        "endpointUsbStatus",
-        status
-    );
-
-    setText(
-        "endpointUsbFiles",
-        safeNumber(
-            usb.files_scanned,
-            0
-        )
-    );
-
-    setText(
-        "endpointUsbRisk",
-        `${score}%`
-    );
-
-    setText(
-        "usbActivity",
-        connected ? 1 : 0
-    );
-
-    activateWorkflow(
-        connected,
-        score,
-        threatClass,
-        action
-    );
-
-    if (score >= 85) {
-
-        document
-            .querySelector(".usb-status strong")
-            ?.style
-            .setProperty(
-                "color",
-                "var(--red)"
-            );
-
-    } else if (score >= 70) {
-
-        document
-            .querySelector(".usb-status strong")
-            ?.style
-            .setProperty(
-                "color",
-                "var(--yellow)"
-            );
-
-    } else {
-
-        document
-            .querySelector(".usb-status strong")
-            ?.style
-            .setProperty(
-                "color",
-                "var(--green)"
-            );
-    }
-}
-
-
-/* ============================================================
-   METRICS
-============================================================ */
-
-function updateMetrics(data) {
-
-    if (!data) {
-        return;
-    }
-
-    const risk =
-        clamp(
-            safeNumber(
-                data.risk,
-                0
-            )
-        );
-
-    const aiRisk =
-        clamp(
-            safeNumber(
-                data.ai_risk,
-                0
-            )
-        );
-
-    setText(
-        "risk",
-        risk
-    );
-
-    setText(
-        "aiRisk",
-        aiRisk
-    );
-
-    setText(
-        "threats",
-        safeNumber(
-            data.threats,
-            0
-        )
-    );
-
-    setText(
-        "blocked",
-        safeNumber(
-            data.blocked,
-            0
-        )
-    );
-
-    setText(
-        "riskStatus",
-        data.status ||
-        "SYSTEM PROTECTED"
-    );
-
-    setText(
-        "endpointStatus",
-        data.modules?.endpoint ||
-        "SECURE"
-    );
-
-    setText(
-        "cpu",
-        `${safeNumber(data.endpoint?.cpu, 0)}%`
-    );
-
-    setText(
-        "memory",
-        `${safeNumber(data.endpoint?.memory, 0)}%`
-    );
-
-    setText(
-        "endpointCpu",
-        `${safeNumber(data.endpoint?.cpu, 0)}%`
-    );
-
-    setText(
-        "endpointMemory",
-        `${safeNumber(data.endpoint?.memory, 0)}%`
-    );
-
-    setText(
-        "networkTraffic",
-        `${safeNumber(data.endpoint?.network_traffic, 0)}%`
-    );
-
-    setText(
-        "networkPanelTraffic",
-        `${safeNumber(data.endpoint?.network_traffic, 0)}%`
-    );
-
-    setText(
-        "networkRisk",
-        `${safeNumber(data.network?.risk, 0)}%`
-    );
-
-    setText(
-        "networkDevices",
-        safeNumber(
-            data.infrastructure?.network_devices,
-            18
-        )
-    );
-
-    setText(
-        "networkPanelDevices",
-        safeNumber(
-            data.infrastructure?.network_devices,
-            18
-        )
-    );
-
-    setText(
-        "endpointCount",
-        safeNumber(
-            data.infrastructure?.endpoints,
-            12
-        )
-    );
-
-    setText(
-        "cloudCount",
-        safeNumber(
-            data.infrastructure?.cloud,
-            8
-        )
-    );
-
-    setText(
-        "networkCount",
-        safeNumber(
-            data.infrastructure?.network_devices,
-            18
-        )
-    );
-
-    setText(
-        "aiProcessing",
-        `${safeNumber(data.ai_processing, 0)}%`
-    );
-
-    setText(
-        "lastUpdate",
-        data.last_update
-            ? new Date(
-                data.last_update
-              ).toLocaleTimeString()
-            : "LIVE"
-    );
-
-    updateUSB(
-        data.usb,
-        data.workflow
+        "workflowStage",
+        workflow.current_stage || "MONITORING"
     );
 }
 
 
-/* ============================================================
-   STATUS
-============================================================ */
+/* ENDPOINT TEST */
 
-async function loadStatus() {
+async function runEndpointTest() {
+
+    showNotification(
+        "Running endpoint ML anomaly detection..."
+    );
 
     try {
 
-        const response =
-            await fetch(
-                "/api/status",
-                {
-                    cache: "no-store"
-                }
-            );
+        const response = await fetch(
+            "/api/endpoint-test",
+            {
+                method: "POST"
+            }
+        );
+
+        const data = await response.json();
 
         if (!response.ok) {
             throw new Error(
-                `HTTP ${response.status}`
+                data.message || "Endpoint test failed"
             );
         }
 
-        const data =
-            await response.json();
+        showNotification(
+            `Endpoint threat detected — ${data.detection.anomaly_score}% anomaly score. Device quarantined.`
+        );
 
-        updateMetrics(data);
+        renderState(data.state);
+
+        loadThreats();
+        loadReports();
 
     } catch (error) {
 
-        console.error(
-            "IronMind status error:",
-            error
+        console.error(error);
+
+        showNotification(
+            "Endpoint test failed."
         );
     }
 }
 
 
-/* ============================================================
-   THREAT TABLE
-============================================================ */
+/* NETWORK TEST */
 
-function severityClass(severity) {
+async function runNetworkTest() {
 
-    const value =
-        String(severity || "")
-            .toUpperCase();
+    showNotification(
+        "Running network ML anomaly detection..."
+    );
 
-    if (value === "CRITICAL") {
-        return "CRITICAL";
-    }
+    try {
 
-    if (value === "HIGH") {
-        return "HIGH";
-    }
+        const response = await fetch(
+            "/api/network-test",
+            {
+                method: "POST"
+            }
+        );
 
-    if (value === "MEDIUM") {
-        return "MEDIUM";
-    }
+        const data = await response.json();
 
-    return "LOW";
-}
-
-
-function renderThreats(data) {
-
-    if (!Array.isArray(data)) {
-        return;
-    }
-
-    const table =
-        $("threatTable");
-
-    if (!table) {
-        return;
-    }
-
-    if (data.length === 0) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="7" class="table-empty">
-                    No threats detected
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    table.innerHTML =
-        data.map((threat) => {
-
-            const severity =
-                severityClass(
-                    threat.severity
-                );
-
-            return `
-                <tr>
-                    <td>
-                        ${threat.timestamp || "--"}
-                    </td>
-
-                    <td>
-                        ${threat.source || "UNKNOWN"}
-                    </td>
-
-                    <td>
-                        ${threat.threat_type || "UNKNOWN"}
-                    </td>
-
-                    <td>
-                        ${safeNumber(
-                            threat.risk_score,
-                            0
-                        )}%
-                    </td>
-
-                    <td>
-                        ${severity}
-                    </td>
-
-                    <td>
-                        ${threat.action || "MONITOR"}
-                    </td>
-
-                    <td>
-                        ${threat.status || "OPEN"}
-                    </td>
-                </tr>
-            `;
-
-        })
-        .join("");
-
-    updateThreatCounters(data);
-}
-
-
-function updateThreatCounters(data) {
-
-    let critical = 0;
-    let high = 0;
-    let medium = 0;
-    let low = 0;
-
-    data.forEach((threat) => {
-
-        const severity =
-            String(
-                threat.severity || ""
-            ).toUpperCase();
-
-        if (severity === "CRITICAL") {
-            critical++;
-        } else if (severity === "HIGH") {
-            high++;
-        } else if (severity === "MEDIUM") {
-            medium++;
-        } else {
-            low++;
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Network test failed"
+            );
         }
 
-    });
+        showNotification(
+            `Network anomaly detected — ${data.detection.anomaly_score}% score. Connection isolated.`
+        );
 
-    setText(
-        "criticalThreats",
-        critical
-    );
+        renderState(data.state);
 
-    setText(
-        "highThreats",
-        high
-    );
+        loadThreats();
+        loadReports();
 
-    setText(
-        "mediumThreats",
-        medium
-    );
+    } catch (error) {
 
-    setText(
-        "lowThreats",
-        low
-    );
+        console.error(error);
+
+        showNotification(
+            "Network test failed."
+        );
+    }
 }
 
+
+/* USB TEST */
+
+async function runUSBThreatTest() {
+
+    showNotification(
+        "Running USB ML threat simulation..."
+    );
+
+    try {
+
+        const response = await fetch(
+            "/api/usb-threat-test",
+            {
+                method: "POST"
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "USB test failed"
+            );
+        }
+
+        showNotification(
+            `USB threat detected — ${data.detection.anomaly_score}% score. Device quarantined.`
+        );
+
+        renderState(data.state);
+
+        loadThreats();
+        loadReports();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showNotification(
+            "USB test failed."
+        );
+    }
+}
+
+
+/* THREATS */
 
 async function loadThreats() {
 
     try {
 
-        const response =
-            await fetch(
-                "/api/threats",
-                {
-                    cache: "no-store"
-                }
-            );
+        const response = await fetch(
+            "/api/threats",
+            {
+                cache: "no-store"
+            }
+        );
 
         if (!response.ok) {
-            throw new Error(
-                `HTTP ${response.status}`
-            );
+            return;
         }
 
-        const data =
-            await response.json();
+        const threats = await response.json();
 
-        renderThreats(data);
-
-        if (Array.isArray(data) &&
-            data.length > 0) {
-
-            const latest = data[0];
-
-            setText(
-                "reportThreat",
-                latest.threat_type ||
-                "Security incident"
-            );
-
-            setText(
-                "reportDetails",
-                `${latest.source || "Unknown source"} • ${
-                    latest.status || "OPEN"
-                } • ${
-                    latest.action || "MONITOR"
-                }`
-            );
-
-            setText(
-                "reportRisk",
-                `${safeNumber(
-                    latest.risk_score,
-                    0
-                )}%`
-            );
-        }
+        renderThreats(threats);
 
     } catch (error) {
 
         console.error(
-            "IronMind threat error:",
+            "Threat loading failed:",
             error
         );
     }
 }
 
 
-/* ============================================================
-   EVENT STREAM
-============================================================ */
+function renderThreats(threats) {
 
-function addEvent(text, detail) {
+    const container = $("threatList");
 
-    const list =
-        $("eventList");
-
-    if (!list) {
+    if (!container) {
         return;
     }
 
-    const empty =
-        list.querySelector(".empty-event");
+    if (!threats.length) {
 
-    if (empty) {
-        empty.remove();
+        container.innerHTML = `
+            <div class="empty-state">
+                No threat records.
+            </div>
+        `;
+
+        return;
     }
 
-    const row =
-        document.createElement("div");
 
-    row.className =
-        "event-row";
+    container.innerHTML = threats
+        .map((threat) => {
 
-    row.innerHTML = `
-        <span>◉</span>
-        <div>
-            <strong>${text}</strong>
-            <small>${detail}</small>
-        </div>
-    `;
+            return `
+                <article class="threat-card">
 
-    list.prepend(row);
+                    <div class="threat-card-header">
 
-    while (list.children.length > 8) {
-        list.removeChild(
-            list.lastElementChild
-        );
-    }
+                        <div>
+                            <div class="eyebrow">
+                                ${escapeHTML(threat.source)}
+                            </div>
+
+                            <h3>
+                                ${escapeHTML(threat.threat_type)}
+                            </h3>
+                        </div>
+
+                        <span class="badge danger">
+                            ${escapeHTML(threat.status)}
+                        </span>
+
+                    </div>
+
+                    <p>
+                        ${escapeHTML(threat.reason)}
+                    </p>
+
+                    <div class="threat-meta">
+
+                        <div>
+                            <span>ANOMALY SCORE</span>
+                            <strong>
+                                ${escapeHTML(threat.risk_score)}%
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>SEVERITY</span>
+                            <strong>
+                                ${escapeHTML(threat.severity)}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>ACTION</span>
+                            <strong>
+                                ${escapeHTML(threat.action)}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>SHA-256</span>
+                            <strong>
+                                ${escapeHTML(
+                                    String(threat.sha256).slice(0, 16)
+                                )}...
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </article>
+            `;
+
+        })
+        .join("");
 }
 
 
-/* ============================================================
-   TEST BUTTON SUPPORT
-   ============================================================ */
+/* REPORTS */
 
-async function postTest(endpoint) {
+async function loadReports() {
 
     try {
 
-        const response =
-            await fetch(
-                endpoint,
-                {
-                    method: "POST"
-                }
-            );
-
-        const data =
-            await response.json();
-
-        updateMetrics(
-            data.state || data
+        const response = await fetch(
+            "/api/investigations",
+            {
+                cache: "no-store"
+            }
         );
 
-        await loadThreats();
+        if (!response.ok) {
+            return;
+        }
 
-        return data;
+        const reports = await response.json();
+
+        renderReports(reports);
 
     } catch (error) {
 
         console.error(
-            "IronMind test error:",
+            "Report loading failed:",
             error
         );
-
-        return null;
     }
 }
 
 
-async function runUSBThreatTest() {
+function renderReports(reports) {
 
-    const result =
-        await postTest(
-            "/api/usb-threat-test"
-        );
+    const container = $("reportList");
 
-    if (result) {
-
-        addEvent(
-            "USB ML test executed",
-            `Anomaly score ${
-                result.anomaly_score ?? 0
-            }%`
-        );
+    if (!container) {
+        return;
     }
+
+    if (!reports.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                No forensic reports generated.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = reports
+        .map((report) => {
+
+            return `
+                <article class="report-card">
+
+                    <div class="report-card-header">
+
+                        <div>
+                            <div class="eyebrow">
+                                FORENSIC REPORT
+                            </div>
+
+                            <h3>
+                                ${escapeHTML(report.threat_type)}
+                            </h3>
+                        </div>
+
+                        <span class="badge success">
+                            GENERATED
+                        </span>
+
+                    </div>
+
+                    <p>
+                        ${escapeHTML(report.reason)}
+                    </p>
+
+                    <div class="threat-meta">
+
+                        <div>
+                            <span>SOURCE</span>
+                            <strong>
+                                ${escapeHTML(report.source)}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>RISK</span>
+                            <strong>
+                                ${escapeHTML(report.risk_score)}%
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>SEVERITY</span>
+                            <strong>
+                                ${escapeHTML(report.severity)}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>REPORT ID</span>
+                            <strong>
+                                ${escapeHTML(report.id)}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </article>
+            `;
+
+        })
+        .join("");
 }
 
 
-async function runEndpointTest() {
-
-    const result =
-        await postTest(
-            "/api/endpoint-test"
-        );
-
-    if (result) {
-        addEvent(
-            "Endpoint anomaly test",
-            "Endpoint response workflow executed"
-        );
-    }
-}
-
-
-async function runNetworkTest() {
-
-    const result =
-        await postTest(
-            "/api/network-test"
-        );
-
-    if (result) {
-        addEvent(
-            "Network anomaly test",
-            "Network response workflow executed"
-        );
-    }
-}
-
+/* RESET */
 
 async function resetSystem() {
 
     try {
 
-        await fetch(
+        const response = await fetch(
             "/api/reset",
             {
                 method: "POST"
             }
         );
 
-        resetWorkflow();
+        const data = await response.json();
 
-        await loadStatus();
-        await loadThreats();
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Reset failed"
+            );
+        }
 
-        addEvent(
-            "System reset",
-            "IronMind defense state restored"
+        renderState(data.state);
+
+        loadThreats();
+        loadReports();
+
+        showNotification(
+            "IronMind AI system reset to protected monitoring."
         );
 
     } catch (error) {
 
-        console.error(
-            "Reset error:",
-            error
+        console.error(error);
+
+        showNotification(
+            "System reset failed."
         );
     }
 }
-
-
-/* ============================================================
-   GLOBAL FUNCTIONS
-============================================================ */
-
-window.runUSBThreatTest =
-    runUSBThreatTest;
-
-window.runEndpointTest =
-    runEndpointTest;
-
-window.runNetworkTest =
-    runNetworkTest;
-
-window.resetSystem =
-    resetSystem;
-
-
-/* ============================================================
-   INITIALIZATION
-============================================================ */
-
-async function initializeDashboard() {
-
-    resetWorkflow();
-
-    await loadStatus();
-
-    await loadThreats();
-
-}
-
-initializeDashboard();
-
-
-/* ============================================================
-   LIVE POLLING
-============================================================ */
-
-setInterval(
-    loadStatus,
-    3000
-);
-
-setInterval(
-    loadThreats,
-    5000
-);
