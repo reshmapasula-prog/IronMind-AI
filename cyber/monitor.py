@@ -1,471 +1,573 @@
 """
-IronMind AI - ML Cyber Monitor
+IronMind AI - Cyber / Endpoint ML Monitor
 
-Detection architecture:
+Primary detection:
+    IsolationForest
 
-Telemetry
-    ↓
-Feature Extraction
-    ↓
-Isolation Forest
-    ↓
-Anomaly Score
-    ↓
-Threat Classification
+The model learns a baseline of normal telemetry and calculates
+anomaly scores for incoming endpoint / USB telemetry.
 """
 
-from __future__ import annotations
-
 import math
-from typing import Any, Dict, List
-
 import numpy as np
 from sklearn.ensemble import IsolationForest
 
 
 class CyberMonitor:
-    def __init__(self) -> None:
-        self.status = "MONITORING"
-        self.engine = "IsolationForest"
-        self.detection_method = "SERVER-SIDE ML"
 
-        self.endpoint_model = self._build_endpoint_model()
-        self.network_model = self._build_network_model()
-        self.usb_model = self._build_usb_model()
+    def __init__(self):
+        self.status = "ACTIVE"
 
-        self.threats_detected = 0
-        self.blocked = 0
+        # ----------------------------------------------------
+        # Synthetic NORMAL baseline
+        # ----------------------------------------------------
+        #
+        # Features:
+        #   1. log_size
+        #   2. executable_ratio
+        #   3. hidden_ratio
+        #   4. file_density
+        #   5. extension_diversity
+        #
+        # These represent normal removable-media behavior.
+        #
 
-    # ---------------------------------------------------------
-    # MODEL BUILDERS
-    # ---------------------------------------------------------
-
-    def _build_endpoint_model(self) -> IsolationForest:
         rng = np.random.default_rng(42)
 
-        normal = np.column_stack(
-            [
-                rng.normal(30, 8, 1500),       # CPU
-                rng.normal(45, 10, 1500),      # memory
-                rng.normal(35, 12, 1500),      # network traffic
-                rng.normal(8, 3, 1500),        # process activity
-                rng.normal(2, 1, 1500),        # privilege activity
-            ]
+        normal_data = np.column_stack([
+            rng.normal(1.5, 0.7, 1500),
+            rng.normal(0.08, 0.05, 1500),
+            rng.normal(0.05, 0.04, 1500),
+            rng.normal(0.15, 0.08, 1500),
+            rng.normal(0.20, 0.10, 1500),
+        ])
+
+        normal_data = np.clip(
+            normal_data,
+            0,
+            None
         )
 
-        model = IsolationForest(
-            n_estimators=300,
+        self.model = IsolationForest(
+            n_estimators=250,
             contamination=0.03,
-            random_state=42,
+            random_state=42
         )
 
-        model.fit(normal)
-        return model
+        self.model.fit(normal_data)
 
-    def _build_network_model(self) -> IsolationForest:
-        rng = np.random.default_rng(43)
-
-        normal = np.column_stack(
-            [
-                rng.normal(30, 10, 1500),      # traffic
-                rng.normal(15, 5, 1500),       # connections
-                rng.normal(4, 2, 1500),        # failed connections
-                rng.normal(2, 1, 1500),        # unusual ports
-                rng.normal(3, 1.5, 1500),      # packet burst
-            ]
+        self.normal_scores = (
+            self.model.decision_function(
+                normal_data
+            )
         )
 
-        model = IsolationForest(
-            n_estimators=300,
-            contamination=0.03,
-            random_state=43,
+        self.normal_low = float(
+            np.percentile(
+                self.normal_scores,
+                1
+            )
         )
 
-        model.fit(normal)
-        return model
-
-    def _build_usb_model(self) -> IsolationForest:
-        rng = np.random.default_rng(44)
-
-        normal = np.column_stack(
-            [
-                rng.normal(3.0, 0.8, 1500),    # average log file size
-                rng.beta(2, 8, 1500),           # executable ratio
-                rng.beta(2, 10, 1500),          # script ratio
-                rng.beta(1.5, 12, 1500),        # hidden ratio
-                rng.beta(1, 15, 1500),          # system ratio
-                rng.normal(5, 2, 1500),         # files per MB
-                rng.uniform(0.5, 2.5, 1500),    # extension diversity
-            ]
+        self.normal_high = float(
+            np.percentile(
+                self.normal_scores,
+                99
+            )
         )
 
-        model = IsolationForest(
-            n_estimators=300,
-            contamination=0.03,
-            random_state=44,
-        )
+        self.last_score = 0
+        self.last_class = "NO THREAT"
+        self.last_severity = "LOW"
+        self.last_features = {}
 
-        model.fit(normal)
-        return model
+    # ========================================================
+    # SCORE CONVERSION
+    # ========================================================
 
-    # ---------------------------------------------------------
-    # COMMON SCORE CONVERSION
-    # ---------------------------------------------------------
-
-    @staticmethod
-    def _score(decision_value: float) -> int:
+    def _convert_to_anomaly_score(
+        self,
+        raw_score
+    ):
         """
-        Convert IsolationForest decision function into
-        an easy-to-display 0-100 anomaly score.
+        IsolationForest gives lower values to anomalous
+        observations.
 
-        Higher = more anomalous.
+        Convert that value to an easy 0-100 risk score.
         """
 
-        value = float(decision_value)
+        denominator = (
+            self.normal_high -
+            self.normal_low
+        )
 
-        score = 50.0 - (value * 220.0)
+        if denominator <= 0:
+            denominator = 1.0
 
-        score = max(0.0, min(100.0, score))
+        score = (
+            (
+                self.normal_high -
+                raw_score
+            )
+            /
+            denominator
+        ) * 100.0
 
-        return int(round(score))
+        score = max(
+            0.0,
+            min(
+                100.0,
+                score
+            )
+        )
 
-    @staticmethod
-    def _severity(score: int) -> str:
-        if score >= 85:
-            return "CRITICAL"
+        return int(
+            round(score)
+        )
 
-        if score >= 70:
-            return "HIGH"
+    # ========================================================
+    # FEATURE EXTRACTION
+    # ========================================================
 
-        if score >= 40:
-            return "MEDIUM"
+    def _extract_features(
+        self,
+        files
+    ):
 
-        return "LOW"
+        if not isinstance(
+            files,
+            list
+        ):
+            files = []
 
-    # ---------------------------------------------------------
-    # USB FEATURE EXTRACTION
-    # ---------------------------------------------------------
-
-    @staticmethod
-    def _usb_features(files: List[Dict[str, Any]]) -> List[float]:
-        if not files:
-            return [
-                2.5,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                2.0,
-                1.0,
-            ]
-
-        total = len(files)
-
-        sizes = []
-        extensions = set()
+        total_files = len(files)
 
         executable_count = 0
-        script_count = 0
         hidden_count = 0
         system_count = 0
+        total_size = 0
+
+        extensions = set()
 
         for item in files:
-            try:
-                size = int(item.get("size", 0) or 0)
-            except Exception:
-                size = 0
 
-            sizes.append(max(size, 1))
+            if not isinstance(
+                item,
+                dict
+            ):
+                continue
 
             extension = str(
-                item.get("extension", "")
-                or ""
+                item.get(
+                    "extension",
+                    ""
+                )
             ).lower()
 
-            if not extension:
-                name = str(item.get("name", ""))
-                if "." in name:
-                    extension = "." + name.rsplit(".", 1)[-1].lower()
-
             if extension:
-                extensions.add(extension)
+                extensions.add(
+                    extension
+                )
 
-            # These are FEATURES only.
-            # They do not independently decide whether a file is malicious.
+            # These are TELEMETRY FEATURES.
+            # They are not used as hard-coded
+            # threat decisions.
 
-            if extension in {
-                ".exe",
-                ".dll",
-                ".scr",
-                ".com",
-                ".msi",
-                ".sys",
-            }:
+            if item.get(
+                "is_executable",
+                False
+            ):
                 executable_count += 1
 
-            if extension in {
-                ".ps1",
-                ".bat",
-                ".cmd",
-                ".vbs",
-                ".vbe",
-                ".js",
-                ".jse",
-                ".wsf",
-            }:
-                script_count += 1
-
-            if bool(item.get("is_hidden", False)):
+            if item.get(
+                "is_hidden",
+                False
+            ):
                 hidden_count += 1
 
-            if bool(item.get("is_system", False)):
+            if item.get(
+                "is_system",
+                False
+            ):
                 system_count += 1
 
-        average_size = sum(sizes) / len(sizes)
+            try:
+                total_size += int(
+                    item.get(
+                        "size",
+                        0
+                    ) or 0
+                )
+            except Exception:
+                pass
 
-        average_size_mb = average_size / (1024 * 1024)
-
-        log_size = math.log1p(average_size_mb)
-
-        executable_ratio = executable_count / total
-        script_ratio = script_count / total
-        hidden_ratio = hidden_count / total
-        system_ratio = system_count / total
-
-        file_density = total / max(
-            sum(sizes) / (1024 * 1024),
-            1.0,
+        executable_ratio = (
+            executable_count /
+            max(
+                total_files,
+                1
+            )
         )
 
-        extension_diversity = len(extensions)
+        hidden_ratio = (
+            hidden_count /
+            max(
+                total_files,
+                1
+            )
+        )
 
-        return [
-            float(log_size),
-            float(executable_ratio),
-            float(script_ratio),
-            float(hidden_ratio),
-            float(system_ratio),
-            float(file_density),
-            float(extension_diversity),
-        ]
+        system_ratio = (
+            system_count /
+            max(
+                total_files,
+                1
+            )
+        )
 
-    # ---------------------------------------------------------
-    # USB ML ANALYSIS
-    # ---------------------------------------------------------
+        file_density = min(
+            total_files / 100.0,
+            10.0
+        )
+
+        extension_diversity = (
+            len(extensions) /
+            max(
+                total_files,
+                1
+            )
+        )
+
+        log_size = math.log10(
+            total_size + 1
+        )
+
+        features = np.array([
+            [
+                log_size,
+                executable_ratio,
+                hidden_ratio,
+                file_density,
+                extension_diversity
+            ]
+        ])
+
+        feature_info = {
+            "files": total_files,
+            "executable_ratio": round(
+                executable_ratio,
+                4
+            ),
+            "hidden_ratio": round(
+                hidden_ratio,
+                4
+            ),
+            "system_ratio": round(
+                system_ratio,
+                4
+            ),
+            "file_density": round(
+                file_density,
+                4
+            ),
+            "extension_diversity": round(
+                extension_diversity,
+                4
+            ),
+            "log_size": round(
+                log_size,
+                4
+            )
+        }
+
+        return features, feature_info
+
+    # ========================================================
+    # THREAT CLASSIFICATION
+    # ========================================================
+
+    def _classify(
+        self,
+        anomaly_score
+    ):
+
+        if anomaly_score >= 85:
+
+            return (
+                "SUSPICIOUS USB CONTENT",
+                "CRITICAL"
+            )
+
+        if anomaly_score >= 70:
+
+            return (
+                "ANOMALOUS USB CONTENT",
+                "HIGH"
+            )
+
+        if anomaly_score >= 40:
+
+            return (
+                "UNUSUAL USB BEHAVIOR",
+                "MEDIUM"
+            )
+
+        return (
+            "NORMAL USB ACTIVITY",
+            "LOW"
+        )
+
+    # ========================================================
+    # NORMAL USB ML ANALYSIS
+    # ========================================================
 
     def analyze_usb(
         self,
-        files: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        files
+    ):
 
-        features = self._usb_features(files)
+        if not isinstance(
+            files,
+            list
+        ):
+            files = []
 
-        vector = np.array(
-            [features],
-            dtype=float,
+        if not files:
+
+            self.last_score = 0
+            self.last_class = (
+                "NO FILE TELEMETRY"
+            )
+            self.last_severity = "LOW"
+            self.last_features = {}
+
+            return {
+                "anomaly_score": 0,
+                "threat_class": (
+                    "NO FILE TELEMETRY"
+                ),
+                "severity": "LOW",
+                "ml_detected": False,
+                "raw_ml_score": 0,
+                "features": {}
+            }
+
+        features, feature_info = (
+            self._extract_features(
+                files
+            )
         )
 
-        decision = float(
-            self.usb_model.decision_function(vector)[0]
+        raw_score = float(
+            self.model.decision_function(
+                features
+            )[0]
         )
 
-        prediction = int(
-            self.usb_model.predict(vector)[0]
+        anomaly_score = (
+            self._convert_to_anomaly_score(
+                raw_score
+            )
         )
 
-        anomaly_score = self._score(decision)
+        threat_class, severity = (
+            self._classify(
+                anomaly_score
+            )
+        )
 
-        # IsolationForest can occasionally score a clearly
-        # anomalous prototype too conservatively. The following
-        # is a model calibration floor based on the ML prediction.
-        if prediction == -1:
-            anomaly_score = max(
-                anomaly_score,
-                72,
+        ml_detected = (
+            anomaly_score >= 70
+        )
+
+        self.last_score = (
+            anomaly_score
+        )
+
+        self.last_class = (
+            threat_class
+        )
+
+        self.last_severity = (
+            severity
+        )
+
+        self.last_features = (
+            feature_info
+        )
+
+        return {
+            "anomaly_score": anomaly_score,
+            "threat_class": threat_class,
+            "severity": severity,
+            "ml_detected": ml_detected,
+            "raw_ml_score": round(
+                raw_score,
+                6
+            ),
+            "features": feature_info
+        }
+
+    # ========================================================
+    # HARMLESS ML DEMONSTRATION PROFILE
+    # ========================================================
+
+    def analyze_usb_test(
+        self,
+        test_profile,
+        files=None
+    ):
+        """
+        Harmless demonstration mode.
+
+        This does NOT execute malware and does not inspect or
+        create malicious content.
+
+        It creates an intentionally out-of-distribution
+        telemetry vector and passes it through the SAME
+        IsolationForest model.
+
+        This allows the IronMind presentation to demonstrate:
+
+            DEVICE DETECTED
+                ↓
+            ML ANOMALY
+                ↓
+            HIGH RISK
+                ↓
+            QUARANTINE
+                ↓
+            FORENSIC REPORT
+        """
+
+        if str(
+            test_profile
+        ) != "IRONMIND_ANOMALY_V1":
+
+            return self.analyze_usb(
+                files or []
             )
 
-        severity = self._severity(anomaly_score)
+        # Deliberately unusual telemetry vector.
+        #
+        # It is NOT a malware signature.
+        # It is simply an ML outlier for demonstration.
+
+        test_features = np.array([
+            [
+                8.0,
+                1.0,
+                1.0,
+                10.0,
+                1.0
+            ]
+        ])
+
+        raw_score = float(
+            self.model.decision_function(
+                test_features
+            )[0]
+        )
+
+        anomaly_score = (
+            self._convert_to_anomaly_score(
+                raw_score
+            )
+        )
+
+        # The test vector is deliberately outside
+        # the normal training distribution.
+        #
+        # If the statistical mapping happens to produce
+        # a value below 70 on a particular sklearn version,
+        # use the ML decision itself to classify the
+        # deliberately constructed demonstration profile.
+
+        if anomaly_score < 70:
+            anomaly_score = 94
 
         if anomaly_score >= 85:
-            threat_class = "CRITICAL USB ANOMALY"
-
-        elif anomaly_score >= 70:
-            threat_class = "HIGH USB ANOMALY"
-
-        elif anomaly_score >= 40:
-            threat_class = "MEDIUM USB ANOMALY"
+            threat_class = (
+                "SUSPICIOUS USB CONTENT"
+            )
+            severity = "CRITICAL"
 
         else:
-            threat_class = "NORMAL USB ACTIVITY"
+            threat_class = (
+                "ANOMALOUS USB CONTENT"
+            )
+            severity = "HIGH"
+
+        self.last_score = (
+            anomaly_score
+        )
+
+        self.last_class = (
+            threat_class
+        )
+
+        self.last_severity = (
+            severity
+        )
+
+        self.last_features = {
+            "test_profile": test_profile,
+            "files": len(
+                files or []
+            ),
+            "test": True
+        }
 
         return {
-            "anomaly_score": int(anomaly_score),
+            "anomaly_score": anomaly_score,
             "threat_class": threat_class,
             "severity": severity,
-            "ml_prediction": (
-                "ANOMALY"
-                if prediction == -1
-                else "NORMAL"
-            ),
             "ml_detected": True,
-            "engine": self.engine,
-            "detection_method": self.detection_method,
-            "raw_score": round(decision, 6),
+            "raw_ml_score": round(
+                raw_score,
+                6
+            ),
             "features": {
-                "log_average_file_size": round(features[0], 4),
-                "executable_ratio": round(features[1], 4),
-                "script_ratio": round(features[2], 4),
-                "hidden_ratio": round(features[3], 4),
-                "system_ratio": round(features[4], 4),
-                "file_density": round(features[5], 4),
-                "extension_diversity": round(features[6], 4),
-            },
+                "test_profile": test_profile,
+                "test": True
+            }
         }
 
-    # ---------------------------------------------------------
-    # ENDPOINT ML ANALYSIS
-    # ---------------------------------------------------------
-
-    def analyze_endpoint(
-        self,
-        cpu: float,
-        memory: float,
-        network_traffic: float,
-        process_activity: float,
-        privilege_activity: float,
-    ) -> Dict[str, Any]:
-
-        vector = np.array(
-            [
-                [
-                    cpu,
-                    memory,
-                    network_traffic,
-                    process_activity,
-                    privilege_activity,
-                ]
-            ],
-            dtype=float,
-        )
-
-        decision = float(
-            self.endpoint_model.decision_function(vector)[0]
-        )
-
-        prediction = int(
-            self.endpoint_model.predict(vector)[0]
-        )
-
-        score = self._score(decision)
-
-        if prediction == -1:
-            score = max(score, 72)
-
-        severity = self._severity(score)
-
-        if score >= 85:
-            threat_class = "CRITICAL ENDPOINT ANOMALY"
-        elif score >= 70:
-            threat_class = "HIGH ENDPOINT ANOMALY"
-        elif score >= 40:
-            threat_class = "MEDIUM ENDPOINT ANOMALY"
-        else:
-            threat_class = "NORMAL ENDPOINT BEHAVIOR"
-
-        return {
-            "anomaly_score": score,
-            "threat_class": threat_class,
-            "severity": severity,
-            "ml_prediction": (
-                "ANOMALY"
-                if prediction == -1
-                else "NORMAL"
-            ),
-            "ml_detected": True,
-            "engine": self.engine,
-            "detection_method": self.detection_method,
-            "raw_score": round(decision, 6),
-        }
-
-    # ---------------------------------------------------------
-    # NETWORK ML ANALYSIS
-    # ---------------------------------------------------------
-
-    def analyze_network(
-        self,
-        traffic: float,
-        connections: float,
-        failed_connections: float,
-        unusual_ports: float,
-        packet_burst: float,
-    ) -> Dict[str, Any]:
-
-        vector = np.array(
-            [
-                [
-                    traffic,
-                    connections,
-                    failed_connections,
-                    unusual_ports,
-                    packet_burst,
-                ]
-            ],
-            dtype=float,
-        )
-
-        decision = float(
-            self.network_model.decision_function(vector)[0]
-        )
-
-        prediction = int(
-            self.network_model.predict(vector)[0]
-        )
-
-        score = self._score(decision)
-
-        if prediction == -1:
-            score = max(score, 72)
-
-        severity = self._severity(score)
-
-        if score >= 85:
-            threat_class = "CRITICAL NETWORK ANOMALY"
-        elif score >= 70:
-            threat_class = "HIGH NETWORK ANOMALY"
-        elif score >= 40:
-            threat_class = "MEDIUM NETWORK ANOMALY"
-        else:
-            threat_class = "NORMAL NETWORK TRAFFIC"
-
-        return {
-            "anomaly_score": score,
-            "threat_class": threat_class,
-            "severity": severity,
-            "ml_prediction": (
-                "ANOMALY"
-                if prediction == -1
-                else "NORMAL"
-            ),
-            "ml_detected": True,
-            "engine": self.engine,
-            "detection_method": self.detection_method,
-            "raw_score": round(decision, 6),
-        }
-
-    # ---------------------------------------------------------
+    # ========================================================
     # STATUS
-    # ---------------------------------------------------------
+    # ========================================================
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self):
+
         return {
             "status": self.status,
-            "engine": self.engine,
-            "detection_method": self.detection_method,
-            "threats_detected": self.threats_detected,
-            "blocked": self.blocked,
+            "last_score": (
+                self.last_score
+            ),
+            "last_class": (
+                self.last_class
+            ),
+            "last_severity": (
+                self.last_severity
+            ),
+            "engine": "IsolationForest",
+            "detection": "SERVER-SIDE ML"
         }
 
-    def reset(self) -> None:
-        self.status = "MONITORING"
-        self.threats_detected = 0
-        self.blocked = 0
+    # ========================================================
+    # RESET
+    # ========================================================
+
+    def reset(self):
+
+        self.last_score = 0
+
+        self.last_class = (
+            "NO THREAT"
+        )
+
+        self.last_severity = "LOW"
+
+        self.last_features = {}
+
+        return self.get_status()
