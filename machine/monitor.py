@@ -1,69 +1,43 @@
-"""
-IronMind AI - IoT / Industrial OT Monitor
-
-Current state:
-    NOT CONNECTED
-
-This module is intentionally prepared for future IoT/OT
-integration but does not fabricate live hardware telemetry.
-"""
+from datetime import datetime, timezone
+from typing import Dict, Any
 
 
 class MachineMonitor:
+    """
+    IoT / Industrial OT connector foundation.
 
-    def __init__(self):
+    No physical IoT or OT system is connected to this Render deployment.
+    Therefore this module deliberately reports NOT CONNECTED instead of
+    generating fake machine telemetry.
+    """
 
+    def __init__(self) -> None:
         self.status = "NOT CONNECTED"
+        self.integration = "WAITING FOR INTEGRATION"
 
-        self.connected = False
-
-        self.sensors = 0
-
-        self.temperature = None
-
-        self.vibration = None
-
-        self.rpm = None
-
-        self.alerts = 0
-
-    def get_status(self):
-
+    def get_status(self) -> Dict[str, Any]:
         return {
-            "status": "NOT CONNECTED",
+            "status": self.status,
+            "integration": self.integration,
             "connected": False,
-            "sensors": 0,
-            "temperature": None,
-            "vibration": None,
-            "rpm": None,
-            "alerts": 0
+            "telemetry": None,
+            "message": (
+                "No IoT or Industrial/OT hardware is connected. "
+                "Connector is ready for integration."
+            ),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-    def detect_anomaly(self):
-
+    def simulate_anomaly(self) -> Dict[str, Any]:
         return {
             "status": "NOT CONNECTED",
             "connected": False,
             "message": (
-                "IoT / Industrial OT hardware "
-                "is waiting for integration."
-            )
+                "Simulation disabled. Connect an IoT/OT data source "
+                "before enabling machine anomaly detection."
+            ),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-    def reset(self):
-
-        self.status = "NOT CONNECTED"
-
-        self.connected = False
-
-        self.sensors = 0
-
-        self.temperature = None
-
-        self.vibration = None
-
-        self.rpm = None
-
-        self.alerts = 0
-
+    def reset(self) -> Dict[str, Any]:
         return self.get_status()
