@@ -1,77 +1,546 @@
-(() => {
-    "use strict";
+/* ============================================================
+   IRONMIND AI - SOC DASHBOARD
+============================================================ */
+
+"use strict";
 
 
-    // ============================================================
-    // HELPERS
-    // ============================================================
+/* ============================================================
+   HELPERS
+============================================================ */
 
-    const $ = (id) => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
+
+function safeNumber(value, fallback = 0) {
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number
+        : fallback;
+}
+
+function setText(id, value) {
+
+    const element = $(id);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+function clamp(value, min = 0, max = 100) {
+    return Math.max(min, Math.min(max, value));
+}
 
 
-    function text(id, value) {
+/* ============================================================
+   CLOCK
+============================================================ */
+
+function updateClock() {
+
+    const element = $("systemClock");
+
+    if (!element) {
+        return;
+    }
+
+    const now = new Date();
+
+    element.textContent =
+        now.toLocaleTimeString([], {
+            hour12: false
+        });
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+function setupNavigation() {
+
+    const navItems =
+        document.querySelectorAll(".nav-item");
+
+    const sections =
+        document.querySelectorAll(".dashboard-section");
+
+    navItems.forEach((button) => {
+
+        button.addEventListener("click", () => {
+
+            const sectionName =
+                button.dataset.section;
+
+            navItems.forEach((item) => {
+                item.classList.remove("active");
+            });
+
+            button.classList.add("active");
+
+            sections.forEach((section) => {
+                section.classList.remove("active");
+            });
+
+            const target =
+                $(`section-${sectionName}`);
+
+            if (target) {
+                target.classList.add("active");
+            }
+        });
+
+    });
+}
+
+setupNavigation();
+
+
+/* ============================================================
+   WORKFLOW
+============================================================ */
+
+function resetWorkflow() {
+
+    const ids = [
+        "workflowDetected",
+        "workflowAnomaly",
+        "workflowClassified",
+        "workflowQuarantine",
+        "workflowReport"
+    ];
+
+    ids.forEach((id) => {
+
         const element = $(id);
 
         if (element) {
-            element.textContent = value;
+            element.classList.remove("active");
         }
+
+    });
+
+    setText(
+        "workflowDetectedText",
+        "Waiting"
+    );
+
+    setText(
+        "workflowAnomalyText",
+        "ML pending"
+    );
+
+    setText(
+        "workflowClassifiedText",
+        "Pending"
+    );
+
+    setText(
+        "workflowQuarantineText",
+        "Pending"
+    );
+
+    setText(
+        "workflowReportText",
+        "Pending"
+    );
+}
+
+
+function activateWorkflow(
+    connected,
+    anomalyScore,
+    threatClass,
+    action
+) {
+
+    resetWorkflow();
+
+    if (!connected) {
+        return;
     }
 
+    const detected = $("workflowDetected");
+    const anomaly = $("workflowAnomaly");
+    const classified = $("workflowClassified");
+    const quarantine = $("workflowQuarantine");
+    const report = $("workflowReport");
 
-    function number(value, fallback = 0) {
-        const parsed = Number(value);
+    detected?.classList.add("active");
 
-        return Number.isFinite(parsed)
-            ? parsed
-            : fallback;
+    setText(
+        "workflowDetectedText",
+        "Device telemetry received"
+    );
+
+    anomaly?.classList.add("active");
+
+    setText(
+        "workflowAnomalyText",
+        `${anomalyScore}% ML anomaly`
+    );
+
+    classified?.classList.add("active");
+
+    setText(
+        "workflowClassifiedText",
+        threatClass || "Analyzed"
+    );
+
+    if (
+        String(action).toUpperCase() === "QUARANTINE"
+    ) {
+
+        quarantine?.classList.add("active");
+
+        setText(
+            "workflowQuarantineText",
+            "Autonomous response"
+        );
+
+        report?.classList.add("active");
+
+        setText(
+            "workflowReportText",
+            "Forensic evidence available"
+        );
+
+    } else {
+
+        setText(
+            "workflowQuarantineText",
+            "No quarantine required"
+        );
+
+        setText(
+            "workflowReportText",
+            "Monitoring"
+        );
+    }
+}
+
+
+/* ============================================================
+   USB DISPLAY
+============================================================ */
+
+function updateUSB(usb, workflow) {
+
+    if (!usb) {
+        return;
     }
 
+    const connected =
+        Boolean(usb.connected);
 
-    function safe(value) {
-        return String(
-            value ?? ""
+    const score =
+        clamp(
+            safeNumber(
+                usb.anomaly_score,
+                0
+            )
+        );
+
+    const threatClass =
+        usb.threat_class ||
+        "WAITING FOR TELEMETRY";
+
+    const status =
+        usb.status ||
+        (connected
+            ? "SECURE"
+            : "NOT CONNECTED");
+
+    const action =
+        usb.action ||
+        "No active USB event";
+
+    setText(
+        "usbDevice",
+        usb.device ||
+        "USB REMOVABLE DEVICE"
+    );
+
+    setText(
+        "usbDrive",
+        connected
+            ? (
+                usb.drive ||
+                "USB CONNECTED"
+            )
+            : "NOT CONNECTED"
+    );
+
+    setText(
+        "usbScore",
+        score
+    );
+
+    const scoreBar =
+        $("usbScoreBar");
+
+    if (scoreBar) {
+        scoreBar.style.width =
+            `${score}%`;
+    }
+
+    setText(
+        "usbThreatClass",
+        threatClass
+    );
+
+    setText(
+        "usbStatus",
+        status
+    );
+
+    setText(
+        "usbAction",
+        action
+    );
+
+    setText(
+        "endpointUsbStatus",
+        status
+    );
+
+    setText(
+        "endpointUsbFiles",
+        safeNumber(
+            usb.files_scanned,
+            0
         )
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
+    );
 
+    setText(
+        "endpointUsbRisk",
+        `${score}%`
+    );
 
-    function formatTime(value) {
+    setText(
+        "usbActivity",
+        connected ? 1 : 0
+    );
 
-        if (!value) {
-            return "—";
-        }
+    activateWorkflow(
+        connected,
+        score,
+        threatClass,
+        action
+    );
 
-        try {
-            const date = new Date(value);
+    if (score >= 85) {
 
-            return date.toLocaleTimeString(
-                [],
-                {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                }
+        document
+            .querySelector(".usb-status strong")
+            ?.style
+            .setProperty(
+                "color",
+                "var(--red)"
             );
 
-        } catch {
-            return value;
-        }
+    } else if (score >= 70) {
+
+        document
+            .querySelector(".usb-status strong")
+            ?.style
+            .setProperty(
+                "color",
+                "var(--yellow)"
+            );
+
+    } else {
+
+        document
+            .querySelector(".usb-status strong")
+            ?.style
+            .setProperty(
+                "color",
+                "var(--green)"
+            );
+    }
+}
+
+
+/* ============================================================
+   METRICS
+============================================================ */
+
+function updateMetrics(data) {
+
+    if (!data) {
+        return;
     }
 
-
-    async function getJSON(url, options = {}) {
-
-        const response = await fetch(
-            url,
-            {
-                cache: "no-store",
-                ...options,
-            }
+    const risk =
+        clamp(
+            safeNumber(
+                data.risk,
+                0
+            )
         );
+
+    const aiRisk =
+        clamp(
+            safeNumber(
+                data.ai_risk,
+                0
+            )
+        );
+
+    setText(
+        "risk",
+        risk
+    );
+
+    setText(
+        "aiRisk",
+        aiRisk
+    );
+
+    setText(
+        "threats",
+        safeNumber(
+            data.threats,
+            0
+        )
+    );
+
+    setText(
+        "blocked",
+        safeNumber(
+            data.blocked,
+            0
+        )
+    );
+
+    setText(
+        "riskStatus",
+        data.status ||
+        "SYSTEM PROTECTED"
+    );
+
+    setText(
+        "endpointStatus",
+        data.modules?.endpoint ||
+        "SECURE"
+    );
+
+    setText(
+        "cpu",
+        `${safeNumber(data.endpoint?.cpu, 0)}%`
+    );
+
+    setText(
+        "memory",
+        `${safeNumber(data.endpoint?.memory, 0)}%`
+    );
+
+    setText(
+        "endpointCpu",
+        `${safeNumber(data.endpoint?.cpu, 0)}%`
+    );
+
+    setText(
+        "endpointMemory",
+        `${safeNumber(data.endpoint?.memory, 0)}%`
+    );
+
+    setText(
+        "networkTraffic",
+        `${safeNumber(data.endpoint?.network_traffic, 0)}%`
+    );
+
+    setText(
+        "networkPanelTraffic",
+        `${safeNumber(data.endpoint?.network_traffic, 0)}%`
+    );
+
+    setText(
+        "networkRisk",
+        `${safeNumber(data.network?.risk, 0)}%`
+    );
+
+    setText(
+        "networkDevices",
+        safeNumber(
+            data.infrastructure?.network_devices,
+            18
+        )
+    );
+
+    setText(
+        "networkPanelDevices",
+        safeNumber(
+            data.infrastructure?.network_devices,
+            18
+        )
+    );
+
+    setText(
+        "endpointCount",
+        safeNumber(
+            data.infrastructure?.endpoints,
+            12
+        )
+    );
+
+    setText(
+        "cloudCount",
+        safeNumber(
+            data.infrastructure?.cloud,
+            8
+        )
+    );
+
+    setText(
+        "networkCount",
+        safeNumber(
+            data.infrastructure?.network_devices,
+            18
+        )
+    );
+
+    setText(
+        "aiProcessing",
+        `${safeNumber(data.ai_processing, 0)}%`
+    );
+
+    setText(
+        "lastUpdate",
+        data.last_update
+            ? new Date(
+                data.last_update
+              ).toLocaleTimeString()
+            : "LIVE"
+    );
+
+    updateUSB(
+        data.usb,
+        data.workflow
+    );
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+async function loadStatus() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/status",
+                {
+                    cache: "no-store"
+                }
+            );
 
         if (!response.ok) {
             throw new Error(
@@ -79,1002 +548,442 @@
             );
         }
 
-        return response.json();
-    }
+        const data =
+            await response.json();
 
+        updateMetrics(data);
 
-    // ============================================================
-    // FRONT PAGE USB
-    // ============================================================
+    } catch (error) {
 
-    function updateFrontPage(state) {
-
-        if (!state || !state.usb) {
-            return;
-        }
-
-        const usb = state.usb;
-
-        const connected = Boolean(
-            usb.connected
-        );
-
-        text(
-            "frontUsbStatus",
-            connected
-                ? usb.status || "CONNECTED"
-                : "NOT CONNECTED"
-        );
-
-        text(
-            "frontUsbDevice",
-            connected
-                ? usb.device || "USB DEVICE"
-                : "—"
-        );
-
-        text(
-            "frontUsbDrive",
-            connected
-                ? usb.drive || "—"
-                : "—"
-        );
-
-        text(
-            "frontUsbFiles",
-            connected
-                ? number(
-                    usb.files_scanned
-                )
-                : 0
-        );
-
-        text(
-            "frontUsbScore",
-            `${number(
-                usb.anomaly_score
-            )}%`
-        );
-
-        const indicator = $(
-            "frontUsbIndicator"
-        );
-
-        if (indicator) {
-
-            indicator.classList.toggle(
-                "danger",
-                number(
-                    usb.anomaly_score
-                ) >= 70
-            );
-        }
-    }
-
-
-    // ============================================================
-    // DASHBOARD STATUS
-    // ============================================================
-
-    function updateDashboard(state) {
-
-        if (!state) {
-            return;
-        }
-
-        const risk = number(
-            state.risk
-        );
-
-        const aiRisk = number(
-            state.ai_risk
-        );
-
-        text(
-            "risk",
-            risk
-        );
-
-        text(
-            "aiRisk",
-            aiRisk
-        );
-
-        text(
-            "threats",
-            number(
-                state.threats
-            )
-        );
-
-        text(
-            "blocked",
-            number(
-                state.blocked
-            )
-        );
-
-        text(
-            "incidentScore",
-            risk
-        );
-
-        text(
-            "incidentText",
-            state.incident ||
-            "No active incident"
-        );
-
-        text(
-            "lastUpdate",
-            formatTime(
-                state.last_update
-            )
-        );
-
-
-        const riskBar = $(
-            "riskBar"
-        );
-
-        if (riskBar) {
-            riskBar.style.width =
-                `${Math.min(
-                    100,
-                    Math.max(0, risk)
-                )}%`;
-        }
-
-
-        const aiRiskBar = $(
-            "aiRiskBar"
-        );
-
-        if (aiRiskBar) {
-            aiRiskBar.style.width =
-                `${Math.min(
-                    100,
-                    Math.max(0, aiRisk)
-                )}%`;
-        }
-
-
-        const modules =
-            state.modules || {};
-
-
-        text(
-            "endpointStatus",
-            modules.endpoint ||
-            "SECURE"
-        );
-
-        text(
-            "networkStatus",
-            modules.network ||
-            "MONITORING"
-        );
-
-        text(
-            "moduleEndpoint",
-            modules.endpoint ||
-            "SECURE"
-        );
-
-        text(
-            "moduleNetwork",
-            modules.network ||
-            "MONITORING"
-        );
-
-
-        updateStatusBadge(
-            "systemStatusBadge",
-            state.status
-        );
-
-        updateStatusBadge(
-            "endpointPageStatus",
-            modules.endpoint
-        );
-
-        updateStatusBadge(
-            "endpointUsbStatus",
-            state.usb?.status
-        );
-
-
-        updateUSB(
-            state.usb
-        );
-
-
-        updateWorkflow(
-            state.workflow,
-            state.usb
-        );
-
-
-        updateEndpointTelemetry(
-            state.endpoint_telemetry
-        );
-
-
-        updateFrontPage(
-            state
+        console.error(
+            "IronMind status error:",
+            error
         );
     }
+}
 
 
-    // ============================================================
-    // STATUS BADGES
-    // ============================================================
+/* ============================================================
+   THREAT TABLE
+============================================================ */
 
-    function updateStatusBadge(
-        id,
-        value
-    ) {
+function severityClass(severity) {
 
-        const element = $(id);
+    const value =
+        String(severity || "")
+            .toUpperCase();
 
-        if (!element) {
-            return;
-        }
+    if (value === "CRITICAL") {
+        return "CRITICAL";
+    }
 
-        const status = String(
-            value || "UNKNOWN"
-        ).toUpperCase();
+    if (value === "HIGH") {
+        return "HIGH";
+    }
 
-        element.textContent = status;
+    if (value === "MEDIUM") {
+        return "MEDIUM";
+    }
 
-        element.classList.remove(
-            "safe",
-            "danger",
-            "warning"
-        );
+    return "LOW";
+}
 
-        if (
-            status.includes("BLOCK") ||
-            status.includes("THREAT") ||
-            status.includes("ISOLAT")
-        ) {
 
-            element.classList.add(
-                "danger"
-            );
+function renderThreats(data) {
 
-        } else if (
-            status.includes("WAIT") ||
-            status.includes("ANALYZ") ||
-            status.includes("DETECT")
-        ) {
+    if (!Array.isArray(data)) {
+        return;
+    }
 
-            element.classList.add(
-                "warning"
-            );
+    const table =
+        $("threatTable");
 
+    if (!table) {
+        return;
+    }
+
+    if (data.length === 0) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="table-empty">
+                    No threats detected
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    table.innerHTML =
+        data.map((threat) => {
+
+            const severity =
+                severityClass(
+                    threat.severity
+                );
+
+            return `
+                <tr>
+                    <td>
+                        ${threat.timestamp || "--"}
+                    </td>
+
+                    <td>
+                        ${threat.source || "UNKNOWN"}
+                    </td>
+
+                    <td>
+                        ${threat.threat_type || "UNKNOWN"}
+                    </td>
+
+                    <td>
+                        ${safeNumber(
+                            threat.risk_score,
+                            0
+                        )}%
+                    </td>
+
+                    <td>
+                        ${severity}
+                    </td>
+
+                    <td>
+                        ${threat.action || "MONITOR"}
+                    </td>
+
+                    <td>
+                        ${threat.status || "OPEN"}
+                    </td>
+                </tr>
+            `;
+
+        })
+        .join("");
+
+    updateThreatCounters(data);
+}
+
+
+function updateThreatCounters(data) {
+
+    let critical = 0;
+    let high = 0;
+    let medium = 0;
+    let low = 0;
+
+    data.forEach((threat) => {
+
+        const severity =
+            String(
+                threat.severity || ""
+            ).toUpperCase();
+
+        if (severity === "CRITICAL") {
+            critical++;
+        } else if (severity === "HIGH") {
+            high++;
+        } else if (severity === "MEDIUM") {
+            medium++;
         } else {
+            low++;
+        }
 
-            element.classList.add(
-                "safe"
+    });
+
+    setText(
+        "criticalThreats",
+        critical
+    );
+
+    setText(
+        "highThreats",
+        high
+    );
+
+    setText(
+        "mediumThreats",
+        medium
+    );
+
+    setText(
+        "lowThreats",
+        low
+    );
+}
+
+
+async function loadThreats() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/threats",
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                `HTTP ${response.status}`
             );
         }
-    }
 
+        const data =
+            await response.json();
 
-    // ============================================================
-    // USB
-    // ============================================================
+        renderThreats(data);
 
-    function updateUSB(usb) {
+        if (Array.isArray(data) &&
+            data.length > 0) {
 
-        if (!usb) {
-            return;
-        }
+            const latest = data[0];
 
-        const connected = Boolean(
-            usb.connected
-        );
+            setText(
+                "reportThreat",
+                latest.threat_type ||
+                "Security incident"
+            );
 
-        const score = number(
-            usb.anomaly_score
-        );
+            setText(
+                "reportDetails",
+                `${latest.source || "Unknown source"} • ${
+                    latest.status || "OPEN"
+                } • ${
+                    latest.action || "MONITOR"
+                }`
+            );
 
-
-        text(
-            "usbDevice",
-            connected
-                ? usb.device || "USB DEVICE"
-                : "NOT CONNECTED"
-        );
-
-        text(
-            "usbDrive",
-            connected
-                ? usb.drive || "—"
-                : "—"
-        );
-
-        text(
-            "usbFilesystem",
-            connected
-                ? usb.filesystem || "—"
-                : "—"
-        );
-
-        text(
-            "usbFiles",
-            connected
-                ? number(
-                    usb.files_scanned
-                )
-                : 0
-        );
-
-        text(
-            "usbScan",
-            connected
-                ? usb.scan || "SCANNING"
-                : "WAITING"
-        );
-
-        text(
-            "usbScore",
-            `${score}%`
-        );
-
-        text(
-            "usbThreatClass",
-            connected
-                ? usb.threat_class ||
-                    "NORMAL USB ACTIVITY"
-                : "NO ACTIVE USB THREAT"
-        );
-
-
-        const scoreBar = $(
-            "usbScoreBar"
-        );
-
-        if (scoreBar) {
-            scoreBar.style.width =
-                `${Math.min(
-                    100,
-                    Math.max(0, score)
-                )}%`;
-
-            scoreBar.style.background =
-                score >= 70
-                    ? "var(--red)"
-                    : score >= 40
-                        ? "var(--yellow)"
-                        : "var(--cyan)";
-        }
-
-
-        const badge = $(
-            "usbLiveBadge"
-        );
-
-        if (badge) {
-
-            badge.innerHTML =
-                `<i></i>${safe(
-                    connected
-                        ? usb.status || "CONNECTED"
-                        : "WAITING"
-                )}`;
-
-            badge.style.color =
-                score >= 70
-                    ? "var(--red)"
-                    : connected
-                        ? "var(--green)"
-                        : "var(--yellow)";
-        }
-
-
-        const endpointUsbName = $(
-            "endpointUsbName"
-        );
-
-        if (endpointUsbName) {
-            endpointUsbName.textContent =
-                connected
-                    ? usb.device || "USB DEVICE"
-                    : "No USB connected";
-        }
-
-
-        const pulse = $(
-            "usbPulse"
-        );
-
-        if (pulse) {
-
-            pulse.style.background =
-                score >= 70
-                    ? "rgba(255,85,116,0.12)"
-                    : connected
-                        ? "rgba(85,242,162,0.08)"
-                        : "rgba(85,229,255,0.05)";
-        }
-    }
-
-
-    // ============================================================
-    // WORKFLOW
-    // ============================================================
-
-    function updateWorkflow(
-        workflow,
-        usb
-    ) {
-
-        const state =
-            workflow || {};
-
-        setWorkflowStep(
-            "workflowDevice",
-            Boolean(
-                state.device_detected
-            ),
-            usb?.connected
-                ? "USB device detected"
-                : "Waiting for telemetry"
-        );
-
-
-        setWorkflowStep(
-            "workflowAnomaly",
-            Boolean(
-                state.anomaly_detected
-            ),
-            usb?.connected
-                ? `Score: ${number(
-                    usb?.anomaly_score
+            setText(
+                "reportRisk",
+                `${safeNumber(
+                    latest.risk_score,
+                    0
                 )}%`
-                : "ML analysis pending"
-        );
-
-
-        setWorkflowStep(
-            "workflowClass",
-            Boolean(
-                state.threat_classified
-            ),
-            state.threat_classified
-                ? usb?.threat_class || "CLASSIFIED"
-                : "Classification pending"
-        );
-
-
-        setWorkflowStep(
-            "workflowQuarantine",
-            Boolean(
-                state.device_quarantined
-            ),
-            state.device_quarantined
-                ? "Autonomous response complete"
-                : "Response pending"
-        );
-
-
-        setWorkflowStep(
-            "workflowReport",
-            Boolean(
-                state.forensic_report
-            ),
-            state.forensic_report
-                ? "Investigation available"
-                : "Investigation pending"
-        );
-    }
-
-
-    function setWorkflowStep(
-        id,
-        active,
-        subtitle
-    ) {
-
-        const element = $(id);
-
-        if (!element) {
-            return;
-        }
-
-        element.classList.toggle(
-            "active",
-            active
-        );
-
-        const span =
-            element.querySelector(
-                "span"
-            );
-
-        if (span) {
-            span.textContent =
-                subtitle;
-        }
-    }
-
-
-    // ============================================================
-    // ENDPOINT TELEMETRY
-    // ============================================================
-
-    function updateEndpointTelemetry(
-        telemetry
-    ) {
-
-        if (!telemetry) {
-            return;
-        }
-
-        text(
-            "endpointCpu",
-            `${number(
-                telemetry.cpu
-            )}%`
-        );
-
-        text(
-            "endpointMemory",
-            `${number(
-                telemetry.memory
-            )}%`
-        );
-    }
-
-
-    // ============================================================
-    // THREATS
-    // ============================================================
-
-    async function loadThreats() {
-
-        try {
-
-            const data =
-                await getJSON(
-                    "/api/threats"
-                );
-
-            const threats =
-                data.threats || [];
-
-            text(
-                "navThreatCount",
-                threats.length
-            );
-
-            const table = $(
-                "threatTable"
-            );
-
-            if (!table) {
-                return;
-            }
-
-            if (!threats.length) {
-
-                table.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            NO THREATS DETECTED
-                        </td>
-                    </tr>
-                `;
-
-                return;
-            }
-
-
-            table.innerHTML =
-                threats
-                    .map(
-                        (event) => {
-
-                            const severity =
-                                String(
-                                    event.severity ||
-                                    "LOW"
-                                ).toLowerCase();
-
-                            return `
-                                <tr>
-                                    <td>
-                                        ${safe(
-                                            formatTime(
-                                                event.timestamp
-                                            )
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${safe(
-                                            event.source ||
-                                            "UNKNOWN"
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${safe(
-                                            event.threat_type ||
-                                            "UNKNOWN"
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${number(
-                                            event.anomaly_score ??
-                                            event.risk_score
-                                        )}%
-                                    </td>
-
-                                    <td class="severity-${severity}">
-                                        ${safe(
-                                            String(
-                                                event.severity ||
-                                                "LOW"
-                                            ).toUpperCase()
-                                        )}
-                                    </td>
-
-                                    <td class="action-blocked">
-                                        ${safe(
-                                            event.action ||
-                                            "BLOCKED"
-                                        )}
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    )
-                    .join("");
-
-        } catch (error) {
-
-            console.error(
-                "Threat loading error:",
-                error
             );
         }
-    }
 
+    } catch (error) {
 
-    // ============================================================
-    // INVESTIGATIONS
-    // ============================================================
-
-    async function loadInvestigations() {
-
-        try {
-
-            const data =
-                await getJSON(
-                    "/api/investigations"
-                );
-
-            const records =
-                data.investigations || [];
-
-            const container = $(
-                "investigationList"
-            );
-
-            if (!container) {
-                return;
-            }
-
-            if (!records.length) {
-
-                container.innerHTML = `
-                    <div class="empty-state">
-                        NO ACTIVE INVESTIGATIONS
-                    </div>
-                `;
-
-                return;
-            }
-
-
-            container.innerHTML =
-                records
-                    .map(
-                        (record) => `
-                            <div class="investigation-card">
-
-                                <div>
-                                    <small>
-                                        ${safe(
-                                            formatTime(
-                                                record.timestamp
-                                            )
-                                        )}
-                                    </small>
-
-                                    <h3>
-                                        ${safe(
-                                            record.id
-                                        )}
-                                    </h3>
-                                </div>
-
-                                <div>
-                                    <small>
-                                        INVESTIGATION
-                                    </small>
-
-                                    <h3>
-                                        ${safe(
-                                            record.title ||
-                                            "USB ML INVESTIGATION"
-                                        )}
-                                    </h3>
-                                </div>
-
-                                <div>
-                                    <small>
-                                        STATUS
-                                    </small>
-
-                                    <h3>
-                                        ${safe(
-                                            record.status ||
-                                            "AVAILABLE"
-                                        )}
-                                    </h3>
-                                </div>
-
-                                <div
-                                    class="investigation-score"
-                                >
-                                    ${number(
-                                        record.anomaly_score
-                                    )}%
-                                </div>
-
-                            </div>
-                        `
-                    )
-                    .join("");
-
-        } catch (error) {
-
-            console.error(
-                "Investigation loading error:",
-                error
-            );
-        }
-    }
-
-
-    // ============================================================
-    // NAVIGATION
-    // ============================================================
-
-    function setupNavigation() {
-
-        const items =
-            document.querySelectorAll(
-                ".nav-item"
-            );
-
-        items.forEach(
-            (item) => {
-
-                item.addEventListener(
-                    "click",
-                    () => {
-
-                        const page =
-                            item.dataset.page;
-
-                        if (!page) {
-                            return;
-                        }
-
-                        showPage(
-                           page
-                        );
-                    }
-                );
-            }
+        console.error(
+            "IronMind threat error:",
+            error
         );
     }
+}
 
 
-    function showPage(page) {
+/* ============================================================
+   EVENT STREAM
+============================================================ */
 
-        document
-            .querySelectorAll(
-                ".nav-item"
-            )
-            .forEach(
-                (item) => {
+function addEvent(text, detail) {
 
-                    item.classList.toggle(
-                        "active",
-                        item.dataset.page === page
-                    );
+    const list =
+        $("eventList");
+
+    if (!list) {
+        return;
+    }
+
+    const empty =
+        list.querySelector(".empty-event");
+
+    if (empty) {
+        empty.remove();
+    }
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "event-row";
+
+    row.innerHTML = `
+        <span>◉</span>
+        <div>
+            <strong>${text}</strong>
+            <small>${detail}</small>
+        </div>
+    `;
+
+    list.prepend(row);
+
+    while (list.children.length > 8) {
+        list.removeChild(
+            list.lastElementChild
+        );
+    }
+}
+
+
+/* ============================================================
+   TEST BUTTON SUPPORT
+   ============================================================ */
+
+async function postTest(endpoint) {
+
+    try {
+
+        const response =
+            await fetch(
+                endpoint,
+                {
+                    method: "POST"
                 }
             );
 
+        const data =
+            await response.json();
 
-        document
-            .querySelectorAll(
-                ".page-view"
-            )
-            .forEach(
-                (view) => {
-
-                    view.classList.toggle(
-                        "active",
-                        view.id ===
-                        `page-${page}`
-                    );
-                }
-            );
-
-
-        const names = {
-            dashboard:
-                "DASHBOARD",
-
-            threats:
-                "THREATS",
-
-            endpoints:
-                "ENDPOINTS",
-
-            cloud:
-                "CLOUD",
-
-            network:
-                "NETWORK",
-
-            iot:
-                "IOT / SENSORS",
-
-            ot:
-                "INDUSTRIAL / OT",
-
-            ai:
-                "AI INTELLIGENCE",
-
-            investigations:
-                "INVESTIGATIONS",
-        };
-
-
-        text(
-            "pageTitle",
-            names[page] ||
-            page.toUpperCase()
+        updateMetrics(
+            data.state || data
         );
-
-
-        const headings = {
-            dashboard:
-                "Autonomous Defense Dashboard",
-
-            threats:
-                "Detected Threats",
-
-            endpoints:
-                "Protected Endpoints",
-
-            cloud:
-                "Cloud Infrastructure",
-
-            network:
-                "Network Security",
-
-            iot:
-                "IoT / Sensors",
-
-            ot:
-                "Industrial / OT",
-
-            ai:
-                "AI Intelligence Core",
-
-            investigations:
-                "Security Investigations",
-        };
-
-
-        text(
-            "pageHeading",
-            headings[page] ||
-            "IronMind AI"
-        );
-
-
-        if (
-            page === "threats"
-        ) {
-            loadThreats();
-        }
-
-        if (
-            page === "investigations"
-        ) {
-            loadInvestigations();
-        }
-    }
-
-
-    // ============================================================
-    // POLLING
-    // ============================================================
-
-    async function refreshStatus() {
-
-        try {
-
-            const state =
-                await getJSON(
-                    "/api/status"
-                );
-
-            updateDashboard(
-                state
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Status error:",
-                error
-            );
-        }
-    }
-
-
-    async function refreshData() {
-
-        await refreshStatus();
 
         await loadThreats();
 
-        await loadInvestigations();
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "IronMind test error:",
+            error
+        );
+
+        return null;
     }
+}
 
 
-    // ============================================================
-    // INITIALIZATION
-    // ============================================================
+async function runUSBThreatTest() {
 
-    function init() {
-
-        setupNavigation();
-
-        refreshData();
-
-        setInterval(
-            refreshStatus,
-            2500
+    const result =
+        await postTest(
+            "/api/usb-threat-test"
         );
 
-        setInterval(
-            loadThreats,
-            5000
-        );
+    if (result) {
 
-        setInterval(
-            loadInvestigations,
-            5000
+        addEvent(
+            "USB ML test executed",
+            `Anomaly score ${
+                result.anomaly_score ?? 0
+            }%`
         );
     }
+}
 
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        init
-    );
+async function runEndpointTest() {
 
-})();
+    const result =
+        await postTest(
+            "/api/endpoint-test"
+        );
+
+    if (result) {
+        addEvent(
+            "Endpoint anomaly test",
+            "Endpoint response workflow executed"
+        );
+    }
+}
+
+
+async function runNetworkTest() {
+
+    const result =
+        await postTest(
+            "/api/network-test"
+        );
+
+    if (result) {
+        addEvent(
+            "Network anomaly test",
+            "Network response workflow executed"
+        );
+    }
+}
+
+
+async function resetSystem() {
+
+    try {
+
+        await fetch(
+            "/api/reset",
+            {
+                method: "POST"
+            }
+        );
+
+        resetWorkflow();
+
+        await loadStatus();
+        await loadThreats();
+
+        addEvent(
+            "System reset",
+            "IronMind defense state restored"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Reset error:",
+            error
+        );
+    }
+}
+
+
+/* ============================================================
+   GLOBAL FUNCTIONS
+============================================================ */
+
+window.runUSBThreatTest =
+    runUSBThreatTest;
+
+window.runEndpointTest =
+    runEndpointTest;
+
+window.runNetworkTest =
+    runNetworkTest;
+
+window.resetSystem =
+    resetSystem;
+
+
+/* ============================================================
+   INITIALIZATION
+============================================================ */
+
+async function initializeDashboard() {
+
+    resetWorkflow();
+
+    await loadStatus();
+
+    await loadThreats();
+
+}
+
+initializeDashboard();
+
+
+/* ============================================================
+   LIVE POLLING
+============================================================ */
+
+setInterval(
+    loadStatus,
+    3000
+);
+
+setInterval(
+    loadThreats,
+    5000
+);
