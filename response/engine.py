@@ -1,95 +1,74 @@
+"""
+IronMind AI - Autonomous Response Engine
+
+This module records and orchestrates response decisions.
+
+Important:
+The Render server does not claim to have changed the Windows
+firewall, disabled an account, or physically isolated a device
+unless a real endpoint integration performs that action.
+"""
+
+
 from datetime import datetime, timezone
-from typing import Dict, Any
 
 
 class ResponseEngine:
-    """
-    Autonomous response orchestration.
-
-    The engine records the response state. It does not claim to have
-    changed the host firewall, operating system, switch, or physical
-    equipment unless an external integration is actually connected.
-    """
-
-    def __init__(self) -> None:
+    def __init__(self):
         self.status = "ACTIVE"
         self.last_action = "SYSTEM MONITORING"
 
-    def respond_to_endpoint_threat(
-        self,
-        threat_type: str,
-        anomaly_score: float,
-    ) -> Dict[str, Any]:
+    @staticmethod
+    def _timestamp():
+        return datetime.now(timezone.utc).isoformat()
 
-        self.last_action = "DEVICE QUARANTINED"
+    def respond_to_threat(
+        self,
+        source="UNKNOWN",
+        anomaly_score=0,
+        threat_class="UNKNOWN",
+        severity="LOW",
+    ):
+        score = int(anomaly_score or 0)
+
+        if score >= 70:
+            action = "QUARANTINE / ISOLATE"
+            response_status = "CONTAINMENT REQUIRED"
+        else:
+            action = "MONITOR"
+            response_status = "MONITORING"
+
+        self.last_action = action
 
         return {
-            "status": "PROTECTED",
-            "action": "DEVICE QUARANTINED",
-            "message": (
-                f"Endpoint anomaly scored {anomaly_score:.1f}%. "
-                "Autonomous quarantine workflow executed."
+            "timestamp": self._timestamp(),
+            "source": source,
+            "anomaly_score": score,
+            "threat_class": threat_class,
+            "severity": severity,
+            "action": action,
+            "status": response_status,
+            "execution": (
+                "RESPONSE DECISION RECORDED"
             ),
-            "scope": "ENDPOINT",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-    def respond_to_network_threat(
-        self,
-        threat_type: str,
-        anomaly_score: float,
-    ) -> Dict[str, Any]:
-
-        self.last_action = "NETWORK CONNECTION ISOLATED"
+    def respond_to_machine_anomaly(self):
+        self.last_action = "WAITING FOR OT INTEGRATION"
 
         return {
-            "status": "PROTECTED",
-            "action": "NETWORK CONNECTION ISOLATED",
-            "message": (
-                f"Network anomaly scored {anomaly_score:.1f}%. "
-                "Autonomous network isolation workflow executed."
-            ),
-            "scope": "NETWORK",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
-
-    def respond_to_usb_threat(
-        self,
-        threat_type: str,
-        anomaly_score: float,
-    ) -> Dict[str, Any]:
-
-        self.last_action = "USB DEVICE QUARANTINED"
-
-        return {
-            "status": "PROTECTED",
-            "action": "USB DEVICE QUARANTINED",
-            "message": (
-                f"USB anomaly scored {anomaly_score:.1f}%. "
-                "Autonomous removable-media quarantine workflow executed."
-            ),
-            "scope": "USB",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
-
-    def respond_to_machine_anomaly(self) -> Dict[str, Any]:
-        self.last_action = "WAITING FOR IOT/OT INTEGRATION"
-
-        return {
+            "timestamp": self._timestamp(),
+            "action": "WAITING FOR INTEGRATION",
             "status": "NOT CONNECTED",
-            "action": "WAITING FOR IOT/OT INTEGRATION",
-            "message": "No physical IoT or Industrial/OT integration is connected.",
-            "scope": "IOT_OT",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "execution": "NO OT ACTION EXECUTED",
         }
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self):
         return {
             "status": self.status,
             "last_action": self.last_action,
         }
 
-    def reset(self) -> Dict[str, Any]:
+    def reset(self):
         self.status = "ACTIVE"
         self.last_action = "SYSTEM MONITORING"
-        return self.get_status()
