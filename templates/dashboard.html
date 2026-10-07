@@ -1,45 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>IronMind AI | Autonomous Cyber Defense</title>
+    <title>IronMind AI | Security Operations Center</title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='dashboard.css') }}"
     >
+
 </head>
 
-<body>
+<body class="dashboard-page">
 
-<div class="app">
-
-    <!-- =====================================================
-         SIDEBAR
-         ===================================================== -->
+<div class="app-shell">
 
     <aside class="sidebar">
 
-        <div class="brand">
-            <div class="brand-icon">IM</div>
+        <div class="sidebar-brand">
+
+            <div class="brand-mark">
+                <span></span>
+            </div>
 
             <div>
-                <h1>IRONMIND AI</h1>
-                <span>AUTONOMOUS DEFENSE</span>
+                <strong>IRONMIND</strong>
+                <small>AI SECURITY CORE</small>
             </div>
+
         </div>
+
 
         <div class="sidebar-status">
+
             <span class="status-dot"></span>
-            SYSTEM ONLINE
+
+            <div>
+                <strong>AI ENGINE ACTIVE</strong>
+                <small>REAL-TIME DEFENSE</small>
+            </div>
+
         </div>
 
-        <nav>
+
+        <nav class="side-nav">
+
+            <div class="nav-label">
+                OPERATIONS
+            </div>
 
             <button
                 class="nav-item active"
@@ -55,6 +70,7 @@
             >
                 <span>⚠</span>
                 Threats
+                <b id="navThreatCount">0</b>
             </button>
 
             <button
@@ -64,6 +80,19 @@
                 <span>▣</span>
                 Endpoints
             </button>
+
+            <button
+                class="nav-item"
+                data-page="cloud"
+            >
+                <span>☁</span>
+                Cloud
+            </button>
+
+
+            <div class="nav-label">
+                DEFENSE FABRIC
+            </div>
 
             <button
                 class="nav-item"
@@ -77,7 +106,7 @@
                 class="nav-item"
                 data-page="iot"
             >
-                <span>◌</span>
+                <span>◎</span>
                 IoT / Sensors
             </button>
 
@@ -85,9 +114,14 @@
                 class="nav-item"
                 data-page="ot"
             >
-                <span>⚙</span>
+                <span>◫</span>
                 Industrial / OT
             </button>
+
+
+            <div class="nav-label">
+                INTELLIGENCE
+            </div>
 
             <button
                 class="nav-item"
@@ -99,301 +133,268 @@
 
             <button
                 class="nav-item"
-                data-page="reports"
+                data-page="investigations"
             >
-                <span>▤</span>
-                Reports
+                <span>⌕</span>
+                Investigations
             </button>
 
         </nav>
 
-        <div class="sidebar-footer">
-            <div>ML ENGINE</div>
-            <strong>ISOLATION FOREST</strong>
 
-            <div class="footer-line"></div>
+        <div class="sidebar-bottom">
 
-            <div>DETECTION</div>
-            <strong>SERVER-SIDE ML</strong>
+            <a
+                href="/"
+                class="back-home"
+            >
+                ← FRONT PAGE
+            </a>
+
+            <div class="system-version">
+                IRONMIND AI v1.0
+                <span>SECURE BUILD</span>
+            </div>
+
         </div>
 
     </aside>
 
 
-    <!-- =====================================================
-         MAIN
-         ===================================================== -->
+    <main class="dashboard-main">
 
-    <main class="main">
-
-        <!-- TOP BAR -->
-
-        <header class="topbar">
+        <header class="dashboard-header">
 
             <div>
-                <div class="eyebrow">
-                    AUTONOMOUS CYBER DEFENSE PLATFORM
+
+                <div class="breadcrumb">
+                    SECURITY OPERATIONS CENTER
+                    <span>/</span>
+                    <strong id="pageTitle">
+                        DASHBOARD
+                    </strong>
                 </div>
 
-                <h2 id="pageTitle">
-                    Security Operations Center
-                </h2>
+                <h1 id="pageHeading">
+                    Autonomous Defense Dashboard
+                </h1>
+
             </div>
 
-            <div class="top-actions">
 
-                <div class="live-indicator">
-                    <span class="status-dot"></span>
+            <div class="header-actions">
+
+                <div class="header-live">
+                    <span></span>
                     LIVE
                 </div>
 
-                <button
-                    class="reset-button"
-                    onclick="resetSystem()"
-                >
-                    RESET
-                </button>
+                <div class="header-time">
+                    <span>LAST UPDATE</span>
+                    <strong id="lastUpdate">
+                        —
+                    </strong>
+                </div>
 
             </div>
 
         </header>
 
 
-        <!-- =================================================
-             DASHBOARD
-             ================================================= -->
+        <!-- =====================================================
+             DASHBOARD PAGE
+        ====================================================== -->
 
         <section
-            class="page active"
+            class="page-view active"
             id="page-dashboard"
         >
 
-            <div class="hero">
+            <div class="metric-grid">
 
-                <div class="hero-content">
+                <div class="metric-card risk-card">
 
-                    <div class="eyebrow">
-                        IRONMIND AUTONOMOUS DEFENSE
+                    <div class="metric-top">
+                        <span>RISK SCORE</span>
+                        <i>AI</i>
                     </div>
 
-                    <h1>
-                        Detect.
-                        Analyze.
-                        Respond.
-                    </h1>
+                    <strong
+                        id="risk"
+                        class="metric-value"
+                    >
+                        12
+                    </strong>
 
-                    <p>
-                        Machine-learning driven cyber defense
-                        across endpoint and network telemetry.
-                    </p>
-
-                    <div class="hero-pipeline">
-
-                        <span>TELEMETRY</span>
-                        <b>→</b>
-                        <span>ML ANOMALY</span>
-                        <b>→</b>
-                        <span>THREAT</span>
-                        <b>→</b>
-                        <span>RESPONSE</span>
-                        <b>→</b>
-                        <span>FORENSICS</span>
-
+                    <div class="metric-bar">
+                        <span
+                            id="riskBar"
+                            style="width:12%"
+                        ></span>
                     </div>
+
+                    <small>GLOBAL SECURITY RISK</small>
 
                 </div>
 
-                <div class="hero-brain">
-                    <div class="brain-core">AI</div>
-                    <div class="orbit orbit-one"></div>
-                    <div class="orbit orbit-two"></div>
-                    <div class="orbit orbit-three"></div>
-                </div>
-
-            </div>
-
-
-            <!-- METRICS -->
-
-            <div class="metrics">
 
                 <div class="metric-card">
-                    <span>RISK SCORE</span>
-                    <strong id="risk">18</strong>
-                    <small>/ 100</small>
+
+                    <div class="metric-top">
+                        <span>AI RISK INDEX</span>
+                        <i>ML</i>
+                    </div>
+
+                    <strong
+                        id="aiRisk"
+                        class="metric-value"
+                    >
+                        10
+                    </strong>
+
+                    <div class="metric-bar">
+                        <span
+                            id="aiRiskBar"
+                            style="width:10%"
+                        ></span>
+                    </div>
+
+                    <small>MODEL ASSESSMENT</small>
+
                 </div>
+
 
                 <div class="metric-card">
-                    <span>AI RISK INDEX</span>
-                    <strong id="aiRisk">16</strong>
-                    <small>/ 100</small>
+
+                    <div class="metric-top">
+                        <span>THREATS DETECTED</span>
+                        <i>!</i>
+                    </div>
+
+                    <strong
+                        id="threats"
+                        class="metric-value"
+                    >
+                        0
+                    </strong>
+
+                    <small>ACTIVE INTELLIGENCE</small>
+
                 </div>
+
 
                 <div class="metric-card">
-                    <span>THREATS DETECTED</span>
-                    <strong id="threats">0</strong>
-                </div>
 
-                <div class="metric-card">
-                    <span>THREATS BLOCKED</span>
-                    <strong id="blocked">0</strong>
-                </div>
-
-            </div>
-
-
-            <!-- CENTRAL WORKFLOW -->
-
-            <div class="panel workflow-panel">
-
-                <div class="panel-header">
-
-                    <div>
-                        <span class="eyebrow">
-                            AUTONOMOUS INCIDENT PIPELINE
-                        </span>
-
-                        <h3>
-                            DEVICE DEFENSE WORKFLOW
-                        </h3>
+                    <div class="metric-top">
+                        <span>THREATS BLOCKED</span>
+                        <i>✓</i>
                     </div>
 
-                    <span
-                        class="badge"
-                        id="workflowStatus"
+                    <strong
+                        id="blocked"
+                        class="metric-value"
                     >
-                        STANDBY
-                    </span>
+                        0
+                    </strong>
 
-                </div>
-
-                <div class="workflow">
-
-                    <div
-                        class="workflow-step"
-                        id="step-device"
-                    >
-                        <div class="step-number">01</div>
-                        <strong>DEVICE DETECTED</strong>
-                        <span>Telemetry received</span>
-                    </div>
-
-                    <div class="workflow-arrow">→</div>
-
-                    <div
-                        class="workflow-step"
-                        id="step-anomaly"
-                    >
-                        <div class="step-number">02</div>
-                        <strong>ANOMALY SCORE</strong>
-                        <span id="workflowScore">
-                            Waiting
-                        </span>
-                    </div>
-
-                    <div class="workflow-arrow">→</div>
-
-                    <div
-                        class="workflow-step"
-                        id="step-classified"
-                    >
-                        <div class="step-number">03</div>
-                        <strong>THREAT CLASSIFIED</strong>
-                        <span id="workflowClass">
-                            Waiting
-                        </span>
-                    </div>
-
-                    <div class="workflow-arrow">→</div>
-
-                    <div
-                        class="workflow-step"
-                        id="step-quarantine"
-                    >
-                        <div class="step-number">04</div>
-                        <strong>DEVICE QUARANTINED</strong>
-                        <span>Autonomous response</span>
-                    </div>
-
-                    <div class="workflow-arrow">→</div>
-
-                    <div
-                        class="workflow-step"
-                        id="step-report"
-                    >
-                        <div class="step-number">05</div>
-                        <strong>FORENSIC REPORT</strong>
-                        <span>Evidence generated</span>
-                    </div>
+                    <small>AUTONOMOUS RESPONSE</small>
 
                 </div>
 
             </div>
 
 
-            <!-- USB -->
+            <!-- USB INTELLIGENCE -->
 
-            <div class="two-column">
+            <div class="dashboard-grid usb-dashboard-grid">
 
                 <div class="panel usb-panel">
 
                     <div class="panel-header">
 
                         <div>
-                            <span class="eyebrow">
-                                ENDPOINT DEFENSE
+                            <span class="panel-kicker">
+                                ENDPOINT / REMOVABLE MEDIA
                             </span>
 
-                            <h3>
+                            <h2>
                                 USB Threat Intelligence
-                            </h3>
+                            </h2>
                         </div>
 
-                        <span
-                            class="badge"
-                            id="usbStatus"
+                        <div
+                            id="usbLiveBadge"
+                            class="live-badge"
                         >
-                            NOT CONNECTED
-                        </span>
-
-                    </div>
-
-                    <div class="usb-grid">
-
-                        <div>
-                            <label>DEVICE</label>
-                            <strong id="usbDevice">
-                                WAITING
-                            </strong>
-                        </div>
-
-                        <div>
-                            <label>DRIVE</label>
-                            <strong id="usbDrive">
-                                -
-                            </strong>
-                        </div>
-
-                        <div>
-                            <label>FILESYSTEM</label>
-                            <strong id="usbFilesystem">
-                                -
-                            </strong>
-                        </div>
-
-                        <div>
-                            <label>FILES SCANNED</label>
-                            <strong id="usbFiles">
-                                0
-                            </strong>
+                            <i></i>
+                            WAITING
                         </div>
 
                     </div>
 
 
-                    <div class="score-box">
+                    <div class="usb-dashboard-body">
 
-                        <div>
+                        <div class="usb-device-visual">
+
+                            <div
+                                id="usbPulse"
+                                class="usb-pulse"
+                            ></div>
+
+                            <div class="device-shield">
+                                <span>USB</span>
+                            </div>
+
+                            <small>
+                                REMOVABLE MEDIA
+                            </small>
+
+                        </div>
+
+
+                        <div class="usb-details">
+
+                            <div class="data-row">
+                                <span>DEVICE</span>
+                                <strong id="usbDevice">
+                                    NOT CONNECTED
+                                </strong>
+                            </div>
+
+                            <div class="data-row">
+                                <span>DRIVE</span>
+                                <strong id="usbDrive">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="data-row">
+                                <span>FILESYSTEM</span>
+                                <strong id="usbFilesystem">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="data-row">
+                                <span>FILES SCANNED</span>
+                                <strong id="usbFiles">
+                                    0
+                                </strong>
+                            </div>
+
+                            <div class="data-row">
+                                <span>SCAN STATUS</span>
+                                <strong id="usbScan">
+                                    WAITING
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="usb-score">
+
                             <span>
                                 ML ANOMALY SCORE
                             </span>
@@ -401,125 +402,239 @@
                             <strong id="usbScore">
                                 0%
                             </strong>
-                        </div>
 
-                        <div class="score-bar">
-                            <div
-                                id="usbScoreBar"
-                                class="score-fill"
-                            ></div>
-                        </div>
+                            <div class="score-track">
+                                <span
+                                    id="usbScoreBar"
+                                    style="width:0%"
+                                ></span>
+                            </div>
 
-                    </div>
+                            <small id="usbThreatClass">
+                                NO ACTIVE USB THREAT
+                            </small>
 
-
-                    <div class="threat-summary">
-
-                        <div>
-                            <label>THREAT CLASS</label>
-                            <strong id="usbThreatClass">
-                                NONE
-                            </strong>
-                        </div>
-
-                        <div>
-                            <label>SEVERITY</label>
-                            <strong id="usbSeverity">
-                                LOW
-                            </strong>
-                        </div>
-
-                        <div>
-                            <label>ACTION</label>
-                            <strong id="usbAction">
-                                MONITOR
-                            </strong>
                         </div>
 
                     </div>
-
-                    <button
-                        class="primary-button"
-                        onclick="runUSBTest()"
-                    >
-                        RUN ML USB TEST
-                    </button>
 
                 </div>
 
 
-                <!-- AI STATUS -->
+                <!-- INCIDENT -->
 
-                <div class="panel">
+                <div class="panel incident-panel">
 
                     <div class="panel-header">
 
                         <div>
-                            <span class="eyebrow">
-                                AI INTELLIGENCE
+                            <span class="panel-kicker">
+                                SYSTEM INCIDENT
                             </span>
 
-                            <h3>
-                                Detection Engine
-                            </h3>
+                            <h2>
+                                Current Status
+                            </h2>
                         </div>
 
-                        <span class="badge success">
-                            ACTIVE
-                        </span>
+                        <div
+                            id="systemStatusBadge"
+                            class="status-badge safe"
+                        >
+                            PROTECTED
+                        </div>
 
                     </div>
 
-                    <div class="ai-stack">
 
-                        <div class="ai-stage">
-                            <span>01</span>
-                            <div>
-                                <strong>
-                                    FEATURE EXTRACTION
-                                </strong>
-                                <small>
-                                    Endpoint / network / USB telemetry
-                                </small>
-                            </div>
+                    <div class="incident-core">
+
+                        <div class="incident-ring">
+                            <span id="incidentScore">
+                                12
+                            </span>
+                            <small>RISK</small>
                         </div>
 
-                        <div class="ai-stage">
-                            <span>02</span>
-                            <div>
-                                <strong>
-                                    ML ANOMALY DETECTION
-                                </strong>
-                                <small>
-                                    Isolation Forest
-                                </small>
-                            </div>
+                        <div>
+                            <span class="panel-kicker">
+                                INCIDENT
+                            </span>
+
+                            <h3 id="incidentText">
+                                No active incident
+                            </h3>
+
+                            <p>
+                                IronMind AI is continuously
+                                monitoring the security fabric.
+                            </p>
                         </div>
 
-                        <div class="ai-stage">
-                            <span>03</span>
-                            <div>
-                                <strong>
-                                    THREAT CLASSIFICATION
-                                </strong>
-                                <small>
-                                    Risk and severity analysis
-                                </small>
-                            </div>
+                    </div>
+
+
+                    <div class="module-status-list">
+
+                        <div>
+                            <span>ENDPOINT</span>
+                            <strong id="endpointStatus">
+                                SECURE
+                            </strong>
                         </div>
 
-                        <div class="ai-stage">
-                            <span>04</span>
-                            <div>
-                                <strong>
-                                    AUTONOMOUS RESPONSE
-                                </strong>
-                                <small>
-                                    Quarantine / isolation decision
-                                </small>
-                            </div>
+                        <div>
+                            <span>NETWORK</span>
+                            <strong id="networkStatus">
+                                MONITORING
+                            </strong>
                         </div>
 
+                        <div>
+                            <span>CLOUD</span>
+                            <strong>
+                                ONLINE
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>IoT / OT</span>
+                            <strong class="waiting-text">
+                                NOT CONNECTED
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- WORKFLOW -->
+
+            <div class="panel workflow-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="panel-kicker">
+                            AUTONOMOUS RESPONSE PIPELINE
+                        </span>
+
+                        <h2>
+                            Detection → Decision → Defense
+                        </h2>
+                    </div>
+
+                    <span class="ml-engine-label">
+                        ISOLATIONFOREST ML
+                    </span>
+
+                </div>
+
+
+                <div class="workflow">
+
+                    <div
+                        id="workflowDevice"
+                        class="workflow-step"
+                    >
+                        <div class="workflow-icon">
+                            01
+                        </div>
+
+                        <strong>
+                            DEVICE DETECTED
+                        </strong>
+
+                        <span>
+                            Waiting for telemetry
+                        </span>
+                    </div>
+
+
+                    <div class="workflow-connector"></div>
+
+
+                    <div
+                        id="workflowAnomaly"
+                        class="workflow-step"
+                    >
+                        <div class="workflow-icon">
+                            02
+                        </div>
+
+                        <strong>
+                            ANOMALY SCORE
+                        </strong>
+
+                        <span>
+                            ML analysis pending
+                        </span>
+                    </div>
+
+
+                    <div class="workflow-connector"></div>
+
+
+                    <div
+                        id="workflowClass"
+                        class="workflow-step"
+                    >
+                        <div class="workflow-icon">
+                            03
+                        </div>
+
+                        <strong>
+                            THREAT CLASSIFIED
+                        </strong>
+
+                        <span>
+                            Classification pending
+                        </span>
+                    </div>
+
+
+                    <div class="workflow-connector"></div>
+
+
+                    <div
+                        id="workflowQuarantine"
+                        class="workflow-step"
+                    >
+                        <div class="workflow-icon">
+                            04
+                        </div>
+
+                        <strong>
+                            QUARANTINED
+                        </strong>
+
+                        <span>
+                            Autonomous response pending
+                        </span>
+                    </div>
+
+
+                    <div class="workflow-connector"></div>
+
+
+                    <div
+                        id="workflowReport"
+                        class="workflow-step"
+                    >
+                        <div class="workflow-icon">
+                            05
+                        </div>
+
+                        <strong>
+                            FORENSIC REPORT
+                        </strong>
+
+                        <span>
+                            Investigation pending
+                        </span>
                     </div>
 
                 </div>
@@ -529,128 +644,146 @@
 
             <!-- MODULES -->
 
-            <div class="section-title">
-                <span class="eyebrow">
-                    DEFENSE SURFACE
-                </span>
-
-                <h3>
-                    Platform Modules
-                </h3>
-            </div>
-
             <div class="module-grid">
 
-                <div class="module-card">
+                <div class="module-card active">
 
-                    <div class="module-icon">
-                        END
+                    <div class="module-number">
+                        01
                     </div>
 
-                    <div>
-                        <span>ENDPOINT</span>
-                        <strong id="endpointStatus">
-                            SECURE
-                        </strong>
+                    <div class="module-symbol">
+                        EP
                     </div>
 
-                </div>
+                    <div class="module-content">
 
-                <div class="module-card">
-
-                    <div class="module-icon">
-                        NET
-                    </div>
-
-                    <div>
-                        <span>NETWORK</span>
-                        <strong id="networkStatus">
-                            MONITORING
-                        </strong>
-                    </div>
-
-                </div>
-
-                <div class="module-card not-connected">
-
-                    <div class="module-icon">
-                        IOT
-                    </div>
-
-                    <div>
-                        <span>IoT / SENSORS</span>
-                        <strong>
-                            NOT CONNECTED
-                        </strong>
-                    </div>
-
-                </div>
-
-                <div class="module-card not-connected">
-
-                    <div class="module-icon">
-                        OT
-                    </div>
-
-                    <div>
-                        <span>INDUSTRIAL / OT</span>
-                        <strong>
-                            NOT CONNECTED
-                        </strong>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- ENDPOINT TELEMETRY -->
-
-            <div class="panel">
-
-                <div class="panel-header">
-
-                    <div>
-                        <span class="eyebrow">
-                            LIVE TELEMETRY
+                        <span>
+                            ENDPOINT DEFENSE
                         </span>
 
                         <h3>
-                            Endpoint Health
+                            Windows Endpoint
                         </h3>
+
+                        <p>
+                            Active ML monitoring and
+                            autonomous response.
+                        </p>
+
                     </div>
+
+                    <strong
+                        id="moduleEndpoint"
+                        class="module-state"
+                    >
+                        SECURE
+                    </strong>
 
                 </div>
 
-                <div class="telemetry-grid">
 
-                    <div>
-                        <label>CPU</label>
-                        <strong id="cpu">
-                            32%
-                        </strong>
+                <div class="module-card active">
+
+                    <div class="module-number">
+                        02
                     </div>
 
-                    <div>
-                        <label>MEMORY</label>
-                        <strong id="memory">
-                            46%
-                        </strong>
+                    <div class="module-symbol">
+                        NW
                     </div>
 
-                    <div>
-                        <label>NETWORK</label>
-                        <strong id="networkTraffic">
-                            38%
-                        </strong>
+                    <div class="module-content">
+
+                        <span>
+                            NETWORK DEFENSE
+                        </span>
+
+                        <h3>
+                            Network Fabric
+                        </h3>
+
+                        <p>
+                            Traffic anomaly detection
+                            and isolation.
+                        </p>
+
                     </div>
 
-                    <div>
-                        <label>SYSTEM STATUS</label>
-                        <strong id="systemStatus">
-                            PROTECTED
-                        </strong>
+                    <strong
+                        id="moduleNetwork"
+                        class="module-state"
+                    >
+                        MONITORING
+                    </strong>
+
+                </div>
+
+
+                <div class="module-card">
+
+                    <div class="module-number">
+                        03
                     </div>
+
+                    <div class="module-symbol">
+                        IoT
+                    </div>
+
+                    <div class="module-content">
+
+                        <span>
+                            SENSOR DEFENSE
+                        </span>
+
+                        <h3>
+                            IoT / Sensors
+                        </h3>
+
+                        <p>
+                            Connector ready for future
+                            sensor integration.
+                        </p>
+
+                    </div>
+
+                    <strong class="module-state waiting-text">
+                        NOT CONNECTED
+                    </strong>
+
+                </div>
+
+
+                <div class="module-card">
+
+                    <div class="module-number">
+                        04
+                    </div>
+
+                    <div class="module-symbol">
+                        OT
+                    </div>
+
+                    <div class="module-content">
+
+                        <span>
+                            INDUSTRIAL SECURITY
+                        </span>
+
+                        <h3>
+                            Industrial / OT
+                        </h3>
+
+                        <p>
+                            Waiting for industrial
+                            integration.
+                        </p>
+
+                    </div>
+
+                    <strong class="module-state waiting-text">
+                        WAITING
+                    </strong>
 
                 </div>
 
@@ -659,35 +792,38 @@
         </section>
 
 
-        <!-- =================================================
+        <!-- =====================================================
              THREATS
-             ================================================= -->
+        ====================================================== -->
 
         <section
-            class="page"
+            class="page-view"
             id="page-threats"
         >
 
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    THREAT INTELLIGENCE
-                </span>
-
-                <h1>
-                    Detected Threats
-                </h1>
-
+            <div class="page-intro">
+                <span>THREAT INTELLIGENCE</span>
+                <h2>Detected Threats</h2>
                 <p>
-                    ML-detected security incidents and
-                    autonomous response records.
+                    Events generated by the IronMind ML
+                    detection and response pipeline.
                 </p>
-
             </div>
 
-            <div class="panel">
+            <div class="panel table-panel">
 
-                <div class="table-wrapper">
+                <div class="panel-header">
+
+                    <div>
+                        <span class="panel-kicker">
+                            LIVE THREAT FEED
+                        </span>
+                        <h2>Threat Events</h2>
+                    </div>
+
+                </div>
+
+                <div class="table-wrap">
 
                     <table>
 
@@ -696,19 +832,20 @@
                                 <th>TIME</th>
                                 <th>SOURCE</th>
                                 <th>THREAT</th>
-                                <th>ANOMALY</th>
+                                <th>ML SCORE</th>
                                 <th>SEVERITY</th>
                                 <th>ACTION</th>
-                                <th>STATUS</th>
                             </tr>
                         </thead>
 
                         <tbody id="threatTable">
+
                             <tr>
-                                <td colspan="7">
-                                    No threats detected.
+                                <td colspan="6">
+                                    NO THREATS DETECTED
                                 </td>
                             </tr>
+
                         </tbody>
 
                     </table>
@@ -720,65 +857,90 @@
         </section>
 
 
-        <!-- =================================================
+        <!-- =====================================================
              ENDPOINTS
-             ================================================= -->
+        ====================================================== -->
 
         <section
-            class="page"
+            class="page-view"
             id="page-endpoints"
         >
 
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    ENDPOINT DEFENSE
-                    </span>
-
-                <h1>
-                    Protected Endpoints
-                </h1>
-
+            <div class="page-intro">
+                <span>ENDPOINT DEFENSE</span>
+                <h2>Protected Endpoints</h2>
+                <p>
+                    Endpoint telemetry and removable-media
+                    protection.
+                </p>
             </div>
 
-            <div class="module-grid">
+            <div class="endpoint-grid">
 
-                <div class="large-status-card">
+                <div class="endpoint-card">
 
-                    <span class="eyebrow">
-                        WINDOWS ENDPOINT
-                    </span>
+                    <div class="endpoint-icon">
+                        PC
+                    </div>
 
-                    <h2>
-                        Windows Laptop
-                    </h2>
+                    <div>
+                        <span>WINDOWS ENDPOINT</span>
+                        <h3>Primary Workstation</h3>
+                        <p>
+                            CPU:
+                            <strong id="endpointCpu">
+                                32%
+                            </strong>
+                        </p>
+                        <p>
+                            Memory:
+                            <strong id="endpointMemory">
+                                46%
+                            </strong>
+                        </p>
+                    </div>
 
-                    <strong id="endpointPageStatus">
-                        SECURE
-                    </strong>
-
-                    <button
-                        class="primary-button"
-                        onclick="runEndpointTest()"
+                    <b
+                        id="endpointPageStatus"
+                        class="status-badge safe"
                     >
-                        RUN ML ENDPOINT TEST
-                    </button>
+                        SECURE
+                    </b>
 
                 </div>
 
-                <div class="large-status-card">
 
-                    <span class="eyebrow">
-                        REMOVABLE MEDIA
-                    </span>
+                <div class="endpoint-card">
 
-                    <h2>
-                        USB Defense
-                    </h2>
+                    <div class="endpoint-icon">
+                        USB
+                    </div>
 
-                    <strong id="usbPageScore">
-                        ANOMALY SCORE: 0%
-                    </strong>
+                    <div>
+                        <span>REMOVABLE MEDIA</span>
+                        <h3 id="endpointUsbName">
+                            No USB connected
+                        </h3>
+                        <p>
+                            ML Detection:
+                            <strong>
+                                ACTIVE
+                            </strong>
+                        </p>
+                        <p>
+                            Response:
+                            <strong>
+                                AUTONOMOUS
+                            </strong>
+                        </p>
+                    </div>
+
+                    <b
+                        id="endpointUsbStatus"
+                        class="status-badge safe"
+                    >
+                        WAITING
+                    </b>
 
                 </div>
 
@@ -787,116 +949,101 @@
         </section>
 
 
-        <!-- =================================================
-             NETWORK
-             ================================================= -->
+        <!-- =====================================================
+             CLOUD
+        ====================================================== -->
 
         <section
-            class="page"
+            class="page-view"
+            id="page-cloud"
+        >
+
+            <div class="page-intro">
+                <span>CLOUD SECURITY</span>
+                <h2>Cloud Infrastructure</h2>
+                <p>
+                    Cloud security integration status.
+                </p>
+            </div>
+
+            <div class="cloud-grid">
+
+                <div class="cloud-card">
+                    <span>PLATFORM</span>
+                    <strong>ONLINE</strong>
+                    <small>IRONMIND CLOUD LAYER</small>
+                </div>
+
+                <div class="cloud-card">
+                    <span>API</span>
+                    <strong>PROTECTED</strong>
+                    <small>SECURE TELEMETRY CHANNEL</small>
+                </div>
+
+                <div class="cloud-card">
+                    <span>DATA SECURITY</span>
+                    <strong>ACTIVE</strong>
+                    <small>SERVER-SIDE PROCESSING</small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             NETWORK
+        ====================================================== -->
+
+        <section
+            class="page-view"
             id="page-network"
         >
 
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    NETWORK DEFENSE
-                </span>
-
-                <h1>
-                    Network Security
-                </h1>
-
+            <div class="page-intro">
+                <span>NETWORK DEFENSE</span>
+                <h2>Network Security</h2>
                 <p>
-                    ML-based traffic anomaly detection.
+                    ML-assisted network anomaly detection
+                    and autonomous isolation.
                 </p>
-
             </div>
 
-            <div class="metrics">
+            <div class="network-grid">
 
-                <div class="metric-card">
-                    <span>ANOMALY SCORE</span>
-                    <strong id="networkScore">
-                        0
-                    </strong>
-                    <small>/ 100</small>
-                </div>
+                <div class="network-core">
 
-                <div class="metric-card">
-                    <span>TRAFFIC</span>
-                    <strong id="networkTrafficValue">
-                        30
-                    </strong>
-                </div>
-
-                <div class="metric-card">
-                    <span>CONNECTIONS</span>
-                    <strong id="networkConnections">
-                        14
-                    </strong>
-                </div>
-
-                <div class="metric-card">
-                    <span>STATUS</span>
-                    <strong id="networkPageStatus">
-                        MONITORING
-                    </strong>
-                </div>
-
-            </div>
-
-            <div class="panel">
-
-                <div class="panel-header">
-
-                    <div>
-                        <span class="eyebrow">
-                            NETWORK WORKFLOW
-                        </span>
-
-                        <h3>
-                            Network Anomaly Response
-                        </h3>
+                    <div class="network-radar">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
 
-                    <button
-                        class="primary-button"
-                        onclick="runNetworkTest()"
-                    >
-                        RUN ML NETWORK TEST
-                    </button>
+                    <div class="network-core-label">
+                        NETWORK<br>
+                        <strong id="networkPageState">
+                            MONITORING
+                        </strong>
+                    </div>
 
                 </div>
 
-                <div class="network-flow">
+                <div class="panel">
 
-                    <span>
-                        NETWORK ANOMALY DETECTED
-                    </span>
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-kicker">
+                                NETWORK EVENTS
+                            </span>
+                            <h2>Detection Layer</h2>
+                        </div>
+                    </div>
 
-                    <b>→</b>
-
-                    <span>
-                        ANOMALY SCORE
-                    </span>
-
-                    <b>→</b>
-
-                    <span>
-                        THREAT CLASSIFIED
-                    </span>
-
-                    <b>→</b>
-
-                    <span>
-                        CONNECTION ISOLATED
-                    </span>
-
-                    <b>→</b>
-
-                    <span>
-                        FORENSIC REPORT
-                    </span>
+                    <div id="networkEvents">
+                        <div class="empty-state">
+                            NETWORK MONITORING ACTIVE
+                        </div>
+                    </div>
 
                 </div>
 
@@ -905,174 +1052,141 @@
         </section>
 
 
-        <!-- =================================================
+        <!-- =====================================================
              IOT
-             ================================================= -->
+        ====================================================== -->
 
         <section
-            class="page"
+            class="page-view"
             id="page-iot"
         >
 
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    IoT / SENSOR DEFENSE
-                </span>
-
-                <h1>
-                    IoT / Sensors
-                </h1>
-
+            <div class="page-intro">
+                <span>DEFENSE FABRIC</span>
+                <h2>IoT / Sensors</h2>
+                <p>
+                    Sensor integration layer.
+                </p>
             </div>
 
-            <div class="not-connected-panel">
+            <div class="not-connected-page">
 
                 <div class="not-connected-icon">
-                    IOT
+                    IoT
                 </div>
 
-                <h2>
-                    NOT CONNECTED
-                </h2>
+                <div>
+                    <span>INTEGRATION STATUS</span>
 
-                <p>
-                    No IoT sensors or sensor gateway is
-                    connected to IronMind AI yet.
-                </p>
+                    <h2>
+                        NOT CONNECTED
+                    </h2>
 
-                <span>
-                    WAITING FOR INTEGRATION
-                </span>
+                    <p>
+                        No IoT or sensor hardware is currently
+                        connected to IronMind AI.
+                    </p>
+
+                    <strong>
+                        WAITING FOR INTEGRATION
+                    </strong>
+                </div>
 
             </div>
 
         </section>
 
 
-        <!-- =================================================
+        <!-- =====================================================
              OT
-             ================================================= -->
+        ====================================================== -->
 
         <section
-            class="page"
+            class="page-view"
             id="page-ot"
         >
 
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    INDUSTRIAL CONTROL DEFENSE
-                </span>
-
-                <h1>
-                    Industrial / OT
-                </h1>
-
+            <div class="page-intro">
+                <span>INDUSTRIAL SECURITY</span>
+                <h2>Industrial / OT</h2>
+                <p>
+                    Operational technology security layer.
+                </p>
             </div>
 
-            <div class="not-connected-panel">
+            <div class="not-connected-page">
 
                 <div class="not-connected-icon">
                     OT
                 </div>
 
-                <h2>
-                    NOT CONNECTED
-                </h2>
-
-                <p>
-                    No PLC, SCADA, industrial controller,
-                    or OT gateway is connected.
-                </p>
-
-                <span>
-                    WAITING FOR INTEGRATION
-                </span>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             AI
-             ================================================= -->
-
-        <section
-            class="page"
-            id="page-ai"
-        >
-
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    ARTIFICIAL INTELLIGENCE
-                </span>
-
-                <h1>
-                    AI Intelligence
-                </h1>
-
-            </div>
-
-            <div class="ai-large-grid">
-
-                <div class="panel">
-
-                    <span class="eyebrow">
-                        ML ENGINE
-                    </span>
+                <div>
+                    <span>INTEGRATION STATUS</span>
 
                     <h2>
-                        Isolation Forest
+                        NOT CONNECTED
                     </h2>
 
                     <p>
-                        Unsupervised anomaly detection for
-                        endpoint, network and removable-media
-                        telemetry.
+                        No Industrial / OT application or hardware
+                        is currently connected.
                     </p>
 
-                    <div class="engine-status">
-                        ACTIVE
-                    </div>
-
+                    <strong>
+                        WAITING FOR INTEGRATION
+                    </strong>
                 </div>
 
-                <div class="panel">
+            </div>
 
-                    <span class="eyebrow">
-                        DETECTION PIPELINE
-                    </span>
+        </section>
 
-                    <div class="pipeline-list">
 
-                        <div>
-                            <b>01</b>
-                            Feature Extraction
-                        </div>
+        <!-- =====================================================
+             AI
+        ====================================================== -->
 
-                        <div>
-                            <b>02</b>
-                            ML Anomaly Detection
-                        </div>
+        <section
+            class="page-view"
+            id="page-ai"
+        >
 
-                        <div>
-                            <b>03</b>
-                            Threat Classification
-                        </div>
+            <div class="page-intro">
+                <span>ARTIFICIAL INTELLIGENCE</span>
+                <h2>AI Intelligence Core</h2>
+                <p>
+                    Server-side machine-learning anomaly detection.
+                </p>
+            </div>
 
-                        <div>
-                            <b>04</b>
-                            Autonomous Response
-                        </div>
+            <div class="ai-core-page">
 
-                        <div>
-                            <b>05</b>
-                            Forensic Reporting
-                        </div>
+                <div class="ai-brain">
+                    <div class="brain-core">
+                        ML
+                    </div>
+                </div>
 
+                <div class="ai-info">
+
+                    <div class="ai-status-line">
+                        <span>ENGINE</span>
+                        <strong>ACTIVE</strong>
+                    </div>
+
+                    <div class="ai-status-line">
+                        <span>MODEL</span>
+                        <strong>ISOLATIONFOREST</strong>
+                    </div>
+
+                    <div class="ai-status-line">
+                        <span>DETECTION</span>
+                        <strong>SERVER-SIDE ML</strong>
+                    </div>
+
+                    <div class="ai-status-line">
+                        <span>RESPONSE</span>
+                        <strong>AUTONOMOUS</strong>
                     </div>
 
                 </div>
@@ -1082,35 +1196,31 @@
         </section>
 
 
-        <!-- =================================================
-             REPORTS
-             ================================================= -->
+        <!-- =====================================================
+             INVESTIGATIONS
+        ====================================================== -->
 
         <section
-            class="page"
-            id="page-reports"
+            class="page-view"
+            id="page-investigations"
         >
 
-            <div class="page-heading">
-
-                <span class="eyebrow">
-                    DIGITAL FORENSICS
-                </span>
-
-                <h1>
-                    Forensic Reports
-                </h1>
-
+            <div class="page-intro">
+                <span>FORENSICS</span>
+                <h2>Investigations</h2>
+                <p>
+                    Threat investigations generated by the
+                    autonomous defense pipeline.
+                </p>
             </div>
 
-            <div class="panel">
+            <div
+                id="investigationList"
+                class="investigation-list"
+            >
 
-                <div id="reportList">
-
-                    <div class="empty-state">
-                        No forensic reports generated yet.
-                    </div>
-
+                <div class="empty-state">
+                    NO ACTIVE INVESTIGATIONS
                 </div>
 
             </div>
@@ -1122,9 +1232,7 @@
 </div>
 
 
-<script
-    src="{{ url_for('static', filename='script.js') }}"
-></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>
