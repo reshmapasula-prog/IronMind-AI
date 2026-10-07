@@ -39,7 +39,6 @@ state_lock = threading.RLock()
 system_state = {
 
     "risk": 0,
-
     "ai_risk": 0,
 
     "status": "PROTECTED",
@@ -47,9 +46,7 @@ system_state = {
     "incident": "No active incident",
 
     "ai_engine": "ACTIVE",
-
     "ai_detection": "SERVER-SIDE ML",
-
     "ai_model": "IsolationForest",
 
     "modules": {
@@ -59,15 +56,11 @@ system_state = {
     },
 
     "threats": 0,
-
     "blocked": 0,
 
     "critical": 0,
-
     "high": 0,
-
     "medium": 0,
-
     "low": 0,
 
     "infrastructure": {
@@ -97,6 +90,7 @@ system_state = {
         "device": "USB REMOVABLE DEVICE",
         "status": "NOT CONNECTED",
         "files_scanned": 0,
+        "files": [],
         "suspicious": 0,
         "anomaly_score": 0,
         "threat_class": "NONE",
@@ -107,6 +101,7 @@ system_state = {
 
     "workflow": {
         "device_detected": False,
+        "files_scanned": False,
         "anomaly_score": 0,
         "threat_classified": False,
         "quarantined": False,
@@ -121,17 +116,13 @@ system_state = {
 
 
 # ============================================================
-# DATABASE-LIKE IN-MEMORY RECORDS
+# IN-MEMORY RECORDS
 # ============================================================
 
 threat_events = []
-
 quarantine_files = []
-
 investigation_records = []
-
 network_events = []
-
 endpoint_events = []
 
 
@@ -209,6 +200,42 @@ def update_threat_counters():
     )
 
 
+# ============================================================
+# SCORE CLASSIFICATION
+# ============================================================
+
+def classify_risk(score):
+
+    score = int(score)
+
+    if score >= 85:
+        return "CRITICAL"
+
+    elif score >= 70:
+        return "HIGH"
+
+    elif score >= 50:
+        return "WARNING"
+
+    else:
+        return "NORMAL"
+
+
+def get_action(score):
+
+    score = int(score)
+
+    # Only genuinely high-risk activity is quarantined.
+    if score >= 85:
+        return "QUARANTINE"
+
+    return "MONITOR"
+
+
+# ============================================================
+# THREAT RECORD
+# ============================================================
+
 def create_threat_record(
     filename,
     source,
@@ -281,11 +308,20 @@ def create_threat_record(
         investigation_records.insert(
             0,
             {
-                "id": f"INV-{len(investigation_records)+1:05d}",
-                "threat_id": threat_id,
-                "filename": filename,
-                "timestamp": now,
-                "status": "AVAILABLE"
+                "id":
+                    f"INV-{len(investigation_records)+1:05d}",
+
+                "threat_id":
+                    threat_id,
+
+                "filename":
+                    filename,
+
+                "timestamp":
+                    now,
+
+                "status":
+                    "AVAILABLE"
             }
         )
 
@@ -307,7 +343,7 @@ def index():
 
 
 # ============================================================
-# SOC DASHBOARD
+# DASHBOARD
 # ============================================================
 
 @app.route("/dashboard")
@@ -367,6 +403,10 @@ def usb_event():
             or {}
         )
 
+        # ----------------------------------------------------
+        # BASIC USB INFORMATION
+        # ----------------------------------------------------
+
         connected = bool(
             data.get(
                 "connected",
@@ -411,26 +451,50 @@ def usb_event():
 
             files = []
 
-        # ----------------------------------------------------
+
+        # ====================================================
         # USB REMOVED
-        # ----------------------------------------------------
+        # ====================================================
 
         if not connected:
 
             with state_lock:
 
                 system_state["usb"] = {
+
                     "connected": False,
+
                     "drive": "",
-                    "device": "USB REMOVABLE DEVICE",
-                    "status": "NOT CONNECTED",
-                    "files_scanned": 0,
-                    "suspicious": 0,
-                    "anomaly_score": 0,
-                    "threat_class": "NONE",
-                    "severity": "LOW",
-                    "action": "NONE",
-                    "last_update": datetime.now().isoformat()
+
+                    "device":
+                        "USB REMOVABLE DEVICE",
+
+                    "status":
+                        "NOT CONNECTED",
+
+                    "files_scanned":
+                        0,
+
+                    "files":
+                        [],
+
+                    "suspicious":
+                        0,
+
+                    "anomaly_score":
+                        0,
+
+                    "threat_class":
+                        "NONE",
+
+                    "severity":
+                        "LOW",
+
+                    "action":
+                        "NONE",
+
+                    "last_update":
+                        datetime.now().isoformat()
                 }
 
                 system_state["endpoint"][
@@ -438,12 +502,27 @@ def usb_event():
                 ] = 0
 
                 system_state["workflow"] = {
-                    "device_detected": False,
-                    "anomaly_score": 0,
-                    "threat_classified": False,
-                    "quarantined": False,
-                    "report_generated": False,
-                    "current_step": "WAITING"
+
+                    "device_detected":
+                        False,
+
+                    "files_scanned":
+                        False,
+
+                    "anomaly_score":
+                        0,
+
+                    "threat_classified":
+                        False,
+
+                    "quarantined":
+                        False,
+
+                    "report_generated":
+                        False,
+
+                    "current_step":
+                        "WAITING"
                 }
 
                 add_event(
@@ -454,27 +533,42 @@ def usb_event():
                 update_timestamp()
 
             return jsonify({
-                "success": True,
-                "connected": False,
-                "anomaly_score": 0,
-                "threat_class": "NONE",
-                "severity": "LOW",
-                "action": "NONE",
-                "detection": "SERVER-SIDE ML"
+
+                "success":
+                    True,
+
+                "connected":
+                    False,
+
+                "anomaly_score":
+                    0,
+
+                "threat_class":
+                    "NONE",
+
+                "severity":
+                    "NORMAL",
+
+                "action":
+                    "NONE",
+
+                "detection":
+                    "SERVER-SIDE ML"
             })
 
 
-        # ----------------------------------------------------
+        # ====================================================
         # USB CONNECTED
-        # ----------------------------------------------------
+        # ====================================================
 
         ml_test_profile = data.get(
             "ml_test_profile"
         )
 
-        # ----------------------------------------------------
-        # NORMAL ML ANALYSIS
-        # ----------------------------------------------------
+
+        # ====================================================
+        # EXISTING ML ANALYSIS
+        # ====================================================
 
         if ml_test_profile == "IRONMIND_ANOMALY_V1":
 
@@ -486,11 +580,18 @@ def usb_event():
 
         else:
 
+            # IMPORTANT:
+            # This is your existing real USB ML path.
             ml_result = (
                 cyber_monitor.analyze_usb(
                     files
                 )
             )
+
+
+        # ====================================================
+        # GET ML SCORE
+        # ====================================================
 
         anomaly_score = int(
             ml_result.get(
@@ -508,6 +609,24 @@ def usb_event():
             )
         )
 
+
+        # ====================================================
+        # CLASSIFICATION BASED ON ACTUAL SCORE
+        # ====================================================
+
+        score_severity = classify_risk(
+            anomaly_score
+        )
+
+        action = get_action(
+            anomaly_score
+        )
+
+
+        # ====================================================
+        # THREAT CLASS
+        # ====================================================
+
         threat_class = str(
             ml_result.get(
                 "threat_class",
@@ -515,38 +634,10 @@ def usb_event():
             )
         )
 
-        severity = str(
-            ml_result.get(
-                "severity",
-                "LOW"
-            )
-        )
 
-        ml_detected = bool(
-            ml_result.get(
-                "ml_detected",
-                False
-            )
-        )
-
-        # ----------------------------------------------------
-        # SERVER RESPONSE
-        # ----------------------------------------------------
-
-        if anomaly_score >= 70:
-
-            action = "QUARANTINE"
-
-            usb_status = (
-                "THREAT DETECTED"
-            )
-
-        else:
-
-            action = "MONITOR"
-
-            usb_status = "SECURE"
-
+        # ====================================================
+        # DEVICE NAME
+        # ====================================================
 
         if isinstance(
             device,
@@ -569,53 +660,116 @@ def usb_event():
             )
 
 
-        # ----------------------------------------------------
-        # UPDATE STATE
-        # ----------------------------------------------------
+        # ====================================================
+        # ML DETECTION FLAG
+        # ====================================================
+
+        ml_detected = bool(
+            ml_result.get(
+                "ml_detected",
+                False
+            )
+        )
+
+
+        # ====================================================
+        # STATUS
+        # ====================================================
+
+        if action == "QUARANTINE":
+
+            usb_status = (
+                "THREAT DETECTED"
+            )
+
+        elif score_severity == "HIGH":
+
+            usb_status = (
+                "HIGH RISK - MONITORING"
+            )
+
+        elif score_severity == "WARNING":
+
+            usb_status = (
+                "WARNING - MONITORING"
+            )
+
+        else:
+
+            usb_status = "SECURE"
+
+
+        # ====================================================
+        # UPDATE SYSTEM STATE
+        # ====================================================
 
         with state_lock:
 
             system_state["usb"] = {
 
-                "connected": True,
+                "connected":
+                    True,
 
-                "drive": drive,
+                "drive":
+                    drive,
 
-                "device": device_name,
+                "device":
+                    device_name,
 
-                "status": usb_status,
+                "status":
+                    usb_status,
 
-                "files_scanned": len(
-                    files
-                ),
+                "files_scanned":
+                    len(files),
 
-                "suspicious": (
-                    1
-                    if ml_detected
-                    else 0
-                ),
+                # Store actual files so they can be displayed
+                "files":
+                    files,
 
-                "anomaly_score": anomaly_score,
+                "suspicious":
+                    (
+                        1
+                        if ml_detected
+                        else 0
+                    ),
 
-                "threat_class": threat_class,
+                "anomaly_score":
+                    anomaly_score,
 
-                "severity": severity,
+                "threat_class":
+                    threat_class,
 
-                "action": action,
+                "severity":
+                    score_severity,
+
+                "action":
+                    action,
 
                 "last_update":
                     datetime.now().isoformat()
             }
 
 
+            # ------------------------------------------------
+            # ENDPOINT USB ACTIVITY
+            # ------------------------------------------------
+
             system_state["endpoint"][
                 "usb_activity"
             ] = 1
 
 
+            # ------------------------------------------------
+            # WORKFLOW
+            # ------------------------------------------------
+
             system_state["workflow"] = {
 
-                "device_detected": True,
+                "device_detected":
+                    True,
+
+                "files_scanned":
+                    True,
 
                 "anomaly_score":
                     anomaly_score,
@@ -633,16 +787,18 @@ def usb_event():
                     (
                         "FORENSIC REPORT GENERATED"
                         if action == "QUARANTINE"
-                        else "MONITORING"
+
+                        else
+                        "MONITORING"
                     )
             }
 
 
-            # ------------------------------------------------
-            # THREAT RECORD
-            # ------------------------------------------------
+            # =================================================
+            # HIGH / CRITICAL THREAT
+            # =================================================
 
-            if anomaly_score >= 70:
+            if action == "QUARANTINE":
 
                 filename = (
                     "USB anomaly event"
@@ -673,24 +829,30 @@ def usb_event():
 
                 threat = create_threat_record(
 
-                    filename=filename,
+                    filename=
+                        filename,
 
-                    source="USB DRIVE",
+                    source=
+                        "USB DRIVE",
 
-                    threat_type=threat_class,
+                    threat_type=
+                        threat_class,
 
-                    risk_score=anomaly_score,
+                    risk_score=
+                        anomaly_score,
 
-                    severity=severity,
+                    severity=
+                        score_severity,
 
                     reason=(
-                        "Server-side ML anomaly "
-                        "detection identified "
-                        "abnormal removable-media "
-                        "telemetry."
+                        "Existing IronMind ML "
+                        "analysis classified "
+                        "removable-media activity "
+                        "as critical risk."
                     ),
 
-                    action="QUARANTINE"
+                    action=
+                        "QUARANTINE"
                 )
 
 
@@ -708,34 +870,137 @@ def usb_event():
 
                 system_state["modules"][
                     "endpoint"
-                ] = "THREAT BLOCKED"
+                ] = (
+                    "THREAT BLOCKED"
+                )
 
                 system_state["threats"] = (
                     len(threat_events)
                 )
 
                 system_state["blocked"] = sum(
+
                     1
+
                     for item in threat_events
+
                     if item.get("action")
                     == "QUARANTINE"
                 )
 
                 system_state["incident"] = (
+
                     f"{threat_class} detected "
                     f"on removable media"
                 )
 
                 add_event(
-                    "USB threat detected",
+
+                    "USB critical threat detected",
+
                     (
                         f"ML anomaly score "
                         f"{anomaly_score}% • "
+                        f"{score_severity} • "
+                        f"{threat_class} • "
+                        f"QUARANTINE"
+                    )
+                )
+
+
+            # =================================================
+            # HIGH RISK — MONITOR
+            # =================================================
+
+            elif score_severity == "HIGH":
+
+                system_state["risk"] = (
+                    anomaly_score
+                )
+
+                system_state["ai_risk"] = (
+                    anomaly_score
+                )
+
+                system_state["status"] = (
+                    "HIGH RISK - MONITORING"
+                )
+
+                system_state["modules"][
+                    "endpoint"
+                ] = (
+                    "MONITORING"
+                )
+
+                system_state["incident"] = (
+                f"High-risk USB activity "
+                    f"detected"
+                )
+
+                add_event(
+
+                    "USB high-risk activity",
+
+                    (
+                        f"ML anomaly score "
+                        f"{anomaly_score}% • "
+                        f"HIGH • "
+                        f"{threat_class} • "
+                        f"MONITORING"
+                    )
+                )
+
+
+            # =================================================
+            # WARNING
+            # =================================================
+
+            elif score_severity == "WARNING":
+
+                system_state["risk"] = (
+                    anomaly_score
+                )
+
+                system_state["ai_risk"] = (
+                    anomaly_score
+                )
+
+                system_state["status"] = (
+                    "WARNING"
+                )
+
+                system_state["modules"][
+                    "endpoint"
+                ] = (
+                    "MONITORING"
+                )
+
+                system_state["incident"] = (
+                    "USB activity requires monitoring"
+                )
+
+                add_event(
+
+                    "USB warning",
+
+                    (
+                        f"ML anomaly score "
+                        f"{anomaly_score}% • "
+                        f"WARNING • "
                         f"{threat_class}"
                     )
                 )
 
+
+            # =================================================
+            # NORMAL
+            # =================================================
+
             else:
+
+                system_state["risk"] = (
+                    anomaly_score
+                )
 
                 system_state["ai_risk"] = (
                     anomaly_score
@@ -747,33 +1012,53 @@ def usb_event():
 
                 system_state["modules"][
                     "endpoint"
-                ] = "SECURE"
+                ] = (
+                    "SECURE"
+                )
 
                 system_state["incident"] = (
                     "No active endpoint incident"
                 )
 
                 add_event(
+
                     "USB analyzed",
+
                     (
                         f"ML anomaly score "
                         f"{anomaly_score}% • "
+                        f"NORMAL • "
                         f"{threat_class}"
                     )
                 )
 
+
             update_timestamp()
 
 
+        # ====================================================
+        # RESPONSE TO USB AGENT
+        # ====================================================
+
         response = {
 
-            "success": True,
+            "success":
+                True,
 
-            "connected": True,
+            "connected":
+                True,
 
-            "drive": drive,
+            "drive":
+                drive,
 
-            "files_scanned": len(files),
+            "device":
+                device_name,
+
+            "files_scanned":
+                len(files),
+
+            "files":
+                files,
 
             "anomaly_score":
                 anomaly_score,
@@ -782,7 +1067,7 @@ def usb_event():
                 threat_class,
 
             "severity":
-                severity,
+                score_severity,
 
             "action":
                 action,
@@ -800,12 +1085,15 @@ def usb_event():
                 system_state["workflow"]
         }
 
+
         print(
             "[IRONMIND] USB ML event: "
             f"{anomaly_score}% | "
+            f"{score_severity} | "
             f"{threat_class} | "
             f"{action}"
         )
+
 
         return jsonify(
             response
@@ -821,9 +1109,11 @@ def usb_event():
 
         return jsonify({
 
-            "success": False,
+            "success":
+                False,
 
-            "anomaly_score": 0,
+            "anomaly_score":
+                0,
 
             "threat_class":
                 "ANALYSIS ERROR",
@@ -938,72 +1228,125 @@ def usb_threat_test():
             )
         )
 
+        score = max(
+            0,
+            min(
+                100,
+                score
+            )
+        )
+
         threat_class = ml_result.get(
             "threat_class",
             "SUSPICIOUS USB CONTENT"
         )
 
-        severity = ml_result.get(
-            "severity",
-            "CRITICAL"
+        severity = classify_risk(
+            score
         )
 
-        threat = create_threat_record(
-
-            filename="IRONMIND_TEST_10.txt",
-
-            source="USB DRIVE",
-
-            threat_type=threat_class,
-
-            risk_score=score,
-
-            severity=severity,
-        reason=(
-                "Harmless IronMind ML "
-                "demonstration profile."
-            ),
-
-            action="QUARANTINE"
+        action = get_action(
+            score
         )
+
+        threat = None
+
+        if action == "QUARANTINE":
+
+            threat = create_threat_record(
+
+                filename=
+                    "IRONMIND_TEST_10.txt",
+
+                source=
+                    "USB DRIVE",
+
+                threat_type=
+                    threat_class,
+
+                risk_score=
+                    score,
+
+                severity=
+                    severity,
+
+                reason=
+                    "Harmless IronMind "
+                    "ML demonstration profile.",
+
+                action=
+                    "QUARANTINE"
+            )
+
 
         system_state["risk"] = score
 
         system_state["ai_risk"] = score
 
         system_state["status"] = (
+
             "THREAT BLOCKED"
+
+            if action == "QUARANTINE"
+
+            else
+            "MONITORING"
         )
 
         system_state["modules"][
             "endpoint"
-        ] = "THREAT BLOCKED"
+        ] = (
+
+            "THREAT BLOCKED"
+
+            if action == "QUARANTINE"
+
+            else
+            "MONITORING"
+        )
 
         system_state["threats"] = (
             len(threat_events)
         )
 
         system_state["blocked"] = sum(
+
             1
+
             for item in threat_events
+
             if item.get("action")
             == "QUARANTINE"
         )
 
         system_state["usb"] = {
 
-            "connected": True,
+            "connected":
+                True,
 
-            "drive": "TEST USB",
+            "drive":
+                "TEST USB",
 
             "device":
                 "IRONMIND TEST USB",
 
             "status":
-                "THREAT DETECTED",
+                (
+                    "THREAT DETECTED"
+                    if action == "QUARANTINE"
+                    else "HIGH RISK - MONITORING"
+                ),
 
             "files_scanned":
                 1,
+
+            "files":
+                [
+                    {
+                        "name":
+                            "IRONMIND_TEST_10.txt"
+                    }
+                ],
 
             "suspicious":
                 1,
@@ -1018,7 +1361,7 @@ def usb_threat_test():
                 severity,
 
             "action":
-                "QUARANTINE",
+                action,
 
             "last_update":
                 datetime.now().isoformat()
@@ -1026,7 +1369,11 @@ def usb_threat_test():
 
         system_state["workflow"] = {
 
-            "device_detected": True,
+            "device_detected":
+                True,
+
+            "files_scanned":
+                True,
 
             "anomaly_score":
                 score,
@@ -1035,30 +1382,47 @@ def usb_threat_test():
                 True,
 
             "quarantined":
-                True,
+                action == "QUARANTINE",
 
             "report_generated":
-                True,
+                action == "QUARANTINE",
 
             "current_step":
-                "FORENSIC REPORT GENERATED"
+                (
+                    "FORENSIC REPORT GENERATED"
+                    if action == "QUARANTINE"
+                    else "MONITORING"
+                )
         }
 
         system_state["incident"] = (
-            "IronMind ML demonstration "
-            "incident"
+
+            "IronMind ML demonstration incident"
+
+            if action == "QUARANTINE"
+
+            else
+            "IronMind ML demonstration monitoring"
         )
 
         add_event(
+
             "USB ML demonstration",
-            f"Anomaly score {score}%"
+
+            (
+                f"Anomaly score "
+                f"{score}% • "
+                f"{severity} • "
+                f"{action}"
+            )
         )
 
         update_timestamp()
 
         return jsonify({
 
-            "success": True,
+            "success":
+                True,
 
             "anomaly_score":
                 score,
@@ -1070,7 +1434,7 @@ def usb_threat_test():
                 severity,
 
             "action":
-                "QUARANTINE",
+                action,
 
             "threat":
                 threat,
@@ -1096,20 +1460,43 @@ def endpoint_test():
             cyber_monitor.analyze_usb(
                 [
                     {
-                        "name": "endpoint-test",
-                        "extension": ".telemetry",
-                        "size": 1000000,
-                        "is_hidden": False,
-                        "is_system": False,
-                        "is_executable": False
+                        "name":
+                            "endpoint-test",
+
+                        "extension":
+                            ".telemetry",
+
+                        "size":
+                            1000000,
+
+                        "is_hidden":
+                            False,
+
+                        "is_system":
+                            False,
+
+                        "is_executable":
+                            False
                     },
+
                     {
-                        "name": "process-profile",
-                        "extension": ".telemetry",
-                        "size": 1000000,
-                        "is_hidden": True,
-                        "is_system": False,
-                        "is_executable": True
+                        "name":
+                            "process-profile",
+
+                        "extension":
+                            ".telemetry",
+
+                        "size":
+                            1000000,
+
+                        "is_hidden":
+                            True,
+
+                        "is_system":
+                            False,
+
+                        "is_executable":
+                            True
                     }
                 ]
             )
@@ -1160,7 +1547,9 @@ def endpoint_test():
 
         system_state["modules"][
             "endpoint"
-        ] = "THREAT BLOCKED"
+        ] = (
+            "THREAT BLOCKED"
+        )
 
         system_state["endpoint"]["cpu"] = 91
 
@@ -1178,9 +1567,15 @@ def endpoint_test():
         update_timestamp()
 
         return jsonify({
-            "success": True,
-            "anomaly_score": score,
-            "state": system_state
+
+            "success":
+                True,
+
+            "anomaly_score":
+                score,
+
+            "state":
+                system_state
         })
 
 
@@ -1200,20 +1595,43 @@ def network_test():
             cyber_monitor.analyze_usb(
                 [
                     {
-                        "name": "network-traffic",
-                        "extension": ".net",
-                        "size": 5000000,
-                        "is_hidden": True,
-                        "is_system": False,
-                        "is_executable": True
+                        "name":
+                            "network-traffic",
+
+                        "extension":
+                            ".net",
+
+                        "size":
+                            5000000,
+
+                        "is_hidden":
+                            True,
+
+                        "is_system":
+                            False,
+
+                        "is_executable":
+                            True
                     },
+
                     {
-                        "name": "connection-profile",
-                        "extension": ".net",
-                        "size": 9000000,
-                        "is_hidden": True,
-                        "is_system": True,
-                        "is_executable": True
+                        "name":
+                            "connection-profile",
+
+                        "extension":
+                            ".net",
+
+                        "size":
+                            9000000,
+
+                        "is_hidden":
+                            True,
+
+                        "is_system":
+                            True,
+
+                        "is_executable":
+                            True
                     }
                 ]
             )
@@ -1296,9 +1714,15 @@ def network_test():
         update_timestamp()
 
         return jsonify({
-            "success": True,
-            "anomaly_score": score,
-            "state": system_state
+
+            "success":
+                True,
+
+            "anomaly_score":
+                score,
+
+            "state":
+                system_state
         })
 
 
@@ -1332,14 +1756,22 @@ def machine_test():
         )
 
         return jsonify({
-            "success": True,
-            "connected": False,
-            "status": "NOT CONNECTED",
-            "message": (
+
+            "success":
+                True,
+
+            "connected":
+                False,
+
+            "status":
+                "NOT CONNECTED",
+
+            "message":
                 "IoT / Industrial OT "
-                "hardware is not connected."
-            ),
-            "machine": result
+                "hardware is not connected.",
+
+            "machine":
+                result
         })
 
 
@@ -1365,6 +1797,7 @@ def reset_system():
 
         endpoint_events.clear()
 
+
         system_state["risk"] = 0
 
         system_state["ai_risk"] = 0
@@ -1389,6 +1822,7 @@ def reset_system():
 
         system_state["low"] = 0
 
+
         system_state["modules"] = {
 
             "endpoint":
@@ -1401,6 +1835,7 @@ def reset_system():
                 "NOT CONNECTED"
         }
 
+
         system_state["network"] = {
 
             "risk":
@@ -1412,6 +1847,7 @@ def reset_system():
             "events":
                 0
         }
+
 
         system_state["endpoint"] = {
 
@@ -1427,6 +1863,7 @@ def reset_system():
             "usb_activity":
                 0
         }
+
 
         system_state["usb"] = {
 
@@ -1444,6 +1881,9 @@ def reset_system():
 
             "files_scanned":
                 0,
+
+            "files":
+                [],
 
             "suspicious":
                 0,
@@ -1464,9 +1904,13 @@ def reset_system():
                 datetime.now().isoformat()
         }
 
+
         system_state["workflow"] = {
 
             "device_detected":
+                False,
+
+            "files_scanned":
                 False,
 
             "anomaly_score":
@@ -1485,13 +1929,16 @@ def reset_system():
                 "WAITING"
         }
 
+
         system_state["events"] = []
+
 
         cyber_monitor.reset()
 
         machine_monitor.reset()
 
         response_engine.reset()
+
 
         add_event(
             "System reset",
@@ -1500,9 +1947,14 @@ def reset_system():
 
         update_timestamp()
 
+
         return jsonify({
-            "success": True,
-            "state": system_state
+
+            "success":
+               True,
+
+            "state":
+                system_state
         })
 
 
